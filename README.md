@@ -1,5 +1,5 @@
 # Timing System
-
+### Created by [Makkuusen](https://github.com/Makkuusen/TimingSystem). This fork maintained by JustBru00 for FrostHex.com
 
 ## What does it do?
 TimingSystem is a plugin that aims to do a few things.
