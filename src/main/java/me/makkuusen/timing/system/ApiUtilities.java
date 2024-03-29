@@ -12,6 +12,7 @@ import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
+import me.makkuusen.timing.system.boat.v1_20_R1.BoatSpawner;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.database.TSDatabase;
@@ -409,16 +410,34 @@ public class ApiUtilities {
         if (!location.isWorldLoaded()) {
             return null;
         }
+        
         Boat boat;
+        
         if (isChestBoat) {
-            boat = (Boat) location.getWorld().spawnEntity(location, EntityType.CHEST_BOAT);
+        	if (isServerVersion1_20_1()) { // TODO add option to turn off boat lag prevention
+        		boat = BoatSpawner.spawnChestBoat(location);        		
+        	} else {
+        		 boat = (Boat) location.getWorld().spawnEntity(location, EntityType.CHEST_BOAT);
+        		 
+        	}           
         } else {
-            boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);
+        	if (isServerVersion1_20_1()) { // TODO add option to turn off boat lag prevention
+        		boat = BoatSpawner.spawnBoat(location);        		
+        	} else {
+        		boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);        		
+        	}           
         }
-        boat.getPersistentDataContainer().set(Objects.requireNonNull(NamespacedKey.fromString("spawned", TimingSystem.getPlugin())), PersistentDataType.INTEGER, 1);
-        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> boat.setBoatType(type), 2);
+        
+        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), ()-> {
+            boat.setBoatType(type);
+            boat.getPersistentDataContainer().set(Objects.requireNonNull(NamespacedKey.fromString("spawned", TimingSystem.getPlugin())), PersistentDataType.INTEGER, 1);
+        }, 3);
 
         return boat;
+    }
+    
+    private static boolean isServerVersion1_20_1() {
+    	return Bukkit.getVersion().contains("1.20.1");
     }
 
     public static Optional<Region> getSelection(Player player) {
