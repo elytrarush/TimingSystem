@@ -4,3 +4,7 @@
 *.iml
 dependency-reduced-pom.xml
 structure.sql
+.classpath
+.project
+.settings/org.eclipse.core.resources.prefs
+.settings/org.eclipse.jdt.core.prefs
