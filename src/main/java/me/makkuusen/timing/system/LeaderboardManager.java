@@ -11,6 +11,8 @@ import java.util.List;
 
 public class LeaderboardManager {
 
+	private static final int TICKS_BETWEEN_INDIVIDUAL_UPDATES = 10;
+
     public static void updateFastestTimeLeaderboard(Track track) {
         if (!TimingSystem.enableLeaderboards) {
             return;
@@ -33,7 +35,7 @@ public class LeaderboardManager {
 
         TaskChain<?> chain = TimingSystem.newChain();
         for (Track t : TrackDatabase.tracks) {
-            chain.sync(() -> updateFastestTimeLeaderboard(t)).delay(1);
+            chain.sync(() -> updateFastestTimeLeaderboard(t)).delay(TICKS_BETWEEN_INDIVIDUAL_UPDATES);
         }
         chain.execute();
     }
