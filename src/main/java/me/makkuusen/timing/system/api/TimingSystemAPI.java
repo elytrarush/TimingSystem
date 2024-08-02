@@ -1,7 +1,18 @@
 package me.makkuusen.timing.system.api;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
 import me.makkuusen.timing.system.ApiUtilities;
-import me.makkuusen.timing.system.tplayer.TPlayer;
+import me.makkuusen.timing.system.boat.BoatSpawnManager;
+import me.makkuusen.timing.system.boat.BoatSpawner;
 import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
@@ -10,12 +21,8 @@ import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.Track;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class TimingSystemAPI {
@@ -198,5 +205,13 @@ public class TimingSystemAPI {
 
     public static Optional<Heat> getHeat(Round round, String name) {
         return round.getHeat(name);
+    }
+    
+    /**
+     * Set a different boat spawner. Used by TimingSystemNoBoatCollisions to set different NMS boats.
+     * @param boatSpawner
+     */
+    public static void setBoatSpawner(BoatSpawner boatSpawner) {
+    	BoatSpawnManager.setBoatSpawner(boatSpawner);
     }
 }

@@ -1,32 +1,15 @@
 package me.makkuusen.timing.system;
 
-import co.aikar.taskchain.TaskChain;
-import com.sk89q.worldedit.IncompleteRegionException;
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.bukkit.BukkitPlayer;
-import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.regions.Polygonal2DRegion;
-import com.sk89q.worldedit.regions.Region;
-import me.makkuusen.timing.system.api.TimingSystemAPI;
-import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
-import me.makkuusen.timing.system.boat.v1_20_R1.BoatSpawner;
-import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
-import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
-import me.makkuusen.timing.system.database.TSDatabase;
-import me.makkuusen.timing.system.database.TrackDatabase;
-import me.makkuusen.timing.system.theme.Text;
-import me.makkuusen.timing.system.theme.messages.Error;
-import me.makkuusen.timing.system.timetrial.TimeTrialController;
-import me.makkuusen.timing.system.tplayer.TPlayer;
-import me.makkuusen.timing.system.track.*;
-import me.makkuusen.timing.system.track.regions.TrackCuboidRegion;
-import me.makkuusen.timing.system.track.regions.TrackPolyRegion;
-import me.makkuusen.timing.system.track.regions.TrackRegion;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
@@ -36,16 +19,40 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Boat;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import com.sk89q.worldedit.IncompleteRegionException;
+import com.sk89q.worldedit.LocalSession;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.bukkit.BukkitPlayer;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.regions.Polygonal2DRegion;
+import com.sk89q.worldedit.regions.Region;
+
+import co.aikar.taskchain.TaskChain;
+import me.makkuusen.timing.system.api.TimingSystemAPI;
+import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
+import me.makkuusen.timing.system.boat.BoatSpawnManager;
+import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
+import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
+import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.database.TrackDatabase;
+import me.makkuusen.timing.system.theme.Text;
+import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.timetrial.TimeTrialController;
+import me.makkuusen.timing.system.tplayer.TPlayer;
+import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.regions.TrackCuboidRegion;
+import me.makkuusen.timing.system.track.regions.TrackPolyRegion;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 public class ApiUtilities {
 
@@ -414,18 +421,9 @@ public class ApiUtilities {
         Boat boat;
         
         if (isChestBoat) {
-        	if (isServerVersion1_20_1()) { // TODO add option to turn off boat lag prevention
-        		boat = BoatSpawner.spawnChestBoat(location);        		
-        	} else {
-        		 boat = (Boat) location.getWorld().spawnEntity(location, EntityType.CHEST_BOAT);
-        		 
-        	}           
+        	boat = BoatSpawnManager.getBoatSpawner().spawnBoat(location);        	       
         } else {
-        	if (isServerVersion1_20_1()) { // TODO add option to turn off boat lag prevention
-        		boat = BoatSpawner.spawnBoat(location);        		
-        	} else {
-        		boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);        		
-        	}           
+        	boat = BoatSpawnManager.getBoatSpawner().spawnChestBoat(location);        	          
         }
         
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), ()-> {
@@ -434,10 +432,6 @@ public class ApiUtilities {
         }, 3);
 
         return boat;
-    }
-    
-    private static boolean isServerVersion1_20_1() {
-    	return Bukkit.getVersion().contains("1.20.1");
     }
 
     public static Optional<Region> getSelection(Player player) {
