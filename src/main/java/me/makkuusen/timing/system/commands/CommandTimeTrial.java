@@ -13,10 +13,12 @@ import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.track.Track;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 @CommandAlias("timetrial|tt")
 public class CommandTimeTrial extends BaseCommand {
@@ -87,8 +89,11 @@ public class CommandTimeTrial extends BaseCommand {
                 Text.send(player, Success.TELEPORT_TO_TRACK, "%track%", track.getDisplayName());
             }
 
-
-            ApiUtilities.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
+            if (player.getGameMode() != GameMode.SPECTATOR) { // Issue #12
+                ApiUtilities.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
+            } else {
+                player.teleportAsync(track.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+            }
         }
     }
 }
