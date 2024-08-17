@@ -421,9 +421,9 @@ public class ApiUtilities {
         Boat boat;
         
         if (isChestBoat) {
-        	boat = BoatSpawnManager.getBoatSpawner().spawnBoat(location);        	       
+            boat = BoatSpawnManager.getBoatSpawner().spawnChestBoat(location);
         } else {
-        	boat = BoatSpawnManager.getBoatSpawner().spawnChestBoat(location);        	          
+            boat = BoatSpawnManager.getBoatSpawner().spawnBoat(location);
         }
         
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), ()-> {
