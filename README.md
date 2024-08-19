@@ -18,7 +18,8 @@ First of all you need a Minecraft server running [Paper](https://papermc.io). Th
 
 
 ## Plugin Add-ons
-* [TrackExchange](https://github.com/Pigalala/TrackExchange) - Makes it possible to copy and paste tracks on servers.
+* [TimingSystemNoBoatCollisions](https://github.com/FrostHexABG/TimingSystemNoBoatCollisions) - Removes server side boat collisions. Client side collisions will still occur. This helps players with different pings race together.     
+* [TrackExchange](https://github.com/Pigalala/TrackExchange) - Makes it possible to copy and paste tracks on the same server or between different servers.
 * [TimingSystemRESTApi](https://github.com/JustBru00/TimingSystemRESTApi) - Adds a basic JSON REST API to the TimingSystem plugin.
 * [TimingSystemBlueMap](https://github.com/JustBru00/TimingSystemBlueMap) - Adds TimingSystem track locations to [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap).
 
@@ -42,7 +43,7 @@ Step 2. Add the TimingSystem dependancy
 <dependency>
     <groupId>com.github.FrostHexABG</groupId>
     <artifactId>TimingSystem</artifactId>
-    <version>2.2</version>
+    <version>2.2.1</version>
 </dependency>
 ```
 
