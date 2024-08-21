@@ -425,6 +425,17 @@ public class ApiUtilities {
         } else {
             boat = BoatSpawnManager.getBoatSpawner().spawnBoat(location);
         }
+
+        // Create and fire BoatSpawnEvent
+        BoatSpawnEvent boatSpawnEvent = new BoatSpawnEvent(null, location); // Replace null with the appropriate Player if available
+        boatSpawnEvent.setBoat(boat);
+        Bukkit.getServer().getPluginManager().callEvent(boatSpawnEvent);
+
+        // Handle event cancellation
+        if (boatSpawnEvent.isCancelled()) {
+           boat.remove();
+            return null;
+        }
         
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), ()-> {
             boat.setBoatType(type);
