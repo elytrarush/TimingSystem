@@ -504,18 +504,16 @@ public class CommandTrack extends BaseCommand {
             Text.send(commandSender, Error.PLAYER_NOT_FOUND);
             return;
         }
-        int trackCounter = 0;
         TaskChain<?> chain = TimingSystem.newChain();
 
         for (Track t : TimingSystemAPI.getTracks()) {
             if (t.getTimeTrials().hasPlayed(tPlayer)) {
                 t.getTimeTrials().deleteAllFinishes(tPlayer);
                 chain.sync(() -> LeaderboardManager.updateFastestTimeLeaderboard(t)).delay(LeaderboardManager.TICKS_BETWEEN_INDIVIDUAL_UPDATES);
-                trackCounter++;
             }
         }
 
-        var message = Text.get(commandSender, Success.REMOVED_ALL_FINISHES).append(tPlayer.getTheme().success(" " + tPlayer.getNameDisplay() + " had finishes on " + trackCounter + " tracks."));
+        var message = Text.get(commandSender, Success.REMOVED_ALL_FINISHES);
         commandSender.sendMessage(message);
         chain.execute();
     }
