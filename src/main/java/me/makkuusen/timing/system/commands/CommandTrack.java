@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import co.aikar.taskchain.TaskChain;
 import me.makkuusen.timing.system.*;
 
 import me.makkuusen.timing.system.api.TimingSystemAPI;
@@ -492,6 +493,29 @@ public class CommandTrack extends BaseCommand {
         Text.send(commandSender, Success.REMOVED_ALL_FINISHES);
         LeaderboardManager.updateFastestTimeLeaderboard(track);
 
+    }
+
+    @Subcommand("deleteallplayertimes")
+    @CommandCompletion("<player>")
+    @CommandPermission("%permissiontrack_delete_allplayertimes")
+    public static void onDeleteAllPlayerTimes(CommandSender commandSender, String playerName) {
+        TPlayer tPlayer = TSDatabase.getPlayer(playerName);
+        if (tPlayer == null) {
+            Text.send(commandSender, Error.PLAYER_NOT_FOUND);
+            return;
+        }
+        TaskChain<?> chain = TimingSystem.newChain();
+
+        for (Track t : TimingSystemAPI.getTracks()) {
+            if (t.getTimeTrials().hasPlayed(tPlayer)) {
+                t.getTimeTrials().deleteAllFinishes(tPlayer);
+                chain.sync(() -> LeaderboardManager.updateFastestTimeLeaderboard(t)).delay(LeaderboardManager.TICKS_BETWEEN_INDIVIDUAL_UPDATES);
+            }
+        }
+
+        var message = Text.get(commandSender, Success.REMOVED_ALL_FINISHES);
+        commandSender.sendMessage(message);
+        chain.execute();
     }
 
     @Subcommand("updateleaderboards")
