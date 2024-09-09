@@ -109,20 +109,19 @@ public class Settings {
         lonely = !lonely;
         TimingSystem.getDatabase().playerUpdateValue(uuid, "lonely", lonely);
 
-        if (lonely) {
-            if (Bukkit.getPlayer(uuid).isInsideVehicle() && (Bukkit.getPlayer(uuid).getVehicle() instanceof Boat || Bukkit.getPlayer(uuid).getVehicle() instanceof ChestBoat)) {
-                LonelinessController.hideAllBoatsAndPassengers(Bukkit.getPlayer(uuid));
-            }
-        } else {
-            if (Bukkit.getPlayer(uuid).isInsideVehicle() && (Bukkit.getPlayer(uuid).getVehicle() instanceof Boat || Bukkit.getPlayer(uuid).getVehicle() instanceof ChestBoat)) {
-                LonelinessController.showAllBoatsAndPassengers(Bukkit.getPlayer(uuid));
-            }
+
+        if (Bukkit.getPlayer(uuid).isInsideVehicle() && (Bukkit.getPlayer(uuid).getVehicle() instanceof Boat || Bukkit.getPlayer(uuid).getVehicle() instanceof ChestBoat)) {
+            LonelinessController.updateBoatsVisibility(Bukkit.getPlayer(uuid), lonely);
         }
     }
 
     public void setLonely(boolean lonely) {
         this.lonely = lonely;
         TimingSystem.getDatabase().playerUpdateValue(uuid, "lonely", lonely);
+
+        if (Bukkit.getPlayer(uuid).isInsideVehicle() && (Bukkit.getPlayer(uuid).getVehicle() instanceof Boat || Bukkit.getPlayer(uuid).getVehicle() instanceof ChestBoat)) {
+            LonelinessController.updateBoatsVisibility(Bukkit.getPlayer(uuid), lonely);
+        }
     }
 
     public boolean isLonely() {

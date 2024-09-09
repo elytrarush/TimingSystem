@@ -14,6 +14,9 @@ import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.plugin.Plugin;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class LonelinessController implements Listener {
 
     private static Plugin plugin = null;
@@ -22,131 +25,120 @@ public class LonelinessController implements Listener {
         this.plugin = plugin;
     }
 
-    public static void hideAllBoatsAndPassengers(Player player) {
-        plugin.getServer().getScheduler().runTask(plugin, () -> {
-            player.getWorld().getEntitiesByClass(Boat.class).stream()
+    public static void updateBoatsVisibility(Player player, boolean shouldHide) {
+        Runnable visibilityTask = () -> {
+            Set<Entity> boats = player.getWorld().getEntitiesByClass(Boat.class).stream()
                     .filter(boat -> !boat.getPassengers().contains(player))
-                    .forEach(boat -> {
-                        player.hideEntity(plugin, boat);
-                        boat.getPassengers().forEach(passenger -> player.hideEntity(plugin, passenger));
-                    });
+                    .collect(Collectors.toSet());
+            boats.addAll(player.getWorld().getEntitiesByClass(ChestBoat.class).stream()
+                    .filter(boat -> !boat.getPassengers().contains(player))
+                    .collect(Collectors.toSet()));
 
-            player.getWorld().getEntitiesByClass(ChestBoat.class).stream()
-                    .filter(boat -> !boat.getPassengers().contains(player))
-                    .forEach(boat -> {
-                        player.hideEntity(plugin, boat);
-                        boat.getPassengers().forEach(passenger -> player.hideEntity(plugin, passenger));
-                    });
-        });
+            for (Entity boat : boats) {
+                if (shouldHide) {
+                    player.hideEntity(plugin, boat);
+                } else {
+                    player.showEntity(plugin, boat);
+                }
+                boat.getPassengers().forEach(passenger -> {
+                    if (shouldHide) {
+                        player.hideEntity(plugin, passenger);
+                    } else {
+                        player.showEntity(plugin, passenger);
+                    }
+                });
+            }
+        };
+        plugin.getServer().getScheduler().runTask(plugin, visibilityTask);
     }
 
-    public static void showAllBoatsAndPassengers(Player player) {
-        plugin.getServer().getScheduler().runTask(plugin, () -> {
-            player.getWorld().getEntitiesByClass(Boat.class).stream()
-                    .filter(boat -> !boat.getPassengers().contains(player))
-                    .forEach(boat -> {
-                        player.showEntity(plugin, boat);
-                        boat.getPassengers().forEach(passenger -> player.showEntity(plugin, passenger));
-                    });
-
-            player.getWorld().getEntitiesByClass(ChestBoat.class).stream()
-                    .filter(boat -> !boat.getPassengers().contains(player))
-                    .forEach(boat -> {
-                        player.showEntity(plugin, boat);
-                        boat.getPassengers().forEach(passenger -> player.showEntity(plugin, passenger));
-                    });
-        });
-    }
-
-    public static void hideBoatAndPassengers(Entity boat) {
+    public static void updateBoatVisibilityToLonelyDrivers(Entity boat, boolean shouldHide) {
         if (boat == null) {
-            plugin.getLogger().warning("Attempted to hide a null boat.");
+            plugin.getLogger().warning("Attempted to update visibility for a null boat.");
             return;
         }
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             TPlayer tPlayer = TimingSystemAPI.getTPlayer(player.getUniqueId());
-            if (tPlayer != null && tPlayer.getSettings().isLonely() && !boat.getPassengers().contains(player) &&
-                    player.isInsideVehicle() && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat)) {
-                player.hideEntity(plugin, boat);
-                boat.getPassengers().forEach(passenger -> player.hideEntity(plugin, passenger));
+            if (tPlayer != null && !boat.getPassengers().contains(player) && tPlayer.getSettings().isLonely()
+                    && player.isInsideVehicle() && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat)) {
+                if (shouldHide) {
+                    player.hideEntity(plugin, boat);
+                } else {
+                    player.showEntity(plugin, boat);
+                }
+                boat.getPassengers().forEach(passenger -> {
+                    if (shouldHide) {
+                        player.hideEntity(plugin, passenger);
+                    } else {
+                        player.showEntity(plugin, passenger);
+                    }
+                });
+            }
+        }
+    }
+
+    public static void updateBoatVisibilityToAllDrivers(Entity boat, boolean shouldHide) {
+        if (boat == null) {
+            plugin.getLogger().warning("Attempted to update visibility for a null boat.");
+            return;
+        }
+
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            TPlayer tPlayer = TimingSystemAPI.getTPlayer(player.getUniqueId());
+            if (tPlayer != null && !boat.getPassengers().contains(player) && player.isInsideVehicle() && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat)) {
+                if (shouldHide) {
+                    player.hideEntity(plugin, boat);
+                } else {
+                    player.showEntity(plugin, boat);
+                }
+                boat.getPassengers().forEach(passenger -> {
+                    if (shouldHide) {
+                        player.hideEntity(plugin, passenger);
+                    } else {
+                        player.showEntity(plugin, passenger);
+                    }
+                });
             }
         }
     }
 
     @EventHandler
     public void onEnterBoat(VehicleEnterEvent event) {
-        if (event.getEntered() instanceof Player player &&
-                (event.getVehicle() instanceof Boat || event.getVehicle() instanceof ChestBoat)) {
-
+        if (event.getEntered() instanceof Player player) {
             TPlayer tPlayer = TimingSystemAPI.getTPlayer(player.getUniqueId());
             if (tPlayer != null && tPlayer.getSettings().isLonely()) {
-                hideAllBoatsAndPassengers(player);
-            }
-        }
-
-        if (event.getVehicle() instanceof Boat boat) {
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
-                TPlayer tPlayer = TimingSystemAPI.getTPlayer(player.getUniqueId());
-                if (tPlayer != null && tPlayer.getSettings().isLonely() && player.isInsideVehicle() &&
-                        (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat)) {
-                    plugin.getServer().getScheduler().runTask(plugin, () -> {
-                        player.hideEntity(plugin, event.getEntered());
-                    });
-                }
+                updateBoatsVisibility(player, true);
             }
         }
     }
 
     @EventHandler
     public void onExitBoat(VehicleExitEvent event) {
-
         if (event.isCancelled()) {
             return;
         }
 
-        if (event.getExited() instanceof Player player &&
-                (event.getVehicle() instanceof Boat || event.getVehicle() instanceof ChestBoat)) {
-
+        if (event.getExited() instanceof Player player) {
             TPlayer tPlayer = TimingSystemAPI.getTPlayer(player.getUniqueId());
             if (tPlayer != null && tPlayer.getSettings().isLonely()) {
-                showAllBoatsAndPassengers(player);
-            }
-        }
-
-        if (event.getVehicle() instanceof Boat boat) {
-            for (Player player : plugin.getServer().getOnlinePlayers()) {
-                TPlayer tPlayer = TimingSystemAPI.getTPlayer(player.getUniqueId());
-                if (tPlayer != null && tPlayer.getSettings().isLonely() && player.isInsideVehicle() &&
-                        (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat)) {
-                    plugin.getServer().getScheduler().runTask(plugin, () -> {
-                        player.showEntity(plugin, event.getExited());
-                    });
-                }
+                updateBoatsVisibility(player, false);
             }
         }
     }
 
     @EventHandler
     public void onBoatSpawn(BoatSpawnEvent event) {
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            Entity boat = event.getBoat();
-            if (boat == null) {
-                plugin.getLogger().warning("Boat in BoatSpawnEvent is null.");
-                return;
-            }
-            hideBoatAndPassengers(boat);
-        }, 5);
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> updateBoatVisibilityToLonelyDrivers(event.getBoat(), true), 5);
     }
 
     @EventHandler
     public void onChangeWorld(PlayerChangedWorldEvent event) {
         Player player = event.getPlayer();
         TPlayer tPlayer = TimingSystemAPI.getTPlayer(player.getUniqueId());
-        if (tPlayer != null && tPlayer.getSettings().isLonely() && player.isInsideVehicle() &&
-                (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat)) {
-            hideAllBoatsAndPassengers(player);
+        if (tPlayer != null && tPlayer.getSettings().isLonely() && player.isInsideVehicle()
+                && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat)) {
+            updateBoatsVisibility(player, true);
         }
     }
-
 }

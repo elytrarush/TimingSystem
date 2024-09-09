@@ -3,9 +3,11 @@ package me.makkuusen.timing.system.heat;
 import co.aikar.taskchain.TaskChain;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.locations.TrackLocation;
 import org.bukkit.*;
@@ -27,7 +29,7 @@ public class GridManager {
         this.qualy = qualy;
     }
 
-    public void putDriverOnGrid(Driver driver, Track track) {
+    public void putDriverOnGrid(Driver driver, Track track, Boolean lonely) {
         boolean qualyGrid = qualy && !track.getTrackLocations().getLocations(TrackLocation.Type.QUALYGRID).isEmpty();
         Player player = driver.getTPlayer().getPlayer();
         if (player != null) {
@@ -38,13 +40,13 @@ public class GridManager {
                 grid = track.getTrackLocations().getLocation(TrackLocation.Type.GRID, driver.getStartPosition()).get().getLocation();
             }
             if (grid != null) {
-                teleportPlayerToGrid(player, grid, track);
+                teleportPlayerToGrid(player, grid, track, lonely);
             }
         }
         driver.setState(DriverState.LOADED);
     }
 
-    private void teleportPlayerToGrid(Player player, Location location, Track track) {
+    private void teleportPlayerToGrid(Player player, Location location, Track track, Boolean lonely) {
         location.setPitch(player.getLocation().getPitch());
         if (!location.isWorldLoaded()) {
             return;
@@ -54,7 +56,7 @@ public class GridManager {
         }
         player.teleport(location);
         if (player.getGameMode() == GameMode.SPECTATOR) {
-            player.setGameMode(GameMode.SURVIVAL);
+            player.setGameMode(GameMode.ADVENTURE);
         }
         ArmorStand ar = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0, -1.45, 0), EntityType.ARMOR_STAND);
         ar.setCanMove(false);
@@ -65,6 +67,7 @@ public class GridManager {
             Boat boat = ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, false);
             ar.addPassenger(boat);
             armorStands.put(player.getUniqueId(), ar);
+            TimingSystemAPI.getTPlayer(player.getUniqueId()).getSettings().setLonely(lonely);
         }, 2);
     }
 
