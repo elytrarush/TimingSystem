@@ -12,7 +12,7 @@ TimingSystem is a plugin that aims to do a few things.
 ## Installation
 First of all you need a Minecraft server running [Paper](https://papermc.io). Then you can get started by following these easy steps:
 
-1. Download the [latest release](https://github.com/Makkuusen/TimingSystem/releases) of TimingSystem and put the .jar in /plugins folder. 
+1. Download the [latest release](https://github.com/FrostHexABG/TimingSystem/releases) of TimingSystem and put the .jar in /plugins folder. 
 1. Add World Edit or [FastAsyncWorldEdit](https://www.spigotmc.org/resources/fastasyncworldedit.13932/) to your /plugins folder.
 1. _[Optional] Add [DecentHolograms](https://www.spigotmc.org/resources/decentholograms-1-8-1-20-1-papi-support-no-dependencies.96927/) to enable the use of hologram leaderboards._
 
