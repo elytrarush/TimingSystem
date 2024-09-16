@@ -119,17 +119,8 @@ public class Heat {
     private void setDriverOnGrid(Driver driver) {
         DriverPlacedOnGrid event = new DriverPlacedOnGrid(driver, this);
         Bukkit.getServer().getPluginManager().callEvent(event);
-        gridManager.putDriverOnGrid(driver, getEvent().getTrack());
+        gridManager.putDriverOnGrid(driver, getEvent().getTrack(), lonely);
         EventDatabase.addPlayerToRunningHeat(driver);
-        if (lonely) {
-            if (!driver.getTPlayer().getSettings().isLonely()){
-                driver.getTPlayer().getSettings().setLonely(true);
-            }
-        } else {
-            if (driver.getTPlayer().getSettings().isLonely()){
-                driver.getTPlayer().getSettings().setLonely(false);
-            }
-        }
     }
 
     private void updateStartingLivePositions() {
