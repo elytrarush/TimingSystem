@@ -125,6 +125,7 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandReset());
         manager.registerCommand(new CommandTimeTrialRandom());
         manager.registerCommand(new CommandTimeTrialCancel());
+        manager.registerCommand(new CommandGhost());
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
         database = configuration.getDatabaseType();

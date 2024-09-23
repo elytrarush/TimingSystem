@@ -16,7 +16,8 @@ public enum PermissionTimingSystem implements Permissions {
     SCOREBOARD_SET_MAXROWS,
     SCOREBOARD_SET_INTERVAL,
     COLOR_SET_NAMED,
-    COLOR_SET_HEX;
+    COLOR_SET_HEX,
+    GHOST;
 
     @Override
     public String getNode() {

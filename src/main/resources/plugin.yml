@@ -41,6 +41,9 @@ commands:
    reset:
       description: Resets time trials for players.
       aliases: [re]
+   ghost:
+      description: Command for ghosting.
+      aliases: [g]
 
 permissions:
    timingsystem.packs.default:
@@ -160,6 +163,7 @@ permissions:
          timingsystem.heat.sort.tt: true
          timingsystem.heat.sort.random: true
          timingsystem.shortname.others: true
+         timingsystem.ghost: true
 
    timingsystem.packs.eventadmin:
       description: Player has access to all event related commands

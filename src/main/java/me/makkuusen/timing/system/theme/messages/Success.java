@@ -44,6 +44,8 @@ public enum Success implements Message {
     CHECKPOINTS_ANNOUNCEMENTS_OFF,
     LONELY_ON,
     LONELY_OFF,
+    GHOSTING_ON,
+    GHOSTING_OFF,
     SOUND_ON,
     SOUND_OFF,
     COMPACT_SCOREBOARD_ON,
