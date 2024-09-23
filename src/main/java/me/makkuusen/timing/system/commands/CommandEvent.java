@@ -126,7 +126,14 @@ public class CommandEvent extends BaseCommand {
         Theme theme = Theme.getTheme(sender);
 
         sender.sendMessage("");
-        sender.sendMessage(theme.getRefreshButton().clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).append(Component.space()).append(theme.getTitleLine(Component.text(event.getDisplayName()).color(theme.getSecondary()).append(Component.space()).append(theme.getParenthesized(event.getState().name())))));
+        sender.sendMessage(theme.getRefreshButton().clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName()))
+                .append(Component.space())
+                .append(theme.getTitleLine(Component.text(event.getDisplayName()).color(theme.getSecondary())
+                        .append(Component.space())
+                        .append(theme.getParenthesized(event.getState().name()))
+                        .append(Component.space())
+                        .append(theme.getParenthesized(String.valueOf(event.getId())))
+                )));
 
         Component trackMessage;
         if (event.getTrack() == null) {
