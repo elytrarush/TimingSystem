@@ -1,6 +1,5 @@
 package me.makkuusen.timing.system.loneliness;
 
-import me.makkuusen.timing.system.TimingSystem;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.ChestBoat;
@@ -10,13 +9,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
+import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GhostingController implements Listener {
-    public static TimingSystem plugin = TimingSystem.getPlugin();
     public static List<Player> ghostedPlayers = new ArrayList<>();
+
+    private static Plugin plugin = null;
+
+    public GhostingController(Plugin plugin) {
+        this.plugin = plugin;
+    }
 
     public static void ghostPlayer(Player player) {
         ghostedPlayers.add(player);
@@ -56,6 +61,9 @@ public class GhostingController implements Listener {
     // hide or show all ghosted boats to a specific player
     public static void updateAllGhostedToPlayer(Player player, Boolean shouldHide) {
         for (Player p : ghostedPlayers) {
+            if (p == player) {
+                continue;
+            }
             updateBoatVisibilityToSpecificDriver(player, p, shouldHide);
         }
     }
