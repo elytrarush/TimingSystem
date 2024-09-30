@@ -78,31 +78,6 @@ public class LonelinessController implements Listener {
         }
     }
 
-    public static void updateBoatVisibilityToAllDrivers(Entity boat, boolean shouldHide) {
-        if (boat == null) {
-            plugin.getLogger().warning("Attempted to update visibility for a null boat.");
-            return;
-        }
-
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
-            TPlayer tPlayer = TimingSystemAPI.getTPlayer(player.getUniqueId());
-            if (tPlayer != null && !boat.getPassengers().contains(player) && player.isInsideVehicle() && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat)) {
-                if (shouldHide) {
-                    player.hideEntity(plugin, boat);
-                } else {
-                    player.showEntity(plugin, boat);
-                }
-                boat.getPassengers().forEach(passenger -> {
-                    if (shouldHide) {
-                        player.hideEntity(plugin, passenger);
-                    } else {
-                        player.showEntity(plugin, passenger);
-                    }
-                });
-            }
-        }
-    }
-
     @EventHandler
     public void onEnterBoat(VehicleEnterEvent event) {
         if (event.getEntered() instanceof Player player) {

@@ -10,7 +10,9 @@ public enum Warning implements Message {
     TRACK_REQUIRES_BOAT_UTILS,
     TRACK_REQUIRES_NEWER_BOAT_UTILS,
     DANGEROUS_COMMAND,
-    CONFIRM_COMMAND;
+    CONFIRM_COMMAND,
+    GHOSTING_TARGET_ON,
+    GHOSTING_TARGET_OFF;
 
     @Override
     public String getKey() {

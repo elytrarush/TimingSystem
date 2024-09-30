@@ -114,6 +114,8 @@ warning:
   track_requires_boat_utils: "&wThis requires the use of the OpenBoatUtils fabric mod"
   track_requires_newer_boat_utils: "&wThis requires a newer version of the OpenBoatUtils fabric mod"
   confirm_command: "&wType &o/%command%&r&w to execute this command."
+  ghosting_target_on: "&wYou are now ghosted."
+  ghosting_target_off: "&wYou are no longer ghosted."
 
 success:
   saved: "&sValue has been saved."
@@ -160,6 +162,8 @@ success:
   checkpoints_announcements_off: "&sCheckpoint announcements are now disabled."
   lonely_on: "&sLonely mode is now active."
   lonely_off: "&sLonely mode is now disabled."
+  ghosting_on: "&sPlayer Ghosted."
+  ghosting_off: "&sPlayer no longer Ghosted."
   sound_on: "&sSwitched sound to on."
   sound_off: "&sSwitched sound to &eoff&s."
   compact_scoreboard_on: "&sSwitched compact scoreboard to on."

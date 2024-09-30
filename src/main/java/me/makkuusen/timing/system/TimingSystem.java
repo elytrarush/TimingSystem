@@ -13,6 +13,7 @@ import me.makkuusen.timing.system.gui.GUIListener;
 import me.makkuusen.timing.system.gui.GuiCommon;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.listeners.GSitListener;
+import me.makkuusen.timing.system.loneliness.GhostingController;
 import me.makkuusen.timing.system.loneliness.LonelinessController;
 import me.makkuusen.timing.system.papi.TimingSystemPlaceholder;
 import me.makkuusen.timing.system.permissions.*;
@@ -85,6 +86,7 @@ public class TimingSystem extends JavaPlugin {
         pm.registerEvents(new TSListener(), plugin);
         pm.registerEvents(new TimeTrialListener(), plugin);
         pm.registerEvents(new LonelinessController(plugin), plugin);
+        pm.registerEvents(new GhostingController(plugin), plugin);
 
         if (pm.isPluginEnabled("GSit")) {
             pm.registerEvents(new GSitListener(), plugin);
@@ -125,6 +127,7 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandReset());
         manager.registerCommand(new CommandTimeTrialRandom());
         manager.registerCommand(new CommandTimeTrialCancel());
+        manager.registerCommand(new CommandGhost());
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
         database = configuration.getDatabaseType();
