@@ -43,7 +43,7 @@ commands:
       aliases: [re]
    ghost:
       description: Command for ghosting.
-      aliases: [g]
+      aliases: [gh]
 
 permissions:
    timingsystem.packs.default:
