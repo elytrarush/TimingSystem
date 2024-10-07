@@ -306,6 +306,14 @@ public class CommandHeat extends BaseCommand {
         Text.send(player, Success.SAVED);
     }
 
+    @Subcommand("set reset")
+    @CommandCompletion("@heat true|false")
+    @CommandPermission("%permissionheat_set_reset")
+    public static void onHeatSetReset(Player player, Heat heat, Boolean reset) {
+        heat.setReset(reset);
+        Text.send(player, Success.SAVED);
+    }
+
     @Subcommand("set driverposition")
     @CommandCompletion("@heat @players <[+/-]pos>")
     @CommandPermission("%permissionheat_set_driverposition")
