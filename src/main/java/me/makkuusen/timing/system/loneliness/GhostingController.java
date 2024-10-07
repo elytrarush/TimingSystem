@@ -7,6 +7,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.plugin.Plugin;
@@ -64,6 +65,7 @@ public class GhostingController implements Listener {
             if (p == player) {
                 continue;
             }
+
             updateBoatVisibilityToSpecificDriver(player, p, shouldHide);
         }
     }
@@ -120,6 +122,13 @@ public class GhostingController implements Listener {
                 }
                 updateAllGhostedToPlayer(player, false);
             }, 5);
+        }
+    }
+
+    @EventHandler
+    public void onServerLeave(PlayerQuitEvent event) {
+        if (isGhosted(event.getPlayer())) {
+            unghostPlayer(event.getPlayer());
         }
     }
 }
