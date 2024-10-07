@@ -52,22 +52,16 @@ public class GhostingController implements Listener {
 
     // hide or show a boat to all players in boats
     public static void updateGhostedToAll(Player player, Boolean shouldHide) {
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (isPlayerInBoat(p) && p != player) {
-                updateBoatVisibilityToSpecificDriver(p, player, shouldHide);
-            }
-        }
+        Bukkit.getOnlinePlayers().stream()
+                .filter(p -> isPlayerInBoat(p) && p != player)
+                .forEach(p -> updateBoatVisibilityToSpecificDriver(p, player, shouldHide));
     }
 
     // hide or show all ghosted boats to a specific player
     public static void updateAllGhostedToPlayer(Player player, Boolean shouldHide) {
-        for (Player p : ghostedPlayers) {
-            if (p == player) {
-                continue;
-            }
-
-            updateBoatVisibilityToSpecificDriver(player, p, shouldHide);
-        }
+        ghostedPlayers.stream()
+                .filter(p -> p != player)
+                .forEach(p -> updateBoatVisibilityToSpecificDriver(player, p, shouldHide));
     }
 
     //hide or show specific boat to specific player
