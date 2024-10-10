@@ -584,6 +584,10 @@ public class TSListener implements Listener {
                     heat.updatePositions();
                     ApiUtilities.msgConsole("Starting : " + player.getName() + " in " + heat.getName());
                     return;
+                } else if (driver.getState() == DriverState.RESET) {
+                    driver.resetQualyLap();
+                    heat.updatePositions();
+                    return;
                 } else if (driver.getCurrentLap() != null && driver.getCurrentLap().getLatestCheckpoint() != 0) {
                     if (!driver.getCurrentLap().hasPassedAllCheckpoints()) {
                         int checkpoint = driver.getCurrentLap().getLatestCheckpoint();

@@ -116,6 +116,7 @@ public class Driver extends Participant implements Comparable<Driver> {
         var oldBest = getBestLap();
         getCurrentLap().setLapEnd(TimingSystem.currentTime);
         boolean isFastestLap = heat.getFastestLapUUID() == null || getCurrentLap().getLapTime() < heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get().getLapTime() || getCurrentLap().equals(heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get());
+
         if (isFastestLap) {
             EventAnnouncements.broadcastFastestLap(heat, this, getCurrentLap(), oldBest);
             heat.setFastestLapUUID(getTPlayer().getUniqueId());
@@ -131,6 +132,11 @@ public class Driver extends Participant implements Comparable<Driver> {
         e.callEvent();
 
         ApiUtilities.msgConsole(getTPlayer().getName() + " finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getLapTime()));
+    }
+
+    public void resetQualyLap() {
+        laps.remove(laps.size() - 1);
+        start();
     }
 
     public void reset() {
