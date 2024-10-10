@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system.heat;
 
+import lombok.Getter;
 import me.makkuusen.timing.system.ReadyCheckManager;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
@@ -26,6 +27,7 @@ public class ReadyCheck {
 
     private Heat heat;
     private UUID playerWhoInitiated;
+    @Getter
     private Inventory readyInventory;
     private ArrayList<UUID> toReadyCheckPlayers = new ArrayList<UUID>();
     private int taskId;
@@ -58,6 +60,7 @@ public class ReadyCheck {
                 }
             }
         }, 1, 15*20);
+        updateInventory();
     }
 
     public void openGUIToInitiator() {
@@ -124,6 +127,9 @@ public class ReadyCheck {
         for (UUID uuid : toReadyCheckPlayers) {
             OfflinePlayer toCheckPlayer = Bukkit.getOfflinePlayer(uuid);
             off.getPlayer().sendMessage(Component.text(toCheckPlayer.getName() + " is not ready.", NamedTextColor.RED));
+            if (toCheckPlayer.isOnline()) {
+                toCheckPlayer.getPlayer().clearTitle();
+            }
         }
 
         off.getPlayer().closeInventory(InventoryCloseEvent.Reason.PLUGIN);

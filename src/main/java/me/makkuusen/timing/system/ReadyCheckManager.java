@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system;
 
+import lombok.Getter;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.ReadyCheck;
 import org.bukkit.entity.Player;
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 public class ReadyCheckManager {
 
+    @Getter
     private static HashMap<UUID, ReadyCheck> readyChecks = new HashMap<UUID, ReadyCheck>();
 
     // TODO display ready check title to all ready check players
