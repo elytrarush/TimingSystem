@@ -3,6 +3,8 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.ReadyCheckManager;
+import me.makkuusen.timing.system.heat.ReadyCheck;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.database.TSDatabase;
@@ -163,6 +165,26 @@ public class CommandHeat extends BaseCommand {
             return;
         }
         Text.send(player, Error.FAILED_TO_START_HEAT);
+    }
+
+    @Subcommand("readycheck")
+    @CommandCompletion("@heat")
+    @CommandPermission("%permissionheat_readycheck")
+    public static void onReadyCheckOpen(Player player, Heat heat) {
+        if (ReadyCheckManager.isReadyCheckInProgress(player)) {
+            ReadyCheckManager.getReadyCheck(player).openGUIToInitiator();
+        } else {
+            ReadyCheckManager.createReadyCheck(player, heat).openGUIToInitiator();
+        }
+    }
+
+    @Subcommand("readycheck end")
+    @CommandCompletion("@heat")
+    @CommandPermission("%permissionheat_readycheck")
+    public static void onReadyCheckEnd(Player player, Heat heat) {
+        if (ReadyCheckManager.isReadyCheckInProgress(player)) {
+            ReadyCheckManager.getReadyCheck(player).end();
+        }
     }
 
     @Subcommand("finish")
