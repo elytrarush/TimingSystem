@@ -164,6 +164,7 @@ permissions:
          timingsystem.heat.sort.random: true
          timingsystem.shortname.others: true
          timingsystem.ghost: true
+         timingsystem.heat.readycheck: true
 
    timingsystem.packs.eventadmin:
       description: Player has access to all event related commands
