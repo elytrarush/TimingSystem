@@ -136,7 +136,8 @@ public class Driver extends Participant implements Comparable<Driver> {
 
     public void resetQualyLap() {
         laps.remove(laps.size() - 1);
-        start();
+        state = DriverState.RUNNING;
+        newLap();
     }
 
     public void reset() {
