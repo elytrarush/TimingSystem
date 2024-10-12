@@ -63,7 +63,7 @@ public class QualifyHeat {
         return "";
     }
 
-    private static boolean timeIsOver(Driver driver) {
+    public static boolean timeIsOver(Driver driver) {
         return Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis() > driver.getHeat().getTimeLimit();
     }
 }
