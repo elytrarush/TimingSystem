@@ -1,7 +1,7 @@
 [![](https://www.jitpack.io/v/FrostHexABG/TimingSystem.svg)](https://www.jitpack.io/#FrostHexABG/TimingSystem)
 # TimingSystem
 An ice boat time trial and event management plugin.   
-Created by [Makkuusen](https://github.com/Makkuusen/TimingSystem). This fork maintained by [JustBru00](https://github.com/JustBru00) for FrostHex.com
+Created by [Makkuusen](https://github.com/Makkuusen/TimingSystem). This fork maintained the [FrostHexABG Team](https://github.com/FrostHexABG/TimingSystem) for FrostHex.com
 
 ## What does it do?
 TimingSystem is a plugin that aims to do a few things.
@@ -28,7 +28,7 @@ First of all you need a Minecraft server running [Paper](https://papermc.io). Th
 * [OinkScoreboard](https://github.com/Pigalala/OinkScoreboard) - Makes it possible to display more than 15 rows for big races.
 
 ## For Developers
-If you want to develop plugins that add on to TimingSystem, you should start by adding TimingSystem as a maven dependancy.    
+If you want to develop plugins that add on to TimingSystem, you should start by adding TimingSystem as a maven dependency.    
 Step 1. Add the JitPack repository.    
 ```xml
 <repositories>
