@@ -1,7 +1,7 @@
 [![](https://www.jitpack.io/v/FrostHexABG/TimingSystem.svg)](https://www.jitpack.io/#FrostHexABG/TimingSystem)
 # TimingSystem
 An ice boat time trial and event management plugin.   
-Created by [Makkuusen](https://github.com/Makkuusen/TimingSystem). This fork maintained the [FrostHexABG Team](https://github.com/FrostHexABG/TimingSystem) for FrostHex.com
+Created by [Makkuusen](https://github.com/Makkuusen/TimingSystem). This fork maintained by the [FrostHexABG Team](https://github.com/FrostHexABG/TimingSystem) for FrostHex.com
 
 ## What does it do?
 TimingSystem is a plugin that aims to do a few things.
