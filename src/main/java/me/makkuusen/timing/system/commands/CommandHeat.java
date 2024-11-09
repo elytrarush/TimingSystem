@@ -181,7 +181,7 @@ public class CommandHeat extends BaseCommand {
     @Subcommand("readycheck end")
     @CommandCompletion("@heat")
     @CommandPermission("%permissionheat_readycheck")
-    public static void onReadyCheckEnd(Player player, Heat heat) {
+    public static void onReadyCheckEnd(Player player) {
         if (ReadyCheckManager.isReadyCheckInProgress(player)) {
             ReadyCheckManager.getReadyCheck(player).end();
         }
