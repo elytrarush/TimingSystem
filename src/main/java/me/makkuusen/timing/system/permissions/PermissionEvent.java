@@ -18,7 +18,8 @@ public enum PermissionEvent implements Permissions {
     LISTSIGNS,
     RESERVE,
     BROADCAST_CLICKTOSIGN,
-    BROADCAST_CLICKTORESERVE;
+    BROADCAST_CLICKTORESERVE,
+    COUNTDOWN;
 
     @Override
     public String getNode() {

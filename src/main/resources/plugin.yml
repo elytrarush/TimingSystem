@@ -108,6 +108,7 @@ permissions:
          timingsystem.track.reload: true
          timingsystem.track.delete.besttime: true
          timingsystem.track.delete.alltimes: true
+         timingsystem.track.delete.allplayertimes: true
          timingsystem.track.updateleaderboards: true
          timingsystem.trackedit.delete.track: true
          timingsystem.trackedit.move: true
@@ -142,6 +143,7 @@ permissions:
          timingsystem.event.signothers: true
          timingsystem.event.broadcast.clicktosign: true
          timingsystem.event.broadcast.clicktoreserve: true
+         timingsystem.event.countdown: true
          timingsystem.round.create: true
          timingsystem.round.delete: true
          timingsystem.round.finish: true

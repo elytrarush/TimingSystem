@@ -479,6 +479,7 @@ public class CommandEvent extends BaseCommand {
 
     @Subcommand("countdown start")
     @CommandCompletion("<h/m/s> <label>")
+    @CommandPermission("%permissionevent_countdown")
     public static void onCountdown(Player player, String time, @Optional String label) {
         Event event;
         var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
@@ -500,6 +501,7 @@ public class CommandEvent extends BaseCommand {
     }
     @Subcommand("countdown stop")
     @CommandCompletion("@event")
+    @CommandPermission("%permissionevent_countdown")
     public static void onCountdown(Player player, @Optional Event event) {
         if (event == null) {
             var maybeEvent = EventDatabase.getPlayerSelectedEvent(player.getUniqueId());
