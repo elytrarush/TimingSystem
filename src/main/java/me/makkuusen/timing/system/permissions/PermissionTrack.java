@@ -18,6 +18,7 @@ public enum PermissionTrack implements Permissions {
     RELOAD,
     DELETE_BESTTIME,
     DELETE_ALLTIMES,
+    DELETE_ALLPLAYERTIMES,
     UPDATELEADERBOARDS,
     SET_MODE;
 
