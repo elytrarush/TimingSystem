@@ -1,6 +1,6 @@
 name: TimingSystem
 main: me.makkuusen.timing.system.TimingSystem
-version: '2.3-SNAPSHOT'
+version: '${project.version}'
 authors: [Makkuusen, Pigalala, JustBru00, 2818, GitHub Repository Contributors]
 depend: [WorldEdit]
 softdepend: [HolographicDisplays, DecentHolograms, Multiverse-Core, GSit, PlaceholderAPI]
