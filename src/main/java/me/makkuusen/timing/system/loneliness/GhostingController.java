@@ -88,6 +88,10 @@ public class GhostingController implements Listener {
     }
 
     public static boolean isPlayerInBoat(Player player) {
+        // ISSUE #36
+        if (player == null) {
+            return false;
+        } // END ISSUE #36
         return player.isInsideVehicle() && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat);
     }
 
