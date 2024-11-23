@@ -8,7 +8,7 @@ import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.theme.messages.Warning;
 import org.bukkit.entity.Player;
 
-@CommandAlias("ghost|g")
+@CommandAlias("ghost|gh")
 public class CommandGhost extends BaseCommand {
     @Default
     @CommandCompletion("@players")
