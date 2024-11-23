@@ -133,7 +133,7 @@ success:
   updated_toggleable_values: "&1%value% have been updated: "
   removed: "&sYour thing has been removed."
   removed_best_finish: "&sRemoved best finish for %player% on %track%."
-  removed_all_finishes: "&sAll finishes has been removed."
+  removed_all_finishes: "&sAll finishes have been removed."
   removed_tag: "&sTag has been removed."
   removed_option: "&sOption has been removed."
   removed_locations: "&sAll %type% locations has been removed."
