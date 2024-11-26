@@ -78,6 +78,8 @@ public class ReadyCheck {
         toReadyCheckPlayers.remove(readyPlayer.getUniqueId());
         updateInventory();
         readyPlayer.clearTitle();
+        readyPlayer.sendMessage(Component.text(readyPlayer.getName() + " is ready.", NamedTextColor.GREEN));
+        PlaySound.countDownPling(TimingSystemAPI.getTPlayer(readyPlayer.getUniqueId()));
 
         if (toReadyCheckPlayers.isEmpty()) {
             OfflinePlayer off = Bukkit.getOfflinePlayer(playerWhoInitiated);
