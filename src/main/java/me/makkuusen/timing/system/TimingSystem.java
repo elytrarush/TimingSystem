@@ -14,7 +14,6 @@ import me.makkuusen.timing.system.gui.GuiCommon;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.listeners.GSitListener;
 import me.makkuusen.timing.system.listeners.ReadyCheckListener;
-import me.makkuusen.timing.system.loneliness.GhostingController;
 import me.makkuusen.timing.system.loneliness.LonelinessController;
 import me.makkuusen.timing.system.papi.TimingSystemPlaceholder;
 import me.makkuusen.timing.system.permissions.*;
@@ -35,7 +34,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -87,7 +85,6 @@ public class TimingSystem extends JavaPlugin {
         pm.registerEvents(new TSListener(), plugin);
         pm.registerEvents(new TimeTrialListener(), plugin);
         pm.registerEvents(new LonelinessController(plugin), plugin);
-        pm.registerEvents(new GhostingController(plugin), plugin);
         pm.registerEvents(new ReadyCheckListener(), plugin);
 
         if (pm.isPluginEnabled("GSit")) {
