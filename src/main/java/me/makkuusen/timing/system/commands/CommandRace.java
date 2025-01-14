@@ -2,6 +2,8 @@ package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import me.makkuusen.timing.system.api.TimingSystemAPI;
+import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.heat.Heat;
@@ -14,6 +16,7 @@ import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Broadcast;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
+import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.locations.TrackLocation;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
@@ -192,6 +195,19 @@ public class CommandRace extends BaseCommand {
         if (heat.getMaxDrivers() <= heat.getDrivers().size()) {
             Text.send(player, Error.RACE_FULL);
             return;
+        }
+
+        // Issue #46 - Don't allow players without boatutils to join boatutils tracks.
+        Event raceEvent = heat.getEvent();
+        if (raceEvent != null) {
+            Track raceTrack = raceEvent.getTrack();
+            if (raceTrack != null && raceTrack.getBoatUtilsMode() != BoatUtilsMode.VANILLA) {
+                TPlayer tPlayer = TimingSystemAPI.getTPlayer(player.getUniqueId());
+                if (tPlayer != null && !tPlayer.hasBoatUtils()) {
+                    Text.send(player, Error.BOAT_UTILS_NEEDED_FOR_RACE);
+                    return;
+                }
+            }
         }
 
         if (EventDatabase.heatDriverNew(player.getUniqueId(), heat, heat.getDrivers().size() + 1)) {
