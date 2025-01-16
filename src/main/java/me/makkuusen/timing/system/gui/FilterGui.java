@@ -14,7 +14,7 @@ public class FilterGui extends BaseGui{
     TrackPageGui oldTrackPage;
     TrackFilter filter;
     public FilterGui(TrackPageGui trackPage) {
-        super(Text.get(trackPage.tPlayer.getPlayer(), Gui.FILTER_TITLE), 4);
+        super(Text.getGuiComponent(trackPage.tPlayer.getPlayer(), Gui.FILTER_TITLE), 4);
         oldTrackPage = trackPage;
         this.filter = trackPage.filter;
         setButtons();

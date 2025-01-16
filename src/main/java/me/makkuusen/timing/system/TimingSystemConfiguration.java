@@ -23,6 +23,11 @@ public class TimingSystemConfiguration {
     private final String sqlPassword;
     private int scoreboardMaxRows;
     private Integer scoreboardInterval;
+    private final boolean customBoatsEnabled;
+    private final String guiPrefix3;
+    private final String guiPrefix4;
+    private final String guiPrefix5;
+    private final String guiPrefix6;
 
     private final Object databaseType;
 
@@ -49,6 +54,11 @@ public class TimingSystemConfiguration {
 
         scoreboardMaxRows = plugin.getConfig().getInt("scoreboard.maxRows", 15);
         scoreboardInterval = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("scoreboard.interval","1000"));
+        customBoatsEnabled = plugin.getConfig().getBoolean("customboats.enabled");
+        guiPrefix3 = plugin.getConfig().getString("customboats.guiprefix3");
+        guiPrefix4 = plugin.getConfig().getString("customboats.guiprefix4");
+        guiPrefix5 = plugin.getConfig().getString("customboats.guiprefix5");
+        guiPrefix6 = plugin.getConfig().getString("customboats.guiprefix6");
 
         databaseType = switch (databaseTypeRaw.toLowerCase()) {
             case "sqlite" -> new SQLiteDatabase();

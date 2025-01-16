@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.gui.SettingsGui;
 import me.makkuusen.timing.system.participant.Driver;
@@ -70,6 +71,22 @@ public class CommandSettings extends BaseCommand {
 
         tPlayer.getSettings().toggleLonely();
         Text.send(player, tPlayer.getSettings().isLonely() ? Success.LONELY_ON : Success.LONELY_OFF);
+    }
+
+    @Subcommand("boat")
+    @CommandCompletion("@boat")
+    @CommandPermission("%permissiontimingsystem_settings")
+    public static void onBoat(Player player, Boat.Type type) {
+        if (TimingSystem.configuration.isCustomBoatsEnabled()) {
+            Text.send(player, Error.NOT_NOW);
+            return;
+        }
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
+        tPlayer.getSettings().setBoat(type);
+        if (player.getVehicle() instanceof Boat boat) {
+            boat.setBoatType(type);
+        }
+        Text.send(player, Success.SAVED);
     }
 
     @Subcommand("sound")

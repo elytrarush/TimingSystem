@@ -6,35 +6,38 @@ import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
-import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Boat;
 
-public class ColorSettingsGui extends BaseGui {
+public class BoatSettingsGui extends BaseGui {
 
-    public ColorSettingsGui(TPlayer tPlayer) {
+    public BoatSettingsGui(TPlayer tPlayer) {
         super(Text.getGuiComponent(tPlayer.getPlayer(), Gui.SETTINGS_TITLE), 3);
         setButtons(tPlayer);
     }
 
     private void setButtons(TPlayer tPlayer) {
         int count = 0;
-        for (DyeColor dyeColor : DyeColor.values()) {
-            Material dye = Material.valueOf(dyeColor.name() + "_DYE");
-            setItem(getDyeColorButton(tPlayer, dye), count);
+        for (Material boat : ApiUtilities.getBoatMaterials()) {
+            setItem(getBoatTypeButton(tPlayer, boat), count);
             count++;
         }
         setItem(GuiCommon.getReturnToSettingsButton(tPlayer), 26);
     }
 
-    private static GuiButton getDyeColorButton(TPlayer tPlayer, Material dye) {
-        var hexColor = ApiUtilities.getHexFromDyeColor(dye);
-        var button = new GuiButton(new ItemBuilder(dye).setName(Text.get(tPlayer, Gui.COLOR).color(TextColor.fromHexString(hexColor))).build());
+    private GuiButton getBoatTypeButton(TPlayer tPlayer, Material boatType) {
+        var button = new GuiButton(new ItemBuilder(boatType).build());
         button.setAction(() -> {
-            tPlayer.getSettings().setHexColor(hexColor);
+            tPlayer.getSettings().setBoat(ApiUtilities.getBoatType(boatType));
+            tPlayer.getSettings().setChestBoat(ApiUtilities.isChestBoat(boatType));
+            if (tPlayer.getPlayer() instanceof Boat boat) {
+                boat.setBoatType(tPlayer.getSettings().getBoat());
+            }
             PlaySound.buttonClick(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });
         return button;
     }
+
+
 }

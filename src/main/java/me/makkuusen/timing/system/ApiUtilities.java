@@ -439,6 +439,9 @@ public class ApiUtilities {
         }
         
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), ()-> {
+            if (!TimingSystem.configuration.isCustomBoatsEnabled()) {
+                 boat.setBoatType(type);
+            }
             boat.getPersistentDataContainer().set(Objects.requireNonNull(NamespacedKey.fromString("spawned", TimingSystem.getPlugin())), PersistentDataType.INTEGER, 1);
         }, 3);
 
