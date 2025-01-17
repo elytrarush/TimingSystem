@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
@@ -12,7 +13,7 @@ import org.bukkit.entity.Player;
 public class SettingsGui extends BaseGui {
 
     public SettingsGui(TPlayer tPlayer) {
-        super(Text.get(tPlayer.getPlayer(), Gui.SETTINGS_TITLE), 3);
+        super(Text.getGuiComponent(tPlayer.getPlayer(), Gui.SETTINGS_TITLE), 3);
         setButtons(tPlayer);
     }
 
@@ -55,7 +56,6 @@ public class SettingsGui extends BaseGui {
         });
         return button;
     }
-
 
     public static GuiButton getBoatMenuButton(TPlayer tPlayer) {
         var button = new GuiButton(new ItemBuilder(tPlayer.getSettings().getBoatMaterial()).setName(Text.get(tPlayer, Gui.CHANGE_BOAT_TYPE)).build());
@@ -100,7 +100,9 @@ public class SettingsGui extends BaseGui {
         setItem(tPlayer.getSettings().isSendFinalLaps() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 4);
         setItem(getHeatLapsButton(tPlayer), 13);
 
-        setItem(getBoatMenuButton(tPlayer), 15);
+        if (!TimingSystem.configuration.isCustomBoatsAddOnEnabled()) {
+            setItem(getBoatMenuButton(tPlayer), 15);
+        }
         setItem(getColorMenuButton(tPlayer), 16);
     }
 }

@@ -16,7 +16,7 @@ import java.util.List;
 public class TimeTrialGui extends TrackPageGui {
 
     public TimeTrialGui(TPlayer tPlayer) {
-        super(tPlayer, Text.get(tPlayer.getPlayer(), Gui.TRACKS_TITLE));
+        super(tPlayer, Text.getGuiComponent(tPlayer.getPlayer(), Gui.TRACKS_TITLE));
     }
 
     public TimeTrialGui(TPlayer tPlayer, Component title) {

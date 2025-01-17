@@ -12,7 +12,7 @@ import org.bukkit.entity.Boat;
 public class BoatSettingsGui extends BaseGui {
 
     public BoatSettingsGui(TPlayer tPlayer) {
-        super(Text.get(tPlayer.getPlayer(), Gui.SETTINGS_TITLE), 3);
+        super(Text.getGuiComponent(tPlayer.getPlayer(), Gui.SETTINGS_TITLE), 3);
         setButtons(tPlayer);
     }
 

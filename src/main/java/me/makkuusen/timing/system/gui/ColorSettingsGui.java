@@ -13,7 +13,7 @@ import org.bukkit.Material;
 public class ColorSettingsGui extends BaseGui {
 
     public ColorSettingsGui(TPlayer tPlayer) {
-        super(Text.get(tPlayer.getPlayer(), Gui.SETTINGS_TITLE), 3);
+        super(Text.getGuiComponent(tPlayer.getPlayer(), Gui.SETTINGS_TITLE), 3);
         setButtons(tPlayer);
     }
 

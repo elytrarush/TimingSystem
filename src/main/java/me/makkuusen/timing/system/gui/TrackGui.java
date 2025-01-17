@@ -21,7 +21,7 @@ import java.util.List;
 public class TrackGui extends TrackPageGui {
 
     public TrackGui(TPlayer tPlayer) {
-        super(tPlayer, Text.get(tPlayer.getPlayer(), Gui.TRACKS_TITLE));
+        super(tPlayer, Text.getGuiComponent(tPlayer.getPlayer(), Gui.TRACKS_TITLE));
     }
 
     public TrackGui(TPlayer tPlayer, Component title) {

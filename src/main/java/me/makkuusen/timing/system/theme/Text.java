@@ -54,6 +54,14 @@ public class Text {
         return MessageParser.getComponentWithColors(text, key, Theme.getTheme(sender));
     }
 
+    public static Component getGuiComponent(CommandSender sender, Message key) {
+        var text = (TimingSystem.configuration.isCustomBoatsAddOnEnabled() ? TimingSystem.configuration.getGuiPrefix3() : "") + TimingSystem.getLanguageManager().getNewValue(key.getKey(), getLocale(sender));
+        if (!text.contains("&")) {
+            return Component.text(text);
+        }
+        return MessageParser.getComponentWithColors(text, key, Theme.getTheme(sender));
+    }
+
     public static Component get(CommandSender sender, Message key, String... replacements) {
         var text = TimingSystem.getLanguageManager().getNewValue(key.getKey(), getLocale(sender), replacements);
 

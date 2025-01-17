@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.gui.SettingsGui;
 import me.makkuusen.timing.system.participant.Driver;
@@ -76,6 +77,10 @@ public class CommandSettings extends BaseCommand {
     @CommandCompletion("@boat")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onBoat(Player player, Boat.Type type) {
+        if (TimingSystem.configuration.isCustomBoatsAddOnEnabled()) {
+            Text.send(player, Error.NOT_NOW);
+            return;
+        }
         TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         tPlayer.getSettings().setBoat(type);
         if (player.getVehicle() instanceof Boat boat) {
