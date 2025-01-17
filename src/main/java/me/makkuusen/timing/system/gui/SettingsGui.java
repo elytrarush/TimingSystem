@@ -100,7 +100,7 @@ public class SettingsGui extends BaseGui {
         setItem(tPlayer.getSettings().isSendFinalLaps() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 4);
         setItem(getHeatLapsButton(tPlayer), 13);
 
-        if (!TimingSystem.configuration.isCustomBoatsEnabled()) {
+        if (!TimingSystem.configuration.isCustomBoatsAddOnEnabled()) {
             setItem(getBoatMenuButton(tPlayer), 15);
         }
         setItem(getColorMenuButton(tPlayer), 16);

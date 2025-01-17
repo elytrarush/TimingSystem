@@ -55,7 +55,7 @@ public class Text {
     }
 
     public static Component getGuiComponent(CommandSender sender, Message key) {
-        var text = (TimingSystem.configuration.isCustomBoatsEnabled() ? TimingSystem.configuration.getGuiPrefix3() : "") + TimingSystem.getLanguageManager().getNewValue(key.getKey(), getLocale(sender));
+        var text = (TimingSystem.configuration.isCustomBoatsAddOnEnabled() ? TimingSystem.configuration.getGuiPrefix3() : "") + TimingSystem.getLanguageManager().getNewValue(key.getKey(), getLocale(sender));
         if (!text.contains("&")) {
             return Component.text(text);
         }

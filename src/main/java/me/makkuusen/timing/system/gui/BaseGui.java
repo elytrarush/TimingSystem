@@ -21,7 +21,7 @@ public class BaseGui {
     private final List<GuiButton> buttons = new ArrayList<>();
 
     public BaseGui(Component title, int rows) {
-        if (TimingSystem.configuration.isCustomBoatsEnabled() && rows > 3) {
+        if (TimingSystem.configuration.isCustomBoatsAddOnEnabled() && rows > 3) {
             String replacement = switch (rows) {
                 case 4 -> TimingSystem.configuration.getGuiPrefix4();
                 case 5 -> TimingSystem.configuration.getGuiPrefix5();

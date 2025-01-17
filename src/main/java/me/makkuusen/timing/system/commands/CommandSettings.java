@@ -77,7 +77,7 @@ public class CommandSettings extends BaseCommand {
     @CommandCompletion("@boat")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onBoat(Player player, Boat.Type type) {
-        if (TimingSystem.configuration.isCustomBoatsEnabled()) {
+        if (TimingSystem.configuration.isCustomBoatsAddOnEnabled()) {
             Text.send(player, Error.NOT_NOW);
             return;
         }
