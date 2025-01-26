@@ -336,6 +336,14 @@ public class CommandHeat extends BaseCommand {
         Text.send(player, Success.SAVED);
     }
 
+    @Subcommand("set lapreset")
+    @CommandCompletion("@heat true|false")
+    @CommandPermission("%permissionheat_set_lapreset")
+    public static void onHeatSetLapReset(Player player, Heat heat, Boolean lapReset) {
+        heat.setLapReset(lapReset);
+        Text.send(player, Success.SAVED);
+    }
+
     @Subcommand("set driverposition")
     @CommandCompletion("@heat @players <[+/-]pos>")
     @CommandPermission("%permissionheat_set_driverposition")

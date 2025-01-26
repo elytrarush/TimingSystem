@@ -2,9 +2,6 @@ package me.makkuusen.timing.system.loneliness;
 
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
-import me.makkuusen.timing.system.event.EventAnnouncements;
-import me.makkuusen.timing.system.database.EventDatabase;
-import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.ChestBoat;
@@ -50,6 +47,7 @@ public class LonelinessController implements Listener {
         Runnable visibilityTask = () -> {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 if (player.equals(ghostedPlayer)) continue; // Do not hide from themselves
+                if (!(player.getVehicle() != null && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat))) continue; // Do not hide to spectators
 
                 Entity vehicle = ghostedPlayer.getVehicle();
                 if (vehicle != null) {
@@ -152,7 +150,7 @@ public class LonelinessController implements Listener {
         }
     }
 
-    // Event Handlers
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();

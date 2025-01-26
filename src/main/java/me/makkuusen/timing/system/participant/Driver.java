@@ -98,6 +98,10 @@ public class Driver extends Participant implements Comparable<Driver> {
         newLap();
     }
 
+    public void passResetLap() {
+        finishLap();
+    }
+
     public boolean passPit() {
         if (!getCurrentLap().isPitted()) {
             setPits(pits + 1);
@@ -136,6 +140,11 @@ public class Driver extends Participant implements Comparable<Driver> {
 
     public void resetQualyLap() {
         laps.remove(laps.size() - 1);
+        state = DriverState.RUNNING;
+        newLap();
+    }
+
+    public void lapReset() {
         state = DriverState.RUNNING;
         newLap();
     }

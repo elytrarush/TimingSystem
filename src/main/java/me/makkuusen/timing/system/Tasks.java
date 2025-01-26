@@ -135,7 +135,6 @@ public class Tasks {
     }
 
     private static void displayDriverTimer(Player player, Driver driver) {
-
         if (driver.getHeat().getRound() instanceof FinalRound) {
             if (!driver.isFinished()) {
                 player.sendActionBar(Text.get(player, ActionBar.RACE,"%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
@@ -146,7 +145,7 @@ public class Tasks {
     }
 
     private static void sendQualificationDriverActionBar(Player player, Driver driver) {
-        if (!driver.getLaps().isEmpty() && driver.getCurrentLap() != null && driver.getState() == DriverState.RUNNING) {
+        if (!driver.getLaps().isEmpty() && driver.getCurrentLap() != null && (driver.getState() == DriverState.RUNNING || driver.getState() == DriverState.RESET || driver.getState() == DriverState.LAPRESET)) {
             long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
             long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
             String delta = QualifyHeat.getBestLapCheckpointDelta(driver, driver.getCurrentLap().getLatestCheckpoint());

@@ -11,6 +11,7 @@ import me.makkuusen.timing.system.database.updates.Version2;
 import me.makkuusen.timing.system.database.updates.Version3;
 import me.makkuusen.timing.system.database.updates.Version4;
 import me.makkuusen.timing.system.database.updates.Version5;
+import me.makkuusen.timing.system.database.updates.Version6;
 import org.bukkit.Material;
 
 import java.io.File;
@@ -33,7 +34,7 @@ public class SQLiteDatabase extends MySQLDatabase {
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 5;
+            int databaseVersion = 6;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(" + databaseVersion + ", " + ApiUtilities.getTimestamp() + ");");
                 return true;
@@ -71,6 +72,9 @@ public class SQLiteDatabase extends MySQLDatabase {
         }
         if (previousVersion < 5) {
             Version5.updateSQLite();
+        }
+        if (previousVersion < 6) {
+            Version6.updateSQLite();
         }
     }
 
@@ -183,6 +187,7 @@ public class SQLiteDatabase extends MySQLDatabase {
                           `maxDrivers` INTEGER DEFAULT NULL,
                           `lonely` INTEGER DEFAULT NULL,
                           `canReset` INTEGER DEFAULT NULL,
+                          `lapReset` INTEGER DEFAULT NULL,
                           `isRemoved` INTEGER NOT NULL DEFAULT '0'
                         );""");
 
