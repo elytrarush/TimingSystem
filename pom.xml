@@ -186,6 +186,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.SparklingComet</groupId>
+            <artifactId>java-mojang-api</artifactId>
+            <version>592fabf3e2</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>
