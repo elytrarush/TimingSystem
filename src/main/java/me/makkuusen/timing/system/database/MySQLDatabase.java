@@ -8,6 +8,7 @@ import me.makkuusen.timing.system.database.updates.Version2;
 import me.makkuusen.timing.system.database.updates.Version3;
 import me.makkuusen.timing.system.database.updates.Version4;
 import me.makkuusen.timing.system.database.updates.Version5;
+import me.makkuusen.timing.system.database.updates.Version6;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
@@ -60,7 +61,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 5;
+            int databaseVersion = 6;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES('" + databaseVersion + "', " + ApiUtilities.getTimestamp() + ");");
                 return true;
@@ -116,6 +117,9 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         }
         if (previousVersion <5) {
             Version5.updateMySQL();
+        }
+        if (previousVersion < 6) {
+            Version6.updateMySQL();
         }
     }
 
@@ -423,7 +427,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     @Override
     public Heat createHeat(Round round, int heatIndex) {
         try {
-            var heatId = DB.executeInsert("INSERT INTO `ts_heats`(`roundId`, `heatNumber`, `state`, `startTime`, `endTime`, `fastestLapUUID`, `totalLaps`, `totalPitstops`, `timeLimit`, `startDelay`, `maxDrivers`, `lonely`, `canReset`, `isRemoved`) " +
+            var heatId = DB.executeInsert("INSERT INTO `ts_heats`(`roundId`, `heatNumber`, `state`, `startTime`, `endTime`, `fastestLapUUID`, `totalLaps`, `totalPitstops`, `timeLimit`, `startDelay`, `maxDrivers`, `lonely`, `canReset`, `lapReset`, `isRemoved`) " +
                     "VALUES (" +
                     round.getId() + "," +
                     heatIndex + "," +
@@ -436,6 +440,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                     "NULL," +
                     "NULL," +
                     "NULL," +
+                    "0," +
                     "0," +
                     "0," +
                     "0)");

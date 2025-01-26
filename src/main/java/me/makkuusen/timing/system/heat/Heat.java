@@ -53,6 +53,7 @@ public class Heat {
     private Integer maxDrivers;
     private Boolean lonely;
     private Boolean reset;
+    private Boolean lapReset;
     private SpectatorScoreboard scoreboard;
     private Instant lastScoreboardUpdate = Instant.now();
 
@@ -70,6 +71,7 @@ public class Heat {
         maxDrivers = data.get("maxDrivers") == null ? null : data.getInt("maxDrivers");
         lonely = data.get("lonely") instanceof Boolean ? data.get("lonely") : data.get("lonely").equals(1);
         reset = data.get("canReset") instanceof Boolean ? data.get("canReset") : data.get("canReset").equals(1);
+        lapReset = data.get("lapReset") instanceof Boolean ? data.get("lapReset") : data.get("lapReset").equals(1);
         startDelay = data.get("startDelay") == null ? round instanceof FinalRound ? TimingSystem.configuration.getFinalStartDelayInMS() : TimingSystem.configuration.getQualyStartDelayInMS() : data.getInt("startDelay");
         fastestLapUUID = data.getString("fastestLapUUID") == null ? null : UUID.fromString(data.getString("fastestLapUUID"));
         gridManager = new GridManager(round instanceof QualificationRound);
