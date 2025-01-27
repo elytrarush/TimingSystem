@@ -47,6 +47,7 @@ public class LonelinessController implements Listener {
         Runnable visibilityTask = () -> {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 if (player.equals(ghostedPlayer)) continue; // Do not hide from themselves
+                if (!(player.getVehicle() != null && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat))) continue; // Do not hide to spectators
 
                 Entity vehicle = ghostedPlayer.getVehicle();
                 if (vehicle != null) {
@@ -149,7 +150,7 @@ public class LonelinessController implements Listener {
         }
     }
 
-    // Event Handlers
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();

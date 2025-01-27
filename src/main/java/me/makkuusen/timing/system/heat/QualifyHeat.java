@@ -4,6 +4,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.participant.Driver;
+import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.Component;
 
@@ -24,6 +25,13 @@ public class QualifyHeat {
             if (driver.getHeat().noDriversRunning()) {
                 driver.getHeat().finishHeat();
             }
+            return true;
+        }
+
+        if (driver.getHeat().getLapReset() == true) {
+            driver.passResetLap();
+            ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), driver.getHeat().getEvent().getTrack().getSpawnLocation());
+            driver.setState(DriverState.LAPRESET);
             return true;
         }
 
