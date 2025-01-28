@@ -24,6 +24,10 @@ public enum BoatUtilsMode {
     BOOSTER_BLOCKS(17,6),
     DEFAULT_ICE(18,6),
     DEFAULT_BLUE_ICE(19,6),
+    NOCOL_BOATS_AND_PLAYERS(20,10),
+    NOCOL_ALL_ENTITIES(21,10),
+    BA_JANKLESS(22,11),
+    BA_BLUE_JANKLESS(23,11),
     ;
 
     private final short id;
