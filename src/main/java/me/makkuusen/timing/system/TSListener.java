@@ -11,6 +11,8 @@ import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
+import me.makkuusen.timing.system.network.UUIDFetcher;
+import me.makkuusen.timing.system.network.UUIDFetcherCallback;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.FinalRound;
@@ -45,11 +47,7 @@ import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class TSListener implements Listener {
 
@@ -76,13 +74,32 @@ public class TSListener implements Listener {
 
     @EventHandler
     void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        TPlayer TPlayer = TSDatabase.getPlayer(player.getUniqueId());
-        TPlayer.setPlayer(player);
+        final Player player = event.getPlayer();
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
+        tPlayer.setPlayer(player);
 
-        if (!TPlayer.getName().equals(player.getName())) {
+        if (!tPlayer.getName().equals(player.getName())) {
             // Update name
-            TPlayer.setName(player.getName());
+            tPlayer.setName(player.getName());
+        }
+
+        // Issue #51 - Check for other TPlayers that have an identical name.
+        // If there is another player with the same name, but not the same UUID. We need to update that TPlayers name.
+        for (TPlayer toCheck : TimingSystem.players.values()) {
+            if (toCheck.getName().equalsIgnoreCase(player.getName()) && !toCheck.getUniqueId().equals(player.getUniqueId())) {
+                plugin.getLogger().warning("[DuplicateUsernameCheck] Existing TPlayer " + toCheck.getUniqueId().toString() + " has the same username as " + player.getUniqueId().toString() + ".");
+                // Check the current username for toCheck. Afterward, update their username
+                UUIDFetcher.getAsyncFromMojangAndRunCallback(toCheck.getUniqueId().toString(), new UUIDFetcherCallback() {
+                    @Override
+                    public void runSync(Optional<UUID> uuid, Optional<String> lastName, String originalMcUsernameOrUuid) {
+                        if (uuid.isPresent() && lastName.isPresent()) {
+                            TPlayer toUpdate = TSDatabase.getPlayer(uuid.get());
+                            toUpdate.setName(lastName.get());
+                            plugin.getLogger().info("[DuplicateUsernameCheck] Existing TPlayer " + uuid.get().toString() + "'s name was updated to " + lastName.get() + ".");
+                        }
+                    }
+                });
+            }
         }
 
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
