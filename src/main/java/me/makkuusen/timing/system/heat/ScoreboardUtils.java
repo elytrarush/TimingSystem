@@ -59,6 +59,10 @@ public class ScoreboardUtils {
         return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" -").color(NamedTextColor.RED)).append(paddGap(ApiUtilities.formatAsRacingGap(gap)).color(NamedTextColor.RED)).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
     }
 
+    public static Component getDriverLineEqualRaceGap(Driver driver, int pits, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" =0.00").color(NamedTextColor.YELLOW)).append(getTeamIcon(driver)).append(paddName(driver, compact)).append(getPits(compact, theme)).append(Component.text(pits).color(getPitColour(driver, pits))).build();
+    }
+
     private static Component getDivider(Theme theme) {
         return Component.text("|").color(getPrimaryColor(theme));
     }

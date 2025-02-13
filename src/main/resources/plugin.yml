@@ -94,6 +94,7 @@ permissions:
          timingsystem.trackedit.item: true
          timingsystem.trackedit.region: true
          timingsystem.trackedit.location: true
+         timingsystem.trackedit.overload: true
 
    timingsystem.packs.trackadmin:
       description: Player has all track commands

@@ -62,12 +62,12 @@ public class GridManager {
         ar.setCanMove(false);
         ar.setGravity(false);
         ar.setVisible(false);
+        TimingSystemAPI.getTPlayer(player.getUniqueId()).getSettings().setLonely(lonely);
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
             TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
             Boat boat = ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, false);
             ar.addPassenger(boat);
             armorStands.put(player.getUniqueId(), ar);
-            TimingSystemAPI.getTPlayer(player.getUniqueId()).getSettings().setLonely(lonely);
         }, 2);
     }
 

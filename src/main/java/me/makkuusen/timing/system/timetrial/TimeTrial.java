@@ -305,7 +305,6 @@ public class TimeTrial {
         return finish;
     }
 
-
     private TimeTrialFinish callTimeTrialFinishEvent(Player player, long time, long oldBestTime, boolean newBestFinish) {
         var finish = track.getTimeTrials().newFinish(time, player.getUniqueId());
         Map<Integer, Long> checkpointTimes = new HashMap<>();
@@ -333,7 +332,7 @@ public class TimeTrial {
                     if (ApiUtilities.getRoundedToTick(bestCheckpoint) < ApiUtilities.getRoundedToTick(currentCheckpoint)) {
                         return Component.text(" +" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - bestCheckpoint)).color(theme.getError());
                     } else if (ApiUtilities.getRoundedToTick(bestCheckpoint) == ApiUtilities.getRoundedToTick(currentCheckpoint)) {
-                        return Component.text(" -" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - bestCheckpoint)).color(theme.getWarning());
+                        return Component.text(" =" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - bestCheckpoint)).color(theme.getWarning());
                     } else {
                         return Component.text(" -" + ApiUtilities.formatAsPersonalGap(bestCheckpoint - currentCheckpoint)).color(theme.getSuccess());
                     }
@@ -342,5 +341,4 @@ public class TimeTrial {
         }
         return Component.empty();
     }
-
 }

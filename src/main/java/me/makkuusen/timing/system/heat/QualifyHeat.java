@@ -28,7 +28,7 @@ public class QualifyHeat {
             return true;
         }
 
-        if (driver.getHeat().getLapReset() == true) {
+        if (driver.getHeat().getLapReset()) {
             driver.passResetLap();
             ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), driver.getHeat().getEvent().getTrack().getSpawnLocation());
             driver.setState(DriverState.LAPRESET);
