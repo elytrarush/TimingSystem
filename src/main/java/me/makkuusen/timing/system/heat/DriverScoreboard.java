@@ -6,6 +6,7 @@ import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 
@@ -13,6 +14,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
+import static me.makkuusen.timing.system.loneliness.LonelinessController.isGhosted;
 
 public class DriverScoreboard {
     TPlayer tPlayer;
@@ -70,12 +73,7 @@ public class DriverScoreboard {
             } else if (count > last) {
                 break;
             }
-            if (heat.getRound() instanceof QualificationRound) {
-                lines.add(getDriverRowQualification(driver, this.driver, tPlayer.getSettings().getCompactScoreboard(), tPlayer.getTheme()));
-
-            } else {
-                lines.add(getDriverRowFinal(driver, this.driver, tPlayer.getSettings().getCompactScoreboard(), tPlayer.getTheme()));
-            }
+            lineDecider(lines, driver);
         }
         return lines;
     }
@@ -89,14 +87,19 @@ public class DriverScoreboard {
             if (count > last) {
                 break;
             }
-            if (heat.getRound() instanceof QualificationRound) {
-                lines.add(getDriverRowQualification(driver, this.driver, tPlayer.getSettings().getCompactScoreboard(), tPlayer.getTheme()));
-
-            } else {
-                lines.add(getDriverRowFinal(driver, this.driver, tPlayer.getSettings().getCompactScoreboard(), tPlayer.getTheme()));
-            }
+            lineDecider(lines, driver);
         }
         return lines;
+    }
+
+    private void lineDecider(List<Component> lines, Driver driver) {
+        if (heat.getRound() instanceof QualificationRound) {
+            lines.add(getDriverRowQualification(driver, this.driver, tPlayer.getSettings().getCompactScoreboard(), tPlayer.getTheme()));
+        } else if (isGhosted(driver.getTPlayer().getUniqueId())) {
+            lines.add(getDriverRowFinal(driver, this.driver, tPlayer.getSettings().getCompactScoreboard(), tPlayer.getTheme()).color(TextColor.color(0xAAAAAA)));
+        } else {
+            lines.add(getDriverRowFinal(driver, this.driver, tPlayer.getSettings().getCompactScoreboard(), tPlayer.getTheme()));
+        }
     }
 
     private Component getDriverRowFinal(Driver driver, Driver comparingDriver, boolean compact, Theme theme) {
@@ -149,6 +152,11 @@ public class DriverScoreboard {
             if (timeDiff < 0) {
                 return ScoreboardUtils.getDriverLineNegativeRaceGap(timeDiff * -1, driver, driver.getPits(), driver.getPosition(), compact, theme);
             }
+
+            if (timeDiff == 0) {
+                return ScoreboardUtils.getDriverLineEqualRaceGap(driver, driver.getPits(), driver.getPosition(), compact, theme);
+            }
+
             return ScoreboardUtils.getDriverLineRaceGap(timeDiff, driver, driver.getPits(), driver.getPosition(), compact, theme);
         }
 
@@ -172,6 +180,11 @@ public class DriverScoreboard {
         if (timeDiff < 0) {
             return ScoreboardUtils.getDriverLineNegativeQualyGap(timeDiff * -1, driver, driver.getPosition(), compact, theme);
         }
+
+        if (timeDiff == 0) {
+            return ScoreboardUtils.getDriverLineEqualRaceGap(driver, driver.getPits(), driver.getPosition(), compact, theme);
+        }
+
         return ScoreboardUtils.getDriverLineQualyGap(timeDiff, driver, driver.getPosition(), compact, theme);
     }
 }

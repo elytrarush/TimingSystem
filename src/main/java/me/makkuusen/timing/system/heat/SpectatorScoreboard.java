@@ -8,6 +8,7 @@ import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 
@@ -15,6 +16,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
+import static me.makkuusen.timing.system.loneliness.LonelinessController.isGhosted;
 
 public class SpectatorScoreboard {
 
@@ -79,7 +82,9 @@ public class SpectatorScoreboard {
                     prevDriver = driver;
                     compareToFirst = false;
                 }
-
+            } else if (isGhosted(driver.getTPlayer().getUniqueId())) {
+                lines.add(getDriverRowFinal(driver, prevDriver, tPlayer.getSettings().getCompactScoreboard(), tPlayer.getTheme()).color(TextColor.color(0xAAAAAA)));
+                prevDriver = driver;
             } else {
                 lines.add(getDriverRowFinal(driver, prevDriver, tPlayer.getSettings().getCompactScoreboard(), tPlayer.getTheme()));
                 prevDriver = driver;

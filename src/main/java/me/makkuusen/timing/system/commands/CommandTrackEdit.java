@@ -157,7 +157,7 @@ public class CommandTrackEdit extends BaseCommand {
     @Subcommand("boatutils")
     @CommandCompletion("@allBoatUtilsMode @track")
     @CommandPermission("%permissiontrackedit_boatutilsmode")
-    public static void onMode(Player player, BoatUtilsMode mode, @Optional Track track) {
+    public static void onMode(Player player, BoatUtilsMode mode, @Optional String modeString, @Optional Track track) {
         Message response = TrackEditor.setBoatUtilsMode(player, mode, track);
         Text.send(player, response);
     }
