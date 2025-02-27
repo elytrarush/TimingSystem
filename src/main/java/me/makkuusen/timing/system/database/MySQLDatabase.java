@@ -686,58 +686,105 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public long createTrack(String uuid, String name, long date, int weight, ItemStack gui, Location location, Track.TrackType type, BoatUtilsMode boatUtilsMode) throws SQLException {
-        return DB.executeInsert("INSERT INTO `ts_tracks` (`uuid`, `name`, `dateCreated`, `weight`, `guiItem`, `spawn`, `type`, `toggleOpen`, `boatUtilsMode`, `isRemoved`) " +
-                "VALUES('" + uuid + "', " + TSDatabase.sqlStringOf(name) + ", " + date + ", " + weight + ", " + TSDatabase.sqlStringOf(ApiUtilities.itemToString(gui)) + ", '" + ApiUtilities.locationToString(location) + "', " + TSDatabase.sqlStringOf(type == null ? null : type.toString()) + ", 0, " + boatUtilsMode.getId() + ", 0);");
+        return DB.executeInsert("INSERT INTO ts_tracks (`uuid`, `name`, dateCreated, weight, guiItem, spawn, type, toggleOpen, boatUtilsMode, isRemoved) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, 0);",
+                uuid,
+                TSDatabase.sqlStringOf(name),
+                date,
+                weight,
+                TSDatabase.sqlStringOf(ApiUtilities.itemToString(gui)),
+                ApiUtilities.locationToString(location),
+                TSDatabase.sqlStringOf(type == null ? null : type.toString()),
+                boatUtilsMode.getId()
+                );
     }
 
     @Override
     public long createRegion(long trackId, int index, String minP, String maxP, TrackRegion.RegionType type, TrackRegion.RegionShape shape, Location location) throws SQLException {
-        return DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `regionShape`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(" + trackId + ", " + index + ", " + TSDatabase.sqlStringOf(type.toString()) + ", " + TSDatabase.sqlStringOf(shape.toString()) + ", '" + minP + "', '" + maxP + "','" + ApiUtilities.locationToString(location) + "', 0);");
+        return DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `regionShape`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(?, ?, ?, ?, ?, ?, ?, 0);",
+                trackId,
+                index,
+                TSDatabase.sqlStringOf(type.toString()),
+                TSDatabase.sqlStringOf(shape.toString()),
+                minP,
+                maxP,
+                ApiUtilities.locationToString(location)
+                );
     }
 
     @Override
     public long createPoint(long regionId, BlockVector2 v) throws SQLException {
-        return DB.executeInsert("INSERT INTO `ts_points` (`regionId`, `x`, `z`) VALUES(" + regionId + ", " + v.getBlockX() + ", " + v.getBlockZ() + ");");
+        return DB.executeInsert("INSERT INTO `ts_points` (`regionId`, `x`, `z`) VALUES(?, ?, ?);",
+                regionId,
+                v.getBlockX(),
+                v.getBlockZ()
+                );
     }
 
     @Override
     public long createLocation(long trackId, int index, TrackLocation.Type type, Location location) throws SQLException {
-        return DB.executeInsert("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(" + trackId + ", " + index + ", '" + type.name() + "', '" + ApiUtilities.locationToString(location) + "');");
+        return DB.executeInsert("INSERT INTO `ts_locations` (`trackId`, `index`, `type`, `location`) VALUES(?, ?, ?, ?);",
+                trackId,
+                index,
+                type.name(),
+                ApiUtilities.locationToString(location)
+        );
     }
 
     @Override
     public void removeTrack(long trackId) {
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `isRemoved` = 1 WHERE `id` = " + trackId + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `isRemoved` = 1 WHERE `id` = ?;",
+                trackId
+        );
     }
 
     @Override
     public void createTrackOptionAsync(int trackId, TrackOption trackOption) {
-        DB.executeUpdateAsync("INSERT INTO `ts_tracks_options` (`trackId`, `option`) VALUES(" + trackId + ", " + trackOption.getId() + ");");
+        DB.executeUpdateAsync("INSERT INTO `ts_tracks_options` (`trackId`, `option`) VALUES(?, ?);",
+                trackId,
+                trackOption.getId()
+        );
     }
 
     public void deleteTrackOptionAsync(int trackId, TrackOption trackOption) {
-        DB.executeUpdateAsync("DELETE FROM `ts_tracks_options` WHERE `option` = "+ trackOption.getId() + " AND `trackId` = " + trackId + ";");
+        DB.executeUpdateAsync("DELETE FROM `ts_tracks_options` WHERE `option` = ? AND `trackId` = ?;",
+                trackOption.getId(),
+                trackId
+        );
     }
 
     @Override
     public void createTagAsync(TrackTag tag, TextColor color, ItemStack item) {
-        DB.executeUpdateAsync("INSERT INTO `ts_tags` (`tag`, `color`, `item`) VALUES('" + tag.getValue() + "', '" + color.asHexString() + "', " + TSDatabase.sqlStringOf(ApiUtilities.itemToString(item)) + ");");
+        DB.executeUpdateAsync("INSERT INTO `ts_tags` (`tag`, `color`, `item`) VALUES(?, ?, ?);",
+                tag.getValue(),
+                color.asHexString(),
+                TSDatabase.sqlStringOf(ApiUtilities.itemToString(item))
+        );
     }
 
     @Override
     public void deleteTagAsync(TrackTag tag) {
-        DB.executeUpdateAsync("DELETE FROM `ts_tags` WHERE `tag` = '" + tag.getValue() + "';");
-        DB.executeUpdateAsync("DELETE FROM `ts_tracks_tags` WHERE `tag` = '" + tag.getValue() + "';");
+        DB.executeUpdateAsync("DELETE FROM `ts_tags` WHERE `tag` = ?;",
+                tag.getValue()
+        );
+        DB.executeUpdateAsync("DELETE FROM `ts_tracks_tags` WHERE `tag` = ?;",
+                tag.getValue()
+        );
     }
 
     @Override
     public void deletePoint(long regionId) throws SQLException {
-        DB.executeUpdate("DELETE FROM `ts_points` WHERE `regionId` = " + regionId + ";");
+        DB.executeUpdate("DELETE FROM `ts_points` WHERE `regionId` = ?;",
+                regionId
+        );
     }
 
     @Override
     public void deleteLocation(int trackId, int index, TrackLocation.Type type) {
-        DB.executeUpdateAsync("DELETE FROM `ts_locations` WHERE `trackId` = " + trackId + " AND `index` = " + index + " AND `type` = '" + type + "';");
+        DB.executeUpdateAsync("DELETE FROM `ts_locations` WHERE `trackId` = ? AND `index` = ? AND `type` = ?;",
+                trackId,
+                index,
+                type
+        );
     }
 
     @Override
