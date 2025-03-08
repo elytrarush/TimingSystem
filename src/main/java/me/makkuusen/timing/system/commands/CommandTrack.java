@@ -324,18 +324,20 @@ public class CommandTrack extends BaseCommand {
             return;
         }
 
+        List<TimeTrialFinish> topList = track.getTimeTrials().getTopList();
+        int topListSize = topList.size();
+
         Text.send(commandSender, Info.TRACK_TIMES_TITLE, "%track%", track.getDisplayName());
         for (int i = start; i < stop; i++) {
-            if (i == track.getTimeTrials().getTopList().size()) {
+            if (i == topListSize) {
                 break;
             }
-            TimeTrialFinish finish = track.getTimeTrials().getTopList().get(i);
+            TimeTrialFinish finish = topList.get(i);
             commandSender.sendMessage(theme.getTimesRow(String.valueOf(i + 1), finish.getPlayer().getName(), ApiUtilities.formatAsTime(finish.getTime())));
         }
 
-        int pageEnd = (int) Math.ceil(((double) track.getTimeTrials().getTopList().size()) / ((double) itemsPerPage));
+        int pageEnd = (int) Math.ceil(((double) topListSize) / ((double) itemsPerPage));
         commandSender.sendMessage(theme.getPageSelector(commandSender, pageStart, pageEnd, "/t times " + track.getCommandName()));
-
     }
 
     @Subcommand("mytimes")
