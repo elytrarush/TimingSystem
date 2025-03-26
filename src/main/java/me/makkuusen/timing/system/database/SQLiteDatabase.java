@@ -36,7 +36,10 @@ public class SQLiteDatabase extends MySQLDatabase {
 
             int databaseVersion = 6;
             if (row == null) { // First startup
-                DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(" + databaseVersion + ", " + ApiUtilities.getTimestamp() + ");");
+                DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(?, ?);",
+                        databaseVersion,
+                        ApiUtilities.getTimestamp()
+                );
                 return true;
             }
 
@@ -49,7 +52,10 @@ public class SQLiteDatabase extends MySQLDatabase {
 
             getPlugin().getLogger().warning("UPDATING DATABASE FROM " + previousVersion + " to " + databaseVersion);
             updateDatabase(previousVersion);
-            DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(" + databaseVersion + ", " + ApiUtilities.getTimestamp() + ");");
+            DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(?, ?);",
+                    databaseVersion,
+                    ApiUtilities.getTimestamp()
+            );
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,20 +65,23 @@ public class SQLiteDatabase extends MySQLDatabase {
         }
     }
     private static void updateDatabase(int previousVersion) throws SQLException {
-
-        //Update logic here.
+        // Update logic here.
         if (previousVersion < 2) {
             Version2.update();
         }
+
         if (previousVersion < 3) {
             Version3.updateSQLite();
         }
+
         if (previousVersion < 4) {
             Version4.updateSQLite();
         }
+
         if (previousVersion < 5) {
             Version5.updateSQLite();
         }
+
         if (previousVersion < 6) {
             Version6.updateSQLite();
         }
@@ -292,11 +301,19 @@ public class SQLiteDatabase extends MySQLDatabase {
 
     @Override
     public void trackSet(int trackId, String column, Boolean value) {
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `" + column + "` = " + (value ? 1 : 0 ) + " WHERE `id` = " + trackId + ";");
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET ? = ? WHERE `id` = ?;",
+                column,
+                (value ? 1 : 0),
+                trackId
+        );
     }
 
     @Override
     public void playerUpdateValue(UUID uuid, String column, Boolean value) {
-        DB.executeUpdateAsync("UPDATE `ts_players` SET `" + column + "` = " + (value ? 1 : 0 ) + " WHERE `uuid` = '" + uuid + "';");
+        DB.executeUpdateAsync("UPDATE `ts_players` SET ? = ? WHERE `uuid` = ?;",
+                column,
+                (value ? 1 : 0),
+                uuid
+        );
     }
 }
