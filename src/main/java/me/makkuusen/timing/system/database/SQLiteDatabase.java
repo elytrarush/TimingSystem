@@ -313,7 +313,7 @@ public class SQLiteDatabase extends MySQLDatabase {
         DB.executeUpdateAsync("UPDATE `ts_players` SET ? = ? WHERE `uuid` = ?;",
                 column,
                 (value ? 1 : 0),
-                uuid
+                uuid.toString()
         );
     }
 }

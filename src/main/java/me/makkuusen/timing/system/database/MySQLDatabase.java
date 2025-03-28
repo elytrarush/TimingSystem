@@ -369,12 +369,12 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     public TPlayer createPlayer(UUID uuid, String name) {
         try {
             DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `boat`) VALUES(?, ?, ?);",
-                    uuid,
+                    uuid.toString(),
                     TSDatabase.sqlStringOf(name),
                     Boat.Type.BIRCH.name()
             );
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_players` WHERE `uuid` = ?;",
-                    uuid
+                    uuid.toString()
             );
             return new TPlayer(getPlugin(), dbRow);
         } catch (SQLException e) {
@@ -388,7 +388,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         DB.executeUpdateAsync("UPDATE `ts_players` SET ? = ? WHERE `uuid` = ?;",
                 column,
                 TSDatabase.sqlStringOf(value),
-                uuid
+                uuid.toString()
         );
     }
 
@@ -397,7 +397,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         DB.executeUpdateAsync("UPDATE `ts_players` SET ? = ? WHERE `uuid` = ?;",
                 column,
                 value,
-                uuid
+                uuid.toString()
         );
     }
 
@@ -409,7 +409,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         try {
             var eventId = DB.executeInsert("INSERT INTO `ts_events`(`name`,`uuid`,`date`,`track`,`state`,`isRemoved`) VALUES (?, ?, ?,NULL, ?, 0);",
                     name,
-                    uuid,
+                    uuid.toString(),
                     ApiUtilities.getTimestamp(),
                     Event.EventState.SETUP.name()
             );
@@ -466,7 +466,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     public void createSign(TPlayer tPlayer, Event event, Subscriber.Type type) {
         DB.executeUpdateAsync("INSERT INTO `ts_events_signs`(`eventId`, `uuid`, `type`) VALUES (?, ?, ?);",
                 event.getId(),
-                tPlayer.getUniqueId(),
+                tPlayer.getUniqueId().toString(),
                 type.name()
         );
     }
@@ -484,7 +484,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     public DbRow createDriver(UUID uuid, Heat heat, int startPosition) {
         try {
             var driverId = DB.executeInsert("INSERT INTO `ts_drivers`(`uuid`, `heatId`, `position`, `startPosition`, `startTime`, `endTime`, `pitstops`) VALUES (?, ?, ?, ?,NULL,NULL, 0);",
-                    uuid,
+                    uuid.toString(),
                     heat.getId(),
                     startPosition,
                     startPosition
@@ -502,7 +502,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     public void createLap(Lap lap) {
         String lapEnd = lap.getLapEnd() == null ? "NULL" : String.valueOf(lap.getLapEnd().toEpochMilli());
         DB.executeUpdateAsync("INSERT INTO `ts_laps`(`uuid`, `heatId`, `trackId`, `lapStart`, `lapEnd`, `pitted`) VALUES (?, ?, ?, ?, ?, ?);",
-                lap.getPlayer().getUniqueId(),
+                lap.getPlayer().getUniqueId().toString(),
                 lap.getHeatId(),
                 lap.getTrack().getId(),
                 lap.getLapStart().toEpochMilli(),
@@ -548,7 +548,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     public List<DbRow> selectLaps(int heatId, String uuid) throws SQLException {
         return DB.getResults("SELECT * FROM `ts_laps` WHERE `heatId` = ? AND `uuid` = ? AND `isRemoved` = 0;",
                 heatId,
-                uuid
+                uuid.toString()
         );
     }
 
@@ -592,7 +592,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     public void createAttempt(int id, UUID uuid, long date, long time) {
         DB.executeUpdateAsync("INSERT INTO `ts_attempts` (`trackId`, `uuid`, `date`, `time`) VALUES(?, ?, ?, ?);",
                 id,
-                uuid,
+                uuid.toString(),
                 date,
                 time
         );
@@ -750,7 +750,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     @Override
     public long createTrack(String uuid, String name, long date, int weight, ItemStack gui, Location location, Track.TrackType type, BoatUtilsMode boatUtilsMode) throws SQLException {
         return DB.executeInsert("INSERT INTO ts_tracks (`uuid`, `name`, dateCreated, weight, guiItem, spawn, type, toggleOpen, boatUtilsMode, isRemoved) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, 0);",
-                uuid,
+                uuid.toString(),
                 TSDatabase.sqlStringOf(name),
                 date,
                 weight,
@@ -888,7 +888,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     public void removeAllFinishes(int trackId, UUID uuid) {
         DB.executeUpdateAsync("UPDATE `ts_finishes` SET `isRemoved` = 1 WHERE `trackId` = ? AND `uuid` = ?;",
                 trackId,
-                uuid
+                uuid.toString()
         );
     }
 
