@@ -86,6 +86,11 @@ public class TSListener implements Listener {
         // Issue #51 - Check for other TPlayers that have an identical name.
         // If there is another player with the same name, but not the same UUID. We need to update that TPlayers name.
         for (TPlayer toCheck : TimingSystem.players.values()) {
+            if (toCheck == null) {
+                plugin.getLogger().warning("[DuplicateUsernameCheck] Variable toCheck was null. That shouldn't be possible. Check for possible data corruption in table ts_players.");
+                continue;
+            }
+
             if (toCheck.getName().equalsIgnoreCase(player.getName()) && !toCheck.getUniqueId().equals(player.getUniqueId())) {
                 plugin.getLogger().warning("[DuplicateUsernameCheck] Existing TPlayer " + toCheck.getUniqueId().toString() + " has the same username as " + player.getUniqueId().toString() + ".");
                 // Check the current username for toCheck. Afterward, update their username
