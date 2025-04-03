@@ -69,7 +69,17 @@ public class CommandEvent extends BaseCommand {
             if (event.getUuid().equals(UUID.fromString("00000000-0000-0000-0000-000000000000"))) {
                 nameDisplay = "Admin";
             } else {
-                nameDisplay = TSDatabase.getPlayer(event.getUuid()).getNameDisplay();
+                TPlayer tPlayer = TSDatabase.getPlayer(event.getUuid());
+                if (tPlayer != null) {
+                    String playerNameDisplay = tPlayer.getNameDisplay();
+                    if (playerNameDisplay != null) {
+                        nameDisplay = playerNameDisplay;
+                    } else {
+                        nameDisplay = "{[ERROR] TPlayer.getNameDisplay() was null. Maybe the database hasn't finished loading yet?}";
+                    }
+                } else {
+                    nameDisplay = "{[ERROR] TPlayer was null. Maybe the database hasn't finished loading yet?}";
+                }
             }
             commandSender.sendMessage(theme.highlight(event.getDisplayName()).clickEvent(ClickEvent.runCommand("/event info " + event.getDisplayName())).hoverEvent(HoverEvent.showText(Text.get(commandSender, Hover.CLICK_TO_SELECT))).append(Component.space()).append(theme.getParenthesized(event.getState().name())).append(theme.primary(" - ")).append(theme.primary(ApiUtilities.niceDate(event.getDate()))).append(Component.space()).append(theme.primary(">")).append(Component.space()).append(theme.highlight(nameDisplay)));
         }
