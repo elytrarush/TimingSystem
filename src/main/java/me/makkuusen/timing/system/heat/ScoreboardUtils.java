@@ -23,6 +23,10 @@ public class ScoreboardUtils {
         return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" +").color(NamedTextColor.GREEN)).append(paddGap(ApiUtilities.formatAsQualificationGap(timeDiff)).color(NamedTextColor.GREEN)).append(getTeamIcon(driver)).append(paddName(driver, compact)).build();
     }
 
+    public static Component getDriverLineEqualQualyGap(long timeDiff, Driver driver, int pos, boolean compact, Theme theme) {
+        return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" =").color(NamedTextColor.YELLOW)).append(paddGap(ApiUtilities.formatAsQualificationGap(timeDiff)).color(NamedTextColor.YELLOW)).append(getTeamIcon(driver)).append(paddName(driver, compact)).build();
+    }
+
     public static Component getDriverLineNegativeQualyGap(long timeDiff, Driver driver, int pos, boolean compact, Theme theme) {
         return Component.text().append(paddPos(pos, driver)).append((compact ? Component.empty() : getDivider(theme))).append(Component.text(" -").color(NamedTextColor.RED)).append(paddGap(ApiUtilities.formatAsQualificationGap(timeDiff)).color(NamedTextColor.RED)).append(getTeamIcon(driver)).append(paddName(driver, compact)).build();
     }
