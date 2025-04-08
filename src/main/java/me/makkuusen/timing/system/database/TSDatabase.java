@@ -59,7 +59,7 @@ public interface TSDatabase {
     }
 
     static String sqlStringOf(String s) {
-        return s == null ? "NULL" : "'" + s.replace("\\", "\\\\").replace("'", "\\'") + "'";
+        return s == null ? "NULL" : s.replace("\\", "\\\\").replace("'", "\\'");
     }
 
     static TPlayer getPlayer(UUID uuid) {

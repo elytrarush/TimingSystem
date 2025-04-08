@@ -228,7 +228,11 @@ public class Driver extends Participant implements Comparable<Driver> {
     }
 
     public @Nullable Lap getCurrentLap() {
-        return laps.get(laps.size() - 1);
+        if (laps.isEmpty()) {
+            return null;
+        } else {
+            return laps.get(laps.size() - 1);
+        }
     }
 
     public void removeUnfinishedLap() {

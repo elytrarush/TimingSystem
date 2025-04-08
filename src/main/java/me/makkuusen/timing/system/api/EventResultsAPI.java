@@ -11,6 +11,7 @@ import me.makkuusen.timing.system.round.Round;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
@@ -34,9 +35,15 @@ public class EventResultsAPI {
     }
 
     private static DriverResult getDriverResult(Driver driver) {
-        List<LapResult> lapResults  = new ArrayList<>();
+        List<LapResult> lapResults = new ArrayList<>();
         for (Lap lap : driver.getLaps()) {
-            LapResult lapResult = new LapResult(lap.getLapTime(), lap.isPitted(), driver.getBestLap().get().getLapTime() == lap.getLapTime());
+            LapResult lapResult;
+            Optional<Lap> bestLapOptional = driver.getBestLap();
+            if (bestLapOptional.isPresent()) {
+                lapResult = new LapResult(lap.getLapTime(), lap.isPitted(), bestLapOptional.get().getLapTime() == lap.getLapTime());
+            } else {
+                lapResult = new LapResult(lap.getLapTime(), lap.isPitted(), false);
+            }
             lapResults.add(lapResult);
         }
         return new DriverResult(driver.getPosition(), driver.getStartPosition(), driver.getTPlayer().getName(), driver.getTPlayer().getUniqueId().toString(), driver.getFinishTime(), lapResults);
