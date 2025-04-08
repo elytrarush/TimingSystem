@@ -182,7 +182,7 @@ public class DriverScoreboard {
         }
 
         if (timeDiff == 0) {
-            return ScoreboardUtils.getDriverLineEqualRaceGap(driver, driver.getPits(), driver.getPosition(), compact, theme);
+            return ScoreboardUtils.getDriverLineNegativeQualyGap(timeDiff, driver, driver.getPosition(), compact, theme);
         }
 
         return ScoreboardUtils.getDriverLineQualyGap(timeDiff, driver, driver.getPosition(), compact, theme);
