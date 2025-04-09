@@ -385,7 +385,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void playerUpdateValue(UUID uuid, String column, String value) {
-        DB.executeUpdateAsync("UPDATE `ts_players` set " + column + " = ? WHERE `uuid` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `" + column + "` = ? WHERE `uuid` = ?;",
                 TSDatabase.sqlStringOf(value),
                 uuid.toString()
         );
@@ -393,7 +393,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void playerUpdateValue(UUID uuid, String column, Boolean value) {
-        DB.executeUpdateAsync("UPDATE `ts_players` set " + column + " = ? WHERE `uuid` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `" + column + "` = ? WHERE `uuid` = ?;",
                 value,
                 uuid.toString()
         );
@@ -598,7 +598,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void eventSet(long heatId, String column, String value) {
-        DB.executeUpdateAsync("UPDATE `ts_events` set " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_events` SET `" + column + "` = ? WHERE `id` = ?;",
                 TSDatabase.sqlStringOf(value),
                 heatId
         );
@@ -606,7 +606,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void eventSet(long heatId, String column, Boolean value) {
-        DB.executeUpdateAsync("UPDATE `ts_events` set " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_events` SET `" + column + "` = ? WHERE `id` = ?;",
                 value,
                 heatId
         );
@@ -614,7 +614,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void eventSet(long heatId, String column, Integer value) {
-        DB.executeUpdateAsync("UPDATE `ts_events` SET " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_events` SET `" + column + "` = ? WHERE `id` = ?;",
                 value,
                 heatId
         );
@@ -622,7 +622,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void roundSet(long heatId, String column, String value) {
-        DB.executeUpdateAsync("UPDATE `ts_rounds` set " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_rounds` SET `" + column + "` = ? WHERE `id` = ?;",
                 TSDatabase.sqlStringOf(value),
                 heatId
         );
@@ -630,7 +630,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void heatSet(long heatId, String column, String value) {
-        DB.executeUpdateAsync("UPDATE `ts_heats` set " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `" + column + "` = ? WHERE `id` = ?;",
                 TSDatabase.sqlStringOf(value),
                 heatId
         );
@@ -638,7 +638,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void heatSet(long heatId, String column, Integer value) {
-        DB.executeUpdateAsync("UPDATE `ts_heats` set " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `" + column + "` = ? WHERE `id` = ?;",
                 value,
                 heatId
         );
@@ -646,7 +646,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void heatSet(long heatId, String column, Long value) {
-        DB.executeUpdateAsync("UPDATE `ts_heats` set " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_heats` SET `" + column + "` = ? WHERE `id` = ?;",
                 value,
                 heatId
         );
@@ -654,7 +654,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void driverSet(long driverId, String column, Integer value) {
-        DB.executeUpdateAsync("UPDATE `ts_drivers` set " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `" + column + "` = ? WHERE `id` = ?;",
                 value,
                 driverId
         );
@@ -662,7 +662,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void driverSet(long driverId, String column, Long value) {
-        DB.executeUpdateAsync("UPDATE `ts_drivers` set " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_drivers` SET `" + column + "` = ? WHERE `id` = ?;",
                 value,
                 driverId
         );
@@ -859,7 +859,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void tagSet(String tag, String column, String value) {
-        DB.executeUpdateAsync("UPDATE `ts_tags` set " + column + " = ? WHERE `tag` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_tags` SET `" + column + "` = ? WHERE `tag` = ?;",
                 TSDatabase.sqlStringOf(value),
                 tag
         );
@@ -897,7 +897,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void trackSet(int trackId, String column, String value) {
-        DB.executeUpdateAsync("UPDATE `ts_tracks` set " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `" + column + "` = ? WHERE `id` = ?;",
                 TSDatabase.sqlStringOf(value),
                 trackId
         );
@@ -905,7 +905,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void trackSet(int trackId, String column, Integer value) {
-        DB.executeUpdateAsync("UPDATE `ts_tracks` set " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `" + column + "` = ? WHERE `id` = ?;",
                 value,
                 trackId
         );
@@ -913,7 +913,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void trackSet(int trackId, String column, Boolean value) {
-        DB.executeUpdateAsync("UPDATE `ts_tracks` set " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `" + column + "` = ? WHERE `id` = ?;",
                 value,
                 trackId
         );
@@ -921,14 +921,14 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
 
     @Override
     public void trackRegionSet(int trackId, String column, String value) {
-        DB.executeUpdateAsync("UPDATE `ts_regions` set " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `" + column + "` = ? WHERE `id` = ?;",
                 TSDatabase.sqlStringOf(value),
                 trackId
         );
     }
     @Override
     public void trackRegionSet(int trackId, String column, Integer value) {
-        DB.executeUpdateAsync("UPDATE `ts_regions` set " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_regions` SET `" + column + "` = ? WHERE `id` = ?;",
                 value,
                 trackId
         );

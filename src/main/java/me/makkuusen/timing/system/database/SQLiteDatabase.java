@@ -301,7 +301,7 @@ public class SQLiteDatabase extends MySQLDatabase {
 
     @Override
     public void trackSet(int trackId, String column, Boolean value) {
-        DB.executeUpdateAsync("UPDATE `ts_tracks` SET " + column + " = ? WHERE `id` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_tracks` SET `" + column + "` = ? WHERE `id` = ?;",
                 (value ? 1 : 0),
                 trackId
         );
@@ -309,7 +309,7 @@ public class SQLiteDatabase extends MySQLDatabase {
 
     @Override
     public void playerUpdateValue(UUID uuid, String column, Boolean value) {
-        DB.executeUpdateAsync("UPDATE `ts_players` SET " + column + " = ? WHERE `uuid` = ?;",
+        DB.executeUpdateAsync("UPDATE `ts_players` SET `" + column + "` = ? WHERE `uuid` = ?;",
                 (value ? 1 : 0),
                 uuid.toString()
         );

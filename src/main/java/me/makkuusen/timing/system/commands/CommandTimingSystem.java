@@ -142,6 +142,10 @@ public class CommandTimingSystem extends BaseCommand {
         Theme theme = Theme.getTheme(sender);
         if (isValidHexCode(hex)) {
             color = TextColor.fromHexString(hex);
+            if (color == null) {
+                Text.send(sender,Error.COLOR_FORMAT);
+                return;
+            }
             switch (tsColor) {
                 case SECONDARY -> theme.setSecondary(color);
                 case PRIMARY -> theme.setPrimary(color);
@@ -173,6 +177,11 @@ public class CommandTimingSystem extends BaseCommand {
                 Text.send(player, Error.PERMISSION_DENIED);
                 return;
             }
+        }
+
+        if (color == null) {
+            Text.send(sender,Error.NO_HEX_COLOR_IN_TS_COLOR);
+            return;
         }
 
         Theme theme = Theme.getTheme(sender);
