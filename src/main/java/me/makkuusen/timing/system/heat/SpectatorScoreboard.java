@@ -147,6 +147,8 @@ public class SpectatorScoreboard {
         long timeDiff = driver.getBestLap().get().getLapTime() - comparingDriver.getBestLap().get().getLapTime();
         if (timeDiff < 0) {
             return ScoreboardUtils.getDriverLineNegativeQualyGap(timeDiff * -1, driver, driver.getPosition(), compact, theme);
+        } else if (timeDiff == 0) {
+            return ScoreboardUtils.getDriverLineEqualQualyGap(timeDiff, driver, driver.getPosition(), compact, theme);
         }
         return ScoreboardUtils.getDriverLineQualyGap(timeDiff, driver, driver.getPosition(), compact, theme);
     }
