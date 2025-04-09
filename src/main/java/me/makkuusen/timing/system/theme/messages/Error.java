@@ -89,7 +89,8 @@ public enum Error implements Message {
     LAG_DETECTED,
     MISSED_CHECKPOINTS,
     PERMISSION_DENIED,
-    BOAT_UTILS_NEEDED_FOR_RACE
+    BOAT_UTILS_NEEDED_FOR_RACE,
+    NO_HEX_COLOR_IN_TS_COLOR
     ;
 
     Error() {}
