@@ -370,7 +370,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         try {
             DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `boat`) VALUES(?, ?, ?);",
                     uuid.toString(),
-                    TSDatabase.sqlStringOf(name),
+                    name,
                     Boat.Type.BIRCH.name()
             );
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_players` WHERE `uuid` = ?;",
@@ -386,7 +386,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     @Override
     public void playerUpdateValue(UUID uuid, String column, String value) {
         DB.executeUpdateAsync("UPDATE `ts_players` SET `" + column + "` = ? WHERE `uuid` = ?;",
-                TSDatabase.sqlStringOf(value),
+                value,
                 uuid.toString()
         );
     }
@@ -599,7 +599,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     @Override
     public void eventSet(long heatId, String column, String value) {
         DB.executeUpdateAsync("UPDATE `ts_events` SET `" + column + "` = ? WHERE `id` = ?;",
-                TSDatabase.sqlStringOf(value),
+                value,
                 heatId
         );
     }
@@ -623,7 +623,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     @Override
     public void roundSet(long heatId, String column, String value) {
         DB.executeUpdateAsync("UPDATE `ts_rounds` SET `" + column + "` = ? WHERE `id` = ?;",
-                TSDatabase.sqlStringOf(value),
+                value,
                 heatId
         );
     }
@@ -631,7 +631,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     @Override
     public void heatSet(long heatId, String column, String value) {
         DB.executeUpdateAsync("UPDATE `ts_heats` SET `" + column + "` = ? WHERE `id` = ?;",
-                TSDatabase.sqlStringOf(value),
+                value,
                 heatId
         );
     }
@@ -740,12 +740,12 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     public long createTrack(String uuid, String name, long date, int weight, ItemStack gui, Location location, Track.TrackType type, BoatUtilsMode boatUtilsMode) throws SQLException {
         return DB.executeInsert("INSERT INTO ts_tracks (`uuid`, `name`, dateCreated, weight, guiItem, spawn, type, toggleOpen, boatUtilsMode, isRemoved) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, 0);",
                 uuid.toString(),
-                TSDatabase.sqlStringOf(name),
+                name,
                 date,
                 weight,
-                TSDatabase.sqlStringOf(ApiUtilities.itemToString(gui)),
+                ApiUtilities.itemToString(gui),
                 ApiUtilities.locationToString(location),
-                TSDatabase.sqlStringOf(type == null ? null : type.toString()),
+                type == null ? null : type.toString(),
                 boatUtilsMode.getId()
                 );
     }
@@ -755,8 +755,8 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         return DB.executeInsert("INSERT INTO `ts_regions` (`trackId`, `regionIndex`, `regionType`, `regionShape`, `minP`, `maxP`, `spawn`, `isRemoved`) VALUES(?, ?, ?, ?, ?, ?, ?, 0);",
                 trackId,
                 index,
-                TSDatabase.sqlStringOf(type.toString()),
-                TSDatabase.sqlStringOf(shape.toString()),
+                type.toString(),
+                shape.toString(),
                 minP,
                 maxP,
                 ApiUtilities.locationToString(location)
@@ -809,7 +809,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         DB.executeUpdateAsync("INSERT INTO `ts_tags` (`tag`, `color`, `item`) VALUES(?, ?, ?);",
                 tag.getValue(),
                 color.asHexString(),
-                TSDatabase.sqlStringOf(ApiUtilities.itemToString(item))
+                ApiUtilities.itemToString(item)
         );
     }
 
@@ -860,7 +860,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     @Override
     public void tagSet(String tag, String column, String value) {
         DB.executeUpdateAsync("UPDATE `ts_tags` SET `" + column + "` = ? WHERE `tag` = ?;",
-                TSDatabase.sqlStringOf(value),
+                value,
                 tag
         );
     }
@@ -898,7 +898,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     @Override
     public void trackSet(int trackId, String column, String value) {
         DB.executeUpdateAsync("UPDATE `ts_tracks` SET `" + column + "` = ? WHERE `id` = ?;",
-                TSDatabase.sqlStringOf(value),
+                value,
                 trackId
         );
     }
@@ -922,7 +922,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     @Override
     public void trackRegionSet(int trackId, String column, String value) {
         DB.executeUpdateAsync("UPDATE `ts_regions` SET `" + column + "` = ? WHERE `id` = ?;",
-                TSDatabase.sqlStringOf(value),
+                value,
                 trackId
         );
     }
@@ -945,7 +945,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     public void insertEvent(LogEntry logEntry) throws SQLException {
         DB.executeInsert("INSERT INTO `ts_track_events` (`date`, `body`) VALUES(?, ?);",
                 logEntry.getDate(),
-                TSDatabase.sqlStringOf(logEntry.getBody().toJSONString())
+                logEntry.getBody().toJSONString()
         );
     }
 }
