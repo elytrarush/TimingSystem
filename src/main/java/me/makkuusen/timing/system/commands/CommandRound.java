@@ -136,8 +136,14 @@ public class CommandRound extends BaseCommand {
                 return;
             }
         }
-        if (event.eventSchedule.getRound().get().finish(event)) {
-            Text.send(player, Success.ROUND_FINISHED);
+
+        var maybeRound = event.eventSchedule.getRound();
+        if (maybeRound.isPresent()) {
+            if (maybeRound.get().finish(event)) {
+                Text.send(player, Success.ROUND_FINISHED);
+            } else {
+                Text.send(player, Error.FAILED_TO_FINISH_ROUND);
+            }
         } else {
             Text.send(player, Error.FAILED_TO_FINISH_ROUND);
         }
