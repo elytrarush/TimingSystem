@@ -44,7 +44,7 @@ public abstract class Round {
     }
 
     public boolean removeHeat(Heat heat) {
-        if (heat.getHeatState() != HeatState.FINISHED && heat.getEvent().getState() != Event.EventState.FINISHED && heats.contains(heat)) {
+        if (heat.getHeatState() == HeatState.SETUP && heat.getEvent().getState() != Event.EventState.FINISHED && heats.contains(heat)) { // ISSUE #74
             heats.remove(heat);
             for (Heat _heat : heats) {
                 if (heat.getHeatNumber() < _heat.getHeatNumber()) {
