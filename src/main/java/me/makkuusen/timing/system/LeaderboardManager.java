@@ -11,7 +11,7 @@ import java.util.List;
 
 public class LeaderboardManager {
 
-	public static final int TICKS_BETWEEN_INDIVIDUAL_UPDATES = 10;
+	public static final int TICKS_BETWEEN_INDIVIDUAL_UPDATES = 20;
 
     public static void updateFastestTimeLeaderboard(Track track) {
         if (!TimingSystem.enableLeaderboards) {
