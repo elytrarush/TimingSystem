@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import me.makkuusen.timing.system.loneliness.LonelinessController;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
@@ -701,6 +702,11 @@ public class ApiUtilities {
                 Text.send(player, Error.NOT_NOW);
                 return;
             }
+        }
+
+        LonelinessController.updatePlayersVisibility(player);
+        if (!LonelinessController.unghost(player.getUniqueId())) {
+            LonelinessController.updatePlayerVisibility(player);
         }
 
         if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
