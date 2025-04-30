@@ -37,17 +37,6 @@ public class LonelinessController implements Listener {
     public LonelinessController(Plugin plugin) {
         LonelinessController.plugin = plugin;
     }
-
-    /*
-     * players should be hidden following this logic:
-     * 
-     * on starting a time trial, all players and their vehicles should be hidden from the player
-     * if the player is in a loneliness heat, all players and their vehicles should be hidden from the player
-     * if the player is in a heat without loneliness, all players not also in the heat and their vehicles should be hidden from the player
-     *     - there is an exception to this rule: if another player in the heat is "ghosted", then that player and their vehicles should be hidden
-     * if a player is not in a boat, every player and their vehicle should be visible
-     */ 
-
     
     public static void updatePlayersVisibility(Player player) {
 
@@ -224,18 +213,6 @@ public class LonelinessController implements Listener {
             }
          }, 5L);
     }
-
-
-     /*
-     * this logic will need to be checked in the following events:
-     * - Player joins the server 1
-     * - Player joins a heat 1
-     * - Player starts a time trial 1
-     * - Player quits/finishes a heat 1
-     * - Player changes world 1
-     * - Player enters a vehicle 1
-     * - Player leaves a vehicle 1
-     */
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
