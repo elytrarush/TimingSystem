@@ -704,11 +704,6 @@ public class ApiUtilities {
             }
         }
 
-        LonelinessController.updatePlayersVisibility(player);
-        if (!LonelinessController.unghost(player.getUniqueId())) {
-            LonelinessController.updatePlayerVisibility(player);
-        }
-
         if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
             var tt = TimeTrialController.timeTrials.get(player.getUniqueId());
             Track track = tt.getTrack();
