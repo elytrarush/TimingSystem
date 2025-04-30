@@ -222,6 +222,10 @@ public class LonelinessController implements Listener {
 
    @EventHandler
     public void onVehicleEnter(VehicleEnterEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
+
         if (event.getVehicle() instanceof Boat || event.getVehicle() instanceof ChestBoat) {
             if (event.getEntered() instanceof Player) {
                 Player player = (Player) event.getEntered();
@@ -233,6 +237,10 @@ public class LonelinessController implements Listener {
 
     @EventHandler
     public void onVehicleExit(VehicleExitEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
+
         if (event.getVehicle() instanceof Boat || event.getVehicle() instanceof ChestBoat) {
             if (event.getExited() instanceof Player) {
                 Player player = (Player) event.getExited();

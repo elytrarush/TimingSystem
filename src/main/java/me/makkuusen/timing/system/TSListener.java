@@ -175,13 +175,8 @@ public class TSListener implements Listener {
 
     @EventHandler
     public void onVehicleEnter(VehicleEnterEvent e) {
-        if (!e.getVehicle().getPassengers().isEmpty()) {
-            var passenger = e.getVehicle().getPassengers().get(0);
-            if (passenger instanceof Player player) {
-                if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
-                    e.setCancelled(true);
-                }
-            }
+        if (e.getVehicle() instanceof Boat boat && (boat.getPersistentDataContainer().has(Objects.requireNonNull(NamespacedKey.fromString("spawned", plugin))) || boat.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.COMMAND))) {
+            e.setCancelled(true);
         }
     }
 
