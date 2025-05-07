@@ -47,4 +47,7 @@ Step 2. Add the TimingSystem dependency
 </dependency>
 ```
 
+
 Timing System was originally forked from [EpicIceTrack](https://github.com/JustBru00/NetherCubeParkour).
+
+[![Plugin bStats Metrics Graph](https://bstats.org/signatures/bukkit/TimingSystem.svg)](https://bstats.org/plugin/bukkit/TimingSystem/16012)
