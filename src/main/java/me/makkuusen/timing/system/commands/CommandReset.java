@@ -15,7 +15,6 @@ import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.locations.TrackLocation;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -27,65 +26,125 @@ public class CommandReset extends BaseCommand {
     @Default
     @CommandPermission("%permissiontimingsystem_reset")
     public static void onReset(Player player) {
-        var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
+        TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId())
+                .ifPresentOrElse(
+                        driver -> handleDriverReset(player, driver),
+                        () -> ApiUtilities.resetPlayerTimeTrial(player)
+                );
+    }
 
-        if (maybeDriver.isEmpty()) {
-            ApiUtilities.resetPlayerTimeTrial(player);
-            return;
-        }
-
-        Driver driver = maybeDriver.get();
-
-        if (!driver.isRunning()) {
-            Text.send(player, Error.NOT_NOW);
-            return;
-        }
-
-        var round = driver.getHeat().getRound();
-        if (round instanceof QualificationRound && driver.getState() == DriverState.RUNNING) {
-            if (timeIsOver(driver)) {
-                Text.send(player, Error.NOT_NOW);
-                return;
-            }
-            if (driver.getHeat().getReset()) {
-                ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), driver.getHeat().getEvent().getTrack().getSpawnLocation());
-                driver.setState(DriverState.RESET);
-            } else {
-                boolean success = resetCheck(driver);
-                if (!success) {
-                    Text.send(player, Error.NOT_NOW);
-                    return;
-                }
-            }
-        } else if (round instanceof FinalRound) {
-            resetCheck(driver);
+    private static void handleDriverReset(Player player, Driver driver) {
+        if (canResetDriver(driver)) {
+            performReset(driver);
         } else {
             Text.send(player, Error.NOT_NOW);
         }
     }
 
-    private static boolean resetCheck(Driver driver) {
-        if (driver.getState() == DriverState.RUNNING) {
-            int latestCheckpoint = driver.getCurrentLap().getLatestCheckpoint();
-
-            if (latestCheckpoint == 0) {
-                Location startLineLocation = driver.getHeat().getEvent().getTrack().getTrackRegions().getRegions(TrackRegion.RegionType.START).get(0).getSpawnLocation();
-                ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), startLineLocation);
-                return true;
-            }
-
-            ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), driver.getHeat().getEvent().getTrack().getTrackRegions().getCheckpoints(latestCheckpoint).get(0).getSpawnLocation());
-            return true;
+    private static boolean canResetDriver(Driver driver) {
+        if (driver.getHeat().getRound() instanceof QualificationRound) {
+            return canResetInQualification(driver);
+        } else if (driver.getHeat().getRound() instanceof FinalRound) {
+            return canResetInFinal(driver);
         }
-
-        if (driver.getState() == DriverState.STARTING) {
-            Track track = driver.getHeat().getEvent().getTrack();
-            int numGrids = track.getTrackLocations().getLocations(TrackLocation.Type.GRID).size();
-            Location finalGridLocation = track.getTrackLocations().getLocations(TrackLocation.Type.GRID).get(numGrids - 1).getLocation();
-            ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), finalGridLocation);
-            return true;
-        }
-
         return false;
+    }
+
+    private static boolean canResetInQualification(Driver driver) {
+        if (!isValidStateForQualificationReset(driver.getState())) {
+            return false;
+        }
+
+        if (driver.getHeat().getReset()) {
+            return !timeIsOver(driver);
+        }
+
+        return !isPlayerInPit(driver);
+    }
+
+    private static boolean canResetInFinal(Driver driver) {
+        return (driver.getState() == DriverState.RUNNING || driver.getState() == DriverState.STARTING)
+                && !isPlayerInPit(driver);
+    }
+
+    private static boolean isValidStateForQualificationReset(DriverState state) {
+        return state == DriverState.RUNNING ||
+                state == DriverState.LAPRESET ||
+                state == DriverState.RESET ||
+                state == DriverState.STARTING;
+    }
+
+    private static boolean isPlayerInPit(Driver driver) {
+        return driver.getHeat().getEvent().getTrack().getTrackRegions()
+                .getRegions(TrackRegion.RegionType.INPIT)
+                .stream()
+                .anyMatch(region -> region.contains(driver.getTPlayer().getPlayer().getLocation()));
+    }
+
+    private static void performReset(Driver driver) {
+        if (driver.getState() == DriverState.RUNNING) {
+            resetToCheckpoint(driver);
+        } else if (driver.getState() == DriverState.STARTING) {
+            resetToGrid(driver);
+        } else if (driver.getState() == DriverState.RESET) {
+            resetToTrackSpawn(driver);
+        }
+    }
+
+    private static void resetToCheckpoint(Driver driver) {
+        int latestCheckpoint = driver.getCurrentLap().getLatestCheckpoint();
+        Location resetLocation = latestCheckpoint == 0
+                ? getStartLineLocation(driver)
+                : getCheckpointLocation(driver, latestCheckpoint);
+
+        teleportPlayerToLocation(driver, resetLocation);
+    }
+
+    private static void resetToGrid(Driver driver) {
+        Track track = driver.getHeat().getEvent().getTrack();
+        Location gridLocation = driver.getHeat().getRound() instanceof QualificationRound
+                ? getLastQualificationGridLocation(track)
+                : getLastRaceGridLocation(track);
+
+        teleportPlayerToLocation(driver, gridLocation);
+    }
+
+    private static void resetToTrackSpawn(Driver driver) {
+        Location spawnLocation = driver.getHeat().getEvent().getTrack().getSpawnLocation();
+        teleportPlayerToLocation(driver, spawnLocation);
+    }
+
+    private static Location getStartLineLocation(Driver driver) {
+        return driver.getHeat().getEvent().getTrack()
+                .getTrackRegions()
+                .getRegions(TrackRegion.RegionType.START)
+                .get(0)
+                .getSpawnLocation();
+    }
+
+    private static Location getCheckpointLocation(Driver driver, int checkpoint) {
+        return driver.getHeat().getEvent().getTrack()
+                .getTrackRegions()
+                .getCheckpoints(checkpoint)
+                .get(0)
+                .getSpawnLocation();
+    }
+
+    private static Location getLastQualificationGridLocation(Track track) {
+        var qualyGrids = track.getTrackLocations().getLocations(TrackLocation.Type.QUALYGRID);
+        return qualyGrids.get(qualyGrids.size() - 1).getLocation();
+    }
+
+    private static Location getLastRaceGridLocation(Track track) {
+        var raceGrids = track.getTrackLocations().getLocations(TrackLocation.Type.GRID);
+        return raceGrids.get(raceGrids.size() - 1).getLocation();
+    }
+
+    private static void teleportPlayerToLocation(Driver driver, Location location) {
+        ApiUtilities.teleportPlayerAndSpawnBoat(
+                driver.getTPlayer().getPlayer(),
+                driver.getHeat().getEvent().getTrack(),
+                location
+        );
     }
 }
