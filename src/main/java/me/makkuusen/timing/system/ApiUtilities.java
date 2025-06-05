@@ -415,7 +415,7 @@ public class ApiUtilities {
         return toReturn;
     }
 
-    public static Boat spawnBoat(Location location, Boat.Type type, boolean isChestBoat) {
+    public static Boat spawnBoat(Location location, String type, boolean isChestBoat) {
         if (!location.isWorldLoaded()) {
             return null;
         }
@@ -423,9 +423,9 @@ public class ApiUtilities {
         Boat boat;
         
         if (isChestBoat) {
-            boat = BoatSpawnManager.getBoatSpawner().spawnChestBoat(location);
+            boat = BoatSpawnManager.getBoatSpawner().spawnBoat(location, type, true);
         } else {
-            boat = BoatSpawnManager.getBoatSpawner().spawnBoat(location);
+            boat = BoatSpawnManager.getBoatSpawner().spawnBoat(location, type, false);
         }
 
         // Create and fire BoatSpawnEvent
@@ -440,9 +440,6 @@ public class ApiUtilities {
         }
         
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), ()-> {
-            if (!TimingSystem.configuration.isCustomBoatsAddOnEnabled()) {
-                 boat.setBoatType(type);
-            }
             boat.getPersistentDataContainer().set(Objects.requireNonNull(NamespacedKey.fromString("spawned", TimingSystem.getPlugin())), PersistentDataType.INTEGER, 1);
         }, 3);
 
@@ -527,34 +524,66 @@ public class ApiUtilities {
         return List.of(Material.BIRCH_BOAT, Material.BIRCH_CHEST_BOAT, Material.ACACIA_BOAT, Material.ACACIA_CHEST_BOAT, Material.DARK_OAK_BOAT, Material.DARK_OAK_CHEST_BOAT, Material.JUNGLE_BOAT, Material.JUNGLE_CHEST_BOAT, Material.MANGROVE_BOAT, Material.MANGROVE_CHEST_BOAT, Material.OAK_BOAT, Material.OAK_CHEST_BOAT, Material.SPRUCE_BOAT, Material.SPRUCE_CHEST_BOAT, Material.CHERRY_BOAT, Material.CHERRY_CHEST_BOAT, Material.BAMBOO_RAFT, Material.BAMBOO_CHEST_RAFT);
     }
 
-    public static Boat.Type getBoatType(Material material) {
+    public static String getBoatType(Material material) {
         switch (material) {
             case ACACIA_BOAT, ACACIA_CHEST_BOAT -> {
-                return Boat.Type.ACACIA;
+                return "ACACIA";
             }
             case BIRCH_BOAT, BIRCH_CHEST_BOAT -> {
-                return Boat.Type.BIRCH;
+                return "BIRCH";
             }
             case DARK_OAK_BOAT, DARK_OAK_CHEST_BOAT -> {
-                return Boat.Type.DARK_OAK;
+                return "DARK_OAK";
             }
             case SPRUCE_BOAT, SPRUCE_CHEST_BOAT -> {
-                return Boat.Type.SPRUCE;
+                return "SPRUCE";
             }
             case JUNGLE_BOAT, JUNGLE_CHEST_BOAT -> {
-                return Boat.Type.JUNGLE;
+                return "JUNGLE";
             }
             case MANGROVE_BOAT, MANGROVE_CHEST_BOAT -> {
-                return Boat.Type.MANGROVE;
+                return "MANGROVE";
             }
             case CHERRY_BOAT, CHERRY_CHEST_BOAT -> {
-                return Boat.Type.CHERRY;
+                return "CHERRY";
             }
             case BAMBOO_RAFT, BAMBOO_CHEST_RAFT -> {
-                return Boat.Type.BAMBOO;
+                return "BAMBOO";
             }
             default -> {
-                return Boat.Type.OAK;
+                return "OAK";
+            }
+        }
+    }
+
+    public static Material getBoatWood(String s) {
+        switch (s) {
+            case "ACACIA" -> {
+                return Material.ACACIA_BOAT;
+            }
+            case "BIRCH" -> {
+                return Material.BIRCH_BOAT;
+            }
+            case "DARK_OAK" -> {
+                return Material.DARK_OAK_BOAT;
+            }
+            case "SPRUCE" -> {
+                return Material.SPRUCE_BOAT;
+            }
+            case "JUNGLE" -> {
+                return Material.JUNGLE_BOAT;
+            }
+            case "MANGROVE" -> {
+                return Material.MANGROVE_BOAT;
+            }
+            case "CHERRY" -> {
+                return Material.CHERRY_BOAT;
+            }
+            case "BAMBOO" -> {
+                return Material.BAMBOO_RAFT;
+            }
+            default -> {
+                return Material.OAK_BOAT;
             }
         }
     }

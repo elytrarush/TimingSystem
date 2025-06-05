@@ -298,7 +298,7 @@ public class TSListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByBlock(EntityDamageByBlockEvent event) {
-        if (event.getEntity() instanceof Player && event.getEntity().getVehicle() != null && event.getEntity().getVehicle().getType() == EntityType.BOAT && event.getEntity().getVehicle().hasMetadata("spawned")) {
+        if (event.getEntity() instanceof Player && event.getEntity().getVehicle() != null && event.getEntity().getVehicle() instanceof Boat && event.getEntity().getVehicle().hasMetadata("spawned")) {
             event.setCancelled(true);
         }
     }
