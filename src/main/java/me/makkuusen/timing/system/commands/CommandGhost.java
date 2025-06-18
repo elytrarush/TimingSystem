@@ -22,13 +22,7 @@ public class CommandGhost extends BaseCommand {
     @CommandCompletion("@players")
     @CommandPermission("%permissiontimingsystem_ghost")
     public static void onGhost(Player player, String targetName) {
-
         Player target = player.getServer().getPlayer(targetName);
-        if (target == null) {
-            Text.send(player, Error.PLAYER_NOT_FOUND);
-            return;
-        }
-
         TPlayer tPlayer = TSDatabase.getPlayer(target.getUniqueId());
         Boolean isGhosted = LonelinessController.isGhosted(target.getUniqueId());
 
