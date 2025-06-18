@@ -5,18 +5,15 @@ import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.gui.SettingsGui;
-import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.tplayer.TPlayer;
-import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static me.makkuusen.timing.system.database.EventDatabase.playerInRunningHeat;
 
 @CommandAlias("settings|s")
 public class CommandSettings extends BaseCommand {
@@ -61,10 +58,17 @@ public class CommandSettings extends BaseCommand {
     @CommandCompletion("@boat")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onBoat(Player player, String type) {
+        List<String> validBoats = List.of("ACACIA", "BIRCH", "SPRUCE", "JUNGLE", "MANGROVE", "CHERRY", "BAMBOO", "OAK");
+        if (!validBoats.contains(type.toUpperCase())) {
+            Text.send(player, Error.GENERIC);
+            return;
+        }
+
         if (TimingSystem.configuration.isCustomBoatsAddOnEnabled()) {
             Text.send(player, Error.NOT_NOW);
             return;
         }
+
         TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         tPlayer.getSettings().setBoat(type);
 //        if (player.getVehicle() instanceof Boat boat) {

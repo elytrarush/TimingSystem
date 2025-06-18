@@ -81,7 +81,7 @@ public class Settings {
     }
 
     public void setBoat(String boat) {
-        this.boat = boat;
+        this.boat = boat.toUpperCase();
         TimingSystem.getDatabase().playerUpdateValue(uuid, "boat", boat);
     }
 
