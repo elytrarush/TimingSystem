@@ -78,10 +78,6 @@ public class LonelinessController implements Listener {
                 // Do not hide players in the same non loneliness heat, unless they are ghosted
                 maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(p.getUniqueId());
                 if (maybeDriver.isPresent() && maybeDriver.get().getHeat().getId() == heat.getId() && !ghostedPlayers.contains(p.getUniqueId())) {
-                    if (p.isInsideVehicle() && (p.getVehicle() instanceof Boat || p.getVehicle() instanceof ChestBoat)) {
-                        player.showEntity(plugin, p.getVehicle());
-                    }
-
                     player.showEntity(plugin, p);
                     continue;
                 }
@@ -274,7 +270,6 @@ public class LonelinessController implements Listener {
         }
 
         Player player = event.getPlayer();
-        updatePlayersVisibility(player);
         updatePlayerVisibility(player);
     }
 
