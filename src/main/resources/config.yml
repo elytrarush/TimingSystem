@@ -5,7 +5,7 @@ customboatsaddon:
    guiprefix5: '§f󏿸󏽛󏿻'
    guiprefix6: '§f󏿸󏽛󏿻'
 leaderboards:
-   updateticks: 18000
+   updateticks: 6000
    fastesttime:
       lines:
          - '§6§lLeaderboard for §e§l{mapname}'

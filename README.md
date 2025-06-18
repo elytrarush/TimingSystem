@@ -24,8 +24,8 @@ First of all you need a Minecraft server running [Paper](https://papermc.io). Th
 * [TimingSystemBlueMap](https://github.com/JustBru00/TimingSystemBlueMap) - Adds TimingSystem track locations to [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap).
 
 ## Recommended client mods
-* [OpenBoatUtils](https://modrinth.com/mod/openboatutils/versions) - Enables additional boat behaviours supported by TimingSystem.   
-* [TVCameras](https://github.com/FrostHexABG/TVCameras) - Allows TV Cameras to be added to tracks for a better event spectating experience.      
+* [OpenBoatUtils](https://modrinth.com/mod/openboatutils/versions) - Enables additional boat behaviours supported by TimingSystem.
+* [OinkScoreboard](https://github.com/Pigalala/OinkScoreboard) - Makes it possible to display more than 15 rows for big races.
 
 ## For Developers
 If you want to develop plugins that add on to TimingSystem, you should start by adding TimingSystem as a maven dependency.    
@@ -38,16 +38,13 @@ Step 1. Add the JitPack repository.
 	</repository>
 </repositories>
 ```
-Step 2. Add the TimingSystem dependency
+Step 2. Add the TimingSystem dependancy
 ```xml
 <dependency>
     <groupId>com.github.FrostHexABG</groupId>
     <artifactId>TimingSystem</artifactId>
-    <version>2.3</version>
+    <version>2.2.1</version>
 </dependency>
 ```
 
-
 Timing System was originally forked from [EpicIceTrack](https://github.com/JustBru00/NetherCubeParkour).
-
-[![Plugin bStats Metrics Graph](https://bstats.org/signatures/bukkit/TimingSystem.svg)](https://bstats.org/plugin/bukkit/TimingSystem/16012)
