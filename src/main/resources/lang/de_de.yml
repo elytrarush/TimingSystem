@@ -1,4 +1,4 @@
-Description: |
+Description: >
   Spezielle Formatierungscodes:
     &1 = Primärfarbe
     &2 = Sekundärfarbe
@@ -106,7 +106,7 @@ error:
   no_hex_color_in_ts_color: "&eSie können keine Hex-Farbcodes in /timingsystem color verwenden. Verwenden Sie stattdessen /timingsystem hexcolor."
 
 warning:
-  dangerous_command: "&wDieser Befehl ist gefährlich. Geben Sie "%command%" ein, um ihn trotzdem zu verwenden."
+  dangerous_command: "&wDieser Befehl ist gefährlich. Geben Sie \"%command%"\ ein, um ihn trotzdem zu verwenden."
   drivers_left_out: "&wAusgeschlossene Fahrer: "
   no_longer_spectating: "&wSie sind nicht mehr Zuschauer bei %event%."
   no_longer_signed: "&wSie sind nicht mehr für %event% angemeldet."
@@ -172,7 +172,7 @@ success:
   compact_scoreboard_off: "&sKompakte Anzeigetafel auf &eausgeschaltet&s."
   override_on: "&sÜberschreiben auf eingeschaltet."
   override_off: "&sÜberschreiben auf &eausgeschaltet&s."
-  color_updated: Ihre Farbe wurde aktualisiert.
+  color_updated: "Ihre Farbe wurde aktualisiert."
   round_finished: "&sRunde wurde beendet."
   event_finished: "&sEvent wurde beendet."
   race_finished: "&sRennen wurde beendet."
@@ -265,31 +265,31 @@ info:
   time_trial_lag_end: "&1Lagende > &2%time%"
 
 hover:
-  click_to_add: Klicken zum Hinzufügen
-  click_to_delete: Klicken zum Löschen
-  click_to_view: Klicken zum Ansehen
-  click_to_edit: Klicken zum Bearbeiten
-  click_to_edit_position: Klicken zum Bearbeiten der Position
-  click_to_open: Klicken zum Öffnen
-  click_to_close: Klicken zum Schließen
-  click_to_finish: Klicken zum Beenden
-  click_to_load: Klicken zum Laden
-  click_to_reset: Klicken zum Zurücksetzen
-  click_to_start: Klicken zum Starten
-  click_to_select: Klicken zum Auswählen
+  click_to_add: "Klicken zum Hinzufügen"
+  click_to_delete: "Klicken zum Löschen"
+  click_to_view: "Klicken zum Ansehen"
+  click_to_edit: "Klicken zum Bearbeiten"
+  click_to_edit_position: "Klicken zum Bearbeiten der Position"
+  click_to_open: "Klicken zum Öffnen"
+  click_to_close: "Klicken zum Schließen"
+  click_to_finish: "Klicken zum Beenden"
+  click_to_load: "Klicken zum Laden"
+  click_to_reset: "Klicken zum Zurücksetzen"
+  click_to_start: "Klicken zum Starten"
+  click_to_select: "Klicken zum Auswählen"
 
 word:
-  open: Offen
-  closed: Geschlossen
-  finish: Beenden
-  load: Laden
-  reset: Zurücksetzen
-  start: Starten
+  open: "Offen"
+  closed: "Geschlossen"
+  finish: "Beenden"
+  load: "Laden"
+  reset: "Zurücksetzen"
+  start: "Starten"
 
 text_button:
-  add_heat: Heat hinzufügen
-  add_round: Runde hinzufügen
-  view_event: Event ansehen
+  add_heat: "Heat hinzufügen"
+  add_round: "Runde hinzufügen"
+  view_event: "Event ansehen"
 
 broadcast:
   click_to_sign: "&b--> Klicken, um sich für &l%event%&r&b anzumelden <--"
@@ -356,7 +356,7 @@ gui:
   toggle_medals: "&1Umschalten: &2Medaillen"
   toggle_final_laps: "&1Umschalten: &2Alle finalen Rundenzeiten senden"
   toggle_compact_scoreboard: "&1Umschalten: &2Kompakte Anzeigetafel"
-  color: Farbe
+  color: "Farbe"
   "true": "&1Ein"
   "false": "&1Aus"
   return: "&1Zurück"
