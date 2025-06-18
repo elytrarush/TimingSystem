@@ -23,7 +23,7 @@ public class CommandUnghost extends BaseCommand {
         TPlayer tPlayer = TSDatabase.getPlayer(target.getUniqueId());
         Boolean isGhosted = LonelinessController.isGhosted(target.getUniqueId());
 
-        if (unghost(target.getUniqueId())) {
+        if (unghost(player.getUniqueId())) {
             Text.send(player, Success.GHOSTING_OFF);
             Text.send(target, Warning.GHOSTING_TARGET_OFF);
         } else {
