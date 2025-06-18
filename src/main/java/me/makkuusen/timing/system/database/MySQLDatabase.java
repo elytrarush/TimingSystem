@@ -375,7 +375,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
             DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `boat`) VALUES(?, ?, ?);",
                     uuid.toString(),
                     name,
-                    "BIRCH"
+                    Boat.Type.BIRCH.name()
             );
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_players` WHERE `uuid` = ?;",
                     uuid.toString()

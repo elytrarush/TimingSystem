@@ -14,8 +14,7 @@ import java.util.UUID;
 public class Settings {
 
     private final UUID uuid;
-    //private Boat.Type boat;
-    private String boat;
+    private Boat.Type boat;
     private boolean chestBoat;
     private boolean toggleSound;
     private String color;
@@ -29,8 +28,7 @@ public class Settings {
 
     public Settings(TPlayer tPlayer, DbRow data) {
         this.uuid = tPlayer.getUniqueId();
-        //boat = stringToType(data.getString("boat"));
-        boat = data.getString("boat");
+        boat = stringToType(data.getString("boat"));
         chestBoat = getBoolean(data, "chestBoat");
         toggleSound = getBoolean(data, "toggleSound");
         verbose = getBoolean(data, "verbose");
@@ -80,9 +78,9 @@ public class Settings {
         TimingSystem.getDatabase().playerUpdateValue(uuid, "shortName", name);
     }
 
-    public void setBoat(String boat) {
+    public void setBoat(Boat.Type boat) {
         this.boat = boat;
-        TimingSystem.getDatabase().playerUpdateValue(uuid, "boat", boat);
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "boat", boat.name());
     }
 
     public void setChestBoat(boolean b) {
@@ -135,7 +133,7 @@ public class Settings {
     }
 
     public Material getBoatMaterial() {
-        String boat = getBoat();
+        String boat = getBoat().name();
         if (chestBoat) {
             boat += "_CHEST";
         }
@@ -147,15 +145,15 @@ public class Settings {
         return Material.valueOf(boat);
     }
 
-//    private Boat.Type stringToType(String boatType) {
-//        if (boatType == null) {
-//            return Boat.Type.BIRCH;
-//        }
-//        try {
-//            return Boat.Type.valueOf(boatType);
-//        } catch (IllegalArgumentException e) {
-//            //REDWOOD is the only old option possible.
-//            return Boat.Type.SPRUCE;
-//        }
-//    }
+    private Boat.Type stringToType(String boatType) {
+        if (boatType == null) {
+            return Boat.Type.BIRCH;
+        }
+        try {
+            return Boat.Type.valueOf(boatType);
+        } catch (IllegalArgumentException e) {
+            //REDWOOD is the only old option possible.
+            return Boat.Type.SPRUCE;
+        }
+    }
 }

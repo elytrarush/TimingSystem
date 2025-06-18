@@ -60,16 +60,16 @@ public class CommandSettings extends BaseCommand {
     @Subcommand("boat")
     @CommandCompletion("@boat")
     @CommandPermission("%permissiontimingsystem_settings")
-    public static void onBoat(Player player, String type) {
+    public static void onBoat(Player player, Boat.Type type) {
         if (TimingSystem.configuration.isCustomBoatsAddOnEnabled()) {
             Text.send(player, Error.NOT_NOW);
             return;
         }
         TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
         tPlayer.getSettings().setBoat(type);
-//        if (player.getVehicle() instanceof Boat boat) {
-//            boat.setBoatType(type);
-//        }
+        if (player.getVehicle() instanceof Boat boat) {
+            boat.setBoatType(type);
+        }
         Text.send(player, Success.SAVED);
     }
 
