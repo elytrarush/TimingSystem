@@ -357,8 +357,8 @@ gui:
   toggle_final_laps: "&1Umschalten: &2Alle finalen Rundenzeiten senden"
   toggle_compact_scoreboard: "&1Umschalten: &2Kompakte Anzeigetafel"
   color: "Farbe"
-  "true": "&1Ein"
-  "false": "&1Aus"
+  true: "&1Ein"
+  false: "&1Aus"
   return: "&1Zurück"
   reset: "&eGUI zurücksetzen"
 
