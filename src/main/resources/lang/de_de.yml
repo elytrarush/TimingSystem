@@ -1,18 +1,18 @@
 Description: >
-  Spezielle Formatierungscodes:
-    &1 = Primärfarbe
-    &2 = Sekundärfarbe
-    &e = Fehlerfarbe
-    &s = Erfolgsfarbe
-    &w = Warnfarbe
-    &b = Broadcast-Farbe
-    &a = Belohnungsfarbe
-    &c = Sekundäre Belohnungsfarbe
-    &t = Titelfarbe
-    &l = Fett-Dekoration
-    &o = Kursiv-Dekoration
-    &r = Zurücksetzen von Dekoration und Farbe
-    %example% = Platzhalter, nicht verändern.
+  Special formatting codes:
+    &1 = primary color
+    &2 = secondary color
+    &e = error color
+    &s = success color
+    &w = warning color
+    &b = broadcast color
+    &a = award color
+    &c = award secondary color
+    &t = title color
+    &l = bold decoration
+    &o = italic decoration
+    &r = reset decoration and color
+    %example% = Placeholder, do not touch.
 
 error:
   generic: "&eEtwas ist schiefgelaufen."
