@@ -106,7 +106,7 @@ error:
   no_hex_color_in_ts_color: '&eSie können keine Hex-Farbcodes in /timingsystem color verwenden. Verwenden Sie stattdessen /timingsystem hexcolor.'
 
 warning:
-  dangerous_command: '&wDieser Befehl ist gefährlich. Geben Sie \'%command%'\ ein, um ihn trotzdem zu verwenden.'
+  dangerous_command: "&wDieser Befehl ist gefährlich. Geben Sie \'%command%\' ein, um ihn trotzdem zu verwenden."
   drivers_left_out: '&wAusgeschlossene Fahrer: '
   no_longer_spectating: '&wSie sind nicht mehr Zuschauer bei %event%.'
   no_longer_signed: '&wSie sind nicht mehr für %event% angemeldet.'
