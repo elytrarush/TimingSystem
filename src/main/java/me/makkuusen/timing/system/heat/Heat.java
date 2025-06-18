@@ -212,14 +212,14 @@ public class Heat {
                     driver.setEndTime(TimingSystem.currentTime);
                 }
                 driver.setState(DriverState.FINISHED);
-            }
-            if (driver.getTPlayer().getPlayer().isOnline()) {
                 LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
                 if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
                     LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
                 }
-            } else {
-                LonelinessController.unghost(driver.getTPlayer().getUniqueId());
+            }
+            LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
+            if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
+                LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
             }
         });
 
