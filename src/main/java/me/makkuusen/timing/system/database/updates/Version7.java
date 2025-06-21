@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class Version7 {
     public static void updateMySQL() throws SQLException {
         try {
-            DB.executeUpdate("ALTER TABLE `ts_players` DROP COLUMN `lonely`;");
+            DB.executeUpdate("ALTER TABLE `ts_players` DROP COLUMN `canReset` tinyint(1) NOT NULL DEFAULT 0 AFTER `lonely`;");
         } catch (SQLException e) {
             // Log the error for debugging
             System.err.println("Failed to update MySQL schema: " + e.getMessage());
@@ -17,7 +17,7 @@ public class Version7 {
 
     public static void updateSQLite() throws SQLException {
         try {
-            DB.executeUpdate("ALTER TABLE `ts_players` DROP COLUMN `lonely`;");
+            DB.executeUpdate("ALTER TABLE `ts_players` DROP COLUMN `canReset` INTEGER NOT NULL DEFAULT 0;");
         } catch (SQLException e) {
             // Log the error for debugging
             System.err.println("Failed to update SQLite schema: " + e.getMessage());
