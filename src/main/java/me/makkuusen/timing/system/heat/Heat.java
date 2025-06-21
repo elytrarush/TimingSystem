@@ -12,7 +12,6 @@ import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventResults;
-import me.makkuusen.timing.system.loneliness.LonelinessController;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.participant.Participant;
@@ -124,7 +123,7 @@ public class Heat {
     private void setDriverOnGrid(Driver driver) {
         DriverPlacedOnGrid event = new DriverPlacedOnGrid(driver, this);
         Bukkit.getServer().getPluginManager().callEvent(event);
-        gridManager.putDriverOnGrid(driver, getEvent().getTrack());
+        gridManager.putDriverOnGrid(driver, getEvent().getTrack(), lonely);
         EventDatabase.addPlayerToRunningHeat(driver);
     }
 
@@ -212,10 +211,6 @@ public class Heat {
                     driver.setEndTime(TimingSystem.currentTime);
                 }
                 driver.setState(DriverState.FINISHED);
-                LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
-                if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
-                    LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
-                }
             }
         });
 
@@ -308,10 +303,6 @@ public class Heat {
                 d.setPosition(d.getPosition() - 1);
             }
         }
-        LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
-        if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
-            LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
-        }
         return true;
     }
 
@@ -352,10 +343,6 @@ public class Heat {
         EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
         if (noDriversRunning()) {
             finishHeat();
-        }
-        LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
-        if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
-            LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
         }
         return true;
     }
