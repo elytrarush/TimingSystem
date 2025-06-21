@@ -131,11 +131,12 @@ public class LonelinessController implements Listener {
     }
 
     public static void updatePlayerVisibility(Player player) {
-         Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
             for (Player p : plugin.getServer().getOnlinePlayers()) {
                 if (p.getUniqueId().equals(player.getUniqueId())) {
                     continue;
                 }
+
                 // if p is not in a boat there is no situation where they should not see player
                 if (!(p.getVehicle() instanceof Boat) && !(p.getVehicle() instanceof ChestBoat)) {
                     if (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) {
@@ -178,26 +179,6 @@ public class LonelinessController implements Listener {
                     continue;
                 }
 
-                maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
-
-                if (!maybeDriver.isPresent()) {
-                    if (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) {
-                        p.hideEntity(plugin, player.getVehicle());
-                    }
-
-                    p.hideEntity(plugin, player);
-                    continue;
-                }
-
-                if (maybeDriver.get().getHeat().getId() != heat.getId()) {
-                    if (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) {
-                        p.hideEntity(plugin, player.getVehicle());
-                    }
-
-                    p.hideEntity(plugin, player);
-                    continue;
-                }
-
                 if (heat.getLonely()) {
                     if (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) {
                         p.hideEntity(plugin, player.getVehicle());
@@ -222,7 +203,7 @@ public class LonelinessController implements Listener {
 
                 p.showEntity(plugin, player);
             }
-         }, 5L);
+        }, 5L);
     }
 
 
@@ -243,7 +224,7 @@ public class LonelinessController implements Listener {
         updatePlayerVisibility(player);
     }
 
-   @EventHandler
+    @EventHandler
     public void onVehicleEnter(VehicleEnterEvent event) {
         if (event.getVehicle() instanceof Boat || event.getVehicle() instanceof ChestBoat) {
             if (event.getEntered() instanceof Player) {
@@ -280,12 +261,10 @@ public class LonelinessController implements Listener {
 
     @EventHandler
     public void onBoatSpawn(BoatSpawnEvent event) {
-        if (event.getPlayer() == null) {
-            return;
-        }
-
-        Player player = event.getPlayer();
-        updatePlayerVisibility(player);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Player player = event.getPlayer();
+            updatePlayerVisibility(player);
+        }, 5L);
     }
 
     public static boolean isGhosted(UUID player) {
