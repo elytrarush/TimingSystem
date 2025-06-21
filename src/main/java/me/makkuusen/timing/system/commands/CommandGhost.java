@@ -26,7 +26,7 @@ public class CommandGhost extends BaseCommand {
         TPlayer tPlayer = TSDatabase.getPlayer(target.getUniqueId());
         Boolean isGhosted = LonelinessController.isGhosted(target.getUniqueId());
 
-        var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(target.getUniqueId());
+        var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
         if (!maybeDriver.isPresent()) {
             Text.send(player, Error.NOT_NOW);
             return;
@@ -40,7 +40,7 @@ public class CommandGhost extends BaseCommand {
             return;
         }
 
-        ghost(target.getUniqueId());
+        ghost(player.getUniqueId());
 
         Text.send(player, Success.GHOSTING_ON);
         Text.send(target, Warning.GHOSTING_TARGET_ON);
