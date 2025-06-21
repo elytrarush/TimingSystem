@@ -51,41 +51,32 @@ public class CommandReset extends BaseCommand {
                 ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), driver.getHeat().getEvent().getTrack().getSpawnLocation());
                 driver.setState(DriverState.RESET);
             } else {
-                boolean success = resetCheck(driver);
-                if (!success) {
-                    Text.send(player, Error.NOT_NOW);
-                    return;
-                }
+                Text.send(player, Error.NOT_NOW);
             }
         } else if (round instanceof FinalRound) {
-            resetCheck(driver);
+
+            if (driver.getState() == DriverState.RUNNING) {
+                int latestCheckpoint = driver.getCurrentLap().getLatestCheckpoint();
+
+                if (latestCheckpoint == 0) {
+                    Location startLineLocation = driver.getHeat().getEvent().getTrack().getTrackRegions().getRegions(TrackRegion.RegionType.START).get(0).getSpawnLocation();
+                    ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), startLineLocation);
+                    return;
+                }
+
+                ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), driver.getHeat().getEvent().getTrack().getTrackRegions().getCheckpoints(latestCheckpoint).get(0).getSpawnLocation());
+                return;
+            }
+
+            if (driver.getState() == DriverState.STARTING) {
+                Track track = driver.getHeat().getEvent().getTrack();
+                int numGrids = track.getTrackLocations().getLocations(TrackLocation.Type.GRID).size();
+                Location finalGridLocation = track.getTrackLocations().getLocations(TrackLocation.Type.GRID).get(numGrids - 1).getLocation();
+                ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), finalGridLocation);
+            }
+
         } else {
             Text.send(player, Error.NOT_NOW);
         }
-    }
-
-    private static boolean resetCheck(Driver driver) {
-        if (driver.getState() == DriverState.RUNNING) {
-            int latestCheckpoint = driver.getCurrentLap().getLatestCheckpoint();
-
-            if (latestCheckpoint == 0) {
-                Location startLineLocation = driver.getHeat().getEvent().getTrack().getTrackRegions().getRegions(TrackRegion.RegionType.START).get(0).getSpawnLocation();
-                ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), startLineLocation);
-                return true;
-            }
-
-            ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), driver.getHeat().getEvent().getTrack().getTrackRegions().getCheckpoints(latestCheckpoint).get(0).getSpawnLocation());
-            return true;
-        }
-
-        if (driver.getState() == DriverState.STARTING) {
-            Track track = driver.getHeat().getEvent().getTrack();
-            int numGrids = track.getTrackLocations().getLocations(TrackLocation.Type.GRID).size();
-            Location finalGridLocation = track.getTrackLocations().getLocations(TrackLocation.Type.GRID).get(numGrids - 1).getLocation();
-            ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), finalGridLocation);
-            return true;
-        }
-
-        return false;
     }
 }
