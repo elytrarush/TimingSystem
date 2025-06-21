@@ -36,17 +36,9 @@ public class GridManager {
         if (player != null) {
             Location grid;
             if (qualyGrid) {
-                if (driver.getHeat().getLonely()) {
-                    grid = track.getTrackLocations().getLocation(TrackLocation.Type.QUALYGRID, 1).get().getLocation();
-                } else {
-                    grid = track.getTrackLocations().getLocation(TrackLocation.Type.QUALYGRID, driver.getStartPosition()).get().getLocation();
-                }
+                grid = track.getTrackLocations().getLocation(TrackLocation.Type.QUALYGRID, driver.getStartPosition()).get().getLocation();
             } else {
-                if (driver.getHeat().getLonely()) {
-                    grid = track.getTrackLocations().getLocation(TrackLocation.Type.GRID, 1).get().getLocation();
-                } else {
-                    grid = track.getTrackLocations().getLocation(TrackLocation.Type.GRID, driver.getStartPosition()).get().getLocation();
-                }
+                grid = track.getTrackLocations().getLocation(TrackLocation.Type.GRID, driver.getStartPosition()).get().getLocation();
             }
             if (grid != null) {
                 teleportPlayerToGrid(player, grid, track);
