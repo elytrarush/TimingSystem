@@ -86,11 +86,13 @@ public class CommandRace extends BaseCommand {
         }
 
         if (!track.getTrackRegions().hasRegion(TrackRegion.RegionType.START)) {
+            Bukkit.getLogger().info("1");
             Text.send(player, Error.GENERIC);
             return;
         }
 
         if (!track.getTrackLocations().hasLocation(TrackLocation.Type.GRID)) {
+            Bukkit.getLogger().info("2");
             Text.send(player, Error.GENERIC);
             return;
         }
@@ -99,6 +101,7 @@ public class CommandRace extends BaseCommand {
         String name = "QuickRace";
         var maybeEvent = EventDatabase.eventNew(player.getUniqueId(), name);
         if (maybeEvent.isEmpty()) {
+            Bukkit.getLogger().info("3");
             Text.send(player, Error.GENERIC);
             return;
         }
@@ -114,6 +117,7 @@ public class CommandRace extends BaseCommand {
         var maybeRound = event.getEventSchedule().getRound(1);
 
         if (maybeRound.isEmpty()) {
+            Bukkit.getLogger().info("4");
             Text.send(player, Error.GENERIC);
             return;
         }

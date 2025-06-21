@@ -217,10 +217,6 @@ public class Heat {
                     LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
                 }
             }
-            LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
-            if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
-                LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
-            }
         });
 
         //Dump all laps to database
@@ -261,10 +257,6 @@ public class Heat {
         getDrivers().values().forEach(driver -> {
             driver.reset();
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
-            LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
-            if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
-                LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
-            }
         });
         if (scoreboard != null) {
             scoreboard.removeScoreboards();
