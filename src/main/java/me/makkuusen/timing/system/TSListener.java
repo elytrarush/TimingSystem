@@ -191,7 +191,7 @@ public class TSListener implements Listener {
             if (event.getExited() instanceof Player player) {
                 var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
                 if (maybeDriver.isPresent()) {
-                    if (maybeDriver.get().getState() == DriverState.LOADED || maybeDriver.get().getState() == DriverState.STARTING || maybeDriver.get().getState() == DriverState.RUNNING || maybeDriver.get().getState() == DriverState.RESET || maybeDriver.get().getState() == DriverState.LAPRESET) {
+                    if (maybeDriver.get().getState() == DriverState.LOADED) {
                         event.setCancelled(true);
                         return;
                     }
