@@ -175,8 +175,10 @@ public class TSListener implements Listener {
 
     @EventHandler
     public void onVehicleEnter(VehicleEnterEvent e) {
-        if (e.getVehicle() instanceof Boat boat && (boat.getPersistentDataContainer().has(Objects.requireNonNull(NamespacedKey.fromString("spawned", plugin))) || boat.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.COMMAND)) && e.getVehicle().getPassengers().size() == 1 && !(e.getVehicle().getPassengers().get(0) instanceof Villager)) {
-            e.setCancelled(true);
+        if (e.getEntered() instanceof Player) {
+            if (e.getVehicle() instanceof Boat boat && (boat.getPersistentDataContainer().has(Objects.requireNonNull(NamespacedKey.fromString("spawned", plugin))) || boat.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.COMMAND)) && e.getVehicle().getPassengers().size() == 1 && !(e.getVehicle().getPassengers().get(0) instanceof Villager)) {
+                e.setCancelled(true);
+            }
         }
     }
 
