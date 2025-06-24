@@ -1,16 +1,13 @@
 package me.makkuusen.timing.system.loneliness;
 
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
 import me.makkuusen.timing.system.heat.Heat;
-import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
-import me.makkuusen.timing.system.tplayer.TPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.ChestBoat;
@@ -224,7 +221,7 @@ public class LonelinessController implements Listener {
         updatePlayerVisibility(player);
     }
 
-   @EventHandler
+    @EventHandler
     public void onVehicleEnter(VehicleEnterEvent event) {
         if (event.isCancelled()) {
             return;

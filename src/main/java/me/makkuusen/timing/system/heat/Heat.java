@@ -213,7 +213,7 @@ public class Heat {
                 }
                 driver.setState(DriverState.FINISHED);
             }
-            if (driver.getTPlayer().getPlayer().isOnline()) {
+            if (driver.getTPlayer().getPlayer() != null) {
                 LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
                 if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
                     LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
