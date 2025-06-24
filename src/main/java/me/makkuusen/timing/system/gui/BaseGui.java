@@ -21,16 +21,6 @@ public class BaseGui {
     private final List<GuiButton> buttons = new ArrayList<>();
 
     public BaseGui(Component title, int rows) {
-        if (TimingSystem.configuration.isCustomBoatsAddOnEnabled() && rows > 3) {
-            String replacement = switch (rows) {
-                case 4 -> TimingSystem.configuration.getGuiPrefix4();
-                case 5 -> TimingSystem.configuration.getGuiPrefix5();
-                case 6 -> TimingSystem.configuration.getGuiPrefix6();
-                default -> TimingSystem.configuration.getGuiPrefix3();
-            };
-            title = title.replaceText(TextReplacementConfig.builder().matchLiteral(TimingSystem.configuration.getGuiPrefix3()).replacement(replacement).build());
-        }
-
         this.inventory = Bukkit.createInventory(null, rows * 9, title);
         this.title = title;
         plugin = TimingSystem.getPlugin();

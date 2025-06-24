@@ -1,9 +1,5 @@
 customboatsaddon:
    enabled: false
-   guiprefix3: '§f󏿸󏽛󏿻'
-   guiprefix4: '§f󏿸󏽛󏿻'
-   guiprefix5: '§f󏿸󏽛󏿻'
-   guiprefix6: '§f󏿸󏽛󏿻'
 leaderboards:
    updateticks: 18000
    fastesttime:
