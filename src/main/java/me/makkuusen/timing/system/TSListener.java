@@ -49,6 +49,8 @@ import org.bukkit.event.vehicle.VehicleExitEvent;
 import java.time.Instant;
 import java.util.*;
 
+import static me.makkuusen.timing.system.commands.CommandReset.performInHeatReset;
+
 public class TSListener implements Listener {
 
     static TimingSystem plugin;
@@ -702,9 +704,7 @@ public class TSListener implements Listener {
                 new DriverPassCheckpointEvent(driver, lap, maybeCheckpoint.get(), TimingSystem.currentTime).callEvent();
             } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() > lap.getNextCheckpoint()) {
                 if (!track.getTrackOptions().hasOption(TrackOption.NO_RESET_ON_FUTURE_CHECKPOINT)) {
-                    var maybeRegion = track.getTrackRegions().getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
-                    TrackRegion region = maybeRegion.orElseGet(() -> track.getTrackRegions().getStart().get());
-                    ApiUtilities.teleportPlayerAndSpawnBoat(player, track, region.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+                    performInHeatReset(driver);
                     Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
                 }
             }

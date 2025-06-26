@@ -35,7 +35,7 @@ public class CommandReset extends BaseCommand {
 
     private static void handleDriverReset(Player player, Driver driver) {
         if (canResetDriver(driver)) {
-            performReset(driver);
+            performInHeatReset(driver);
         } else {
             Text.send(player, Error.NOT_NOW);
         }
@@ -81,7 +81,7 @@ public class CommandReset extends BaseCommand {
                 .anyMatch(region -> region.contains(driver.getTPlayer().getPlayer().getLocation()));
     }
 
-    private static void performReset(Driver driver) {
+    public static void performInHeatReset(Driver driver) {
         if (driver.getState() == DriverState.RUNNING) {
             resetToCheckpoint(driver);
         } else if (driver.getState() == DriverState.STARTING) {
