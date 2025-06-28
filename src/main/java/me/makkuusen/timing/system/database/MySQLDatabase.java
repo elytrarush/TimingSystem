@@ -839,7 +839,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         DB.executeUpdateAsync("DELETE FROM `ts_locations` WHERE `trackId` = ? AND `index` = ? AND `type` = ?;",
                 trackId,
                 index,
-                type
+                type.name()
         );
     }
 
@@ -849,7 +849,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                 ApiUtilities.locationToString(location),
                 trackId,
                 index,
-                type
+                type.name()
         );
     }
 
