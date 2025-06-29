@@ -7,6 +7,7 @@ import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.medals.Medals;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -151,10 +152,10 @@ public abstract class TrackPageGui extends BaseGui {
     }
 
     public GuiButton getMedalButton() {
-        ItemStack i = new ItemStack(Material.DIAMOND, 1);
+        ItemStack i = new ItemStack(Medals.GOLD_MEDAL.getMaterial(), 1);
         ItemMeta im = i.getItemMeta();
         im.displayName(Component.text("§fToggle Trophies"));
-        im.setCustomModelData(2);
+        im.setCustomModelData(Medals.GOLD_MEDAL.getCustomModelData());
         i.setItemMeta(im);
         var button = new GuiButton(i);
         button.setAction(() -> {

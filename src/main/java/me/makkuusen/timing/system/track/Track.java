@@ -76,7 +76,7 @@ public class Track {
     public ItemStack getItem(UUID uuid, boolean isMedal) {
         if (TimingSystem.configuration.isMedalsAddOnEnabled() && isMedal) {
             TPlayer tPlayer = TSDatabase.getPlayer(uuid);
-            Long time = (getTimeTrials().getBestFinish(tPlayer) != null ? getTimeTrials().getBestFinish(tPlayer).getTime() : null);
+            long time = (getTimeTrials().getBestFinish(tPlayer) != null ? getTimeTrials().getBestFinish(tPlayer).getTime() : 0);
             return trackMedals.getMedalItem(tPlayer, getDisplayName(), time);
         } else {
             ItemStack toReturn;
