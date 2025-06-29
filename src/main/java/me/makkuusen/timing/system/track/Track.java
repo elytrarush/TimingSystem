@@ -11,6 +11,7 @@ import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Gui;
 import me.makkuusen.timing.system.track.locations.TrackLocations;
+import me.makkuusen.timing.system.track.medals.TrackMedals;
 import me.makkuusen.timing.system.track.options.TrackOptions;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import me.makkuusen.timing.system.track.regions.TrackRegions;
@@ -33,6 +34,7 @@ public class Track {
     private final TrackRegions trackRegions;
     private final TrackTags trackTags;
     private final TimeTrials timeTrials;
+    private final TrackMedals trackMedals;
     private TPlayer owner;
     private List<TPlayer> contributors;
     private String displayName;
@@ -68,59 +70,66 @@ public class Track {
         trackOptions = new TrackOptions(id);
         trackLocations = new TrackLocations(id);
         trackTags = new TrackTags(id);
+        trackMedals = new TrackMedals();
     }
 
-    public ItemStack getItem(UUID uuid) {
-        ItemStack toReturn;
-        if (item == null) {
-            if (isBoatTrack()) {
-                toReturn = new ItemBuilder(Material.PACKED_ICE).setName(getDisplayName()).build();
-            } else if (isElytraTrack()) {
-                toReturn = new ItemBuilder(Material.ELYTRA).setName(getDisplayName()).build();
-            } else {
-                toReturn = new ItemBuilder(Material.BIG_DRIPLEAF).setName(getDisplayName()).build();
-            }
+    public ItemStack getItem(UUID uuid, boolean isMedal) {
+        if (TimingSystem.configuration.isMedalsAddOnEnabled() && isMedal) {
+            TPlayer tPlayer = TSDatabase.getPlayer(uuid);
+            Long time = (getTimeTrials().getBestFinish(tPlayer) != null ? getTimeTrials().getBestFinish(tPlayer).getTime() : null);
+            return trackMedals.getMedalItem(tPlayer, getDisplayName(), time);
         } else {
-            toReturn = item.clone();
-        }
-
-        if (toReturn == null) {
-            return null;
-        }
-        TPlayer tPlayer = TSDatabase.getPlayer(uuid);
-
-        List<Component> loreToSet = new ArrayList<>();
-
-        loreToSet.add(Text.get(tPlayer, Gui.POSITION, "%pos%", getTimeTrials().getCachedPlayerPosition(tPlayer) == -1 ? "(-)" : String.valueOf(getTimeTrials().getCachedPlayerPosition(tPlayer))));
-        loreToSet.add(Text.get(tPlayer, Gui.BEST_TIME, "%time%", getTimeTrials().getBestFinish(tPlayer) == null ? "(-)" : ApiUtilities.formatAsTime(getTimeTrials().getBestFinish(tPlayer).getTime())));
-        loreToSet.add(Text.get(tPlayer, Gui.TOTAL_FINISHES, "%total%", String.valueOf(getTimeTrials().getPlayerTotalFinishes(tPlayer))));
-        loreToSet.add(Text.get(tPlayer, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(getTimeTrials().getPlayerTotalFinishes(tPlayer) + getTimeTrials().getPlayerTotalAttempts(tPlayer))));
-        loreToSet.add(Text.get(tPlayer, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(getTimeTrials().getPlayerTotalTimeSpent(tPlayer))));
-        loreToSet.add(Text.get(tPlayer, Gui.CREATED_BY, "%player%", getOwner().getName()));
-        if(!getContributorsAsString().isBlank()) loreToSet.add(Text.get(tPlayer, Gui.CONTRIBUTORS, "%contributors%", getContributorsAsString()));
-
-        Component tags = Component.empty();
-        boolean notFirst = false;
-        for (TrackTag tag : trackTags.getDisplayTags()) {
-            if (notFirst) {
-                tags = tags.append(Component.text(", ").color(tPlayer.getTheme().getSecondary()));
+            ItemStack toReturn;
+            if (item == null) {
+                if (isBoatTrack()) {
+                    toReturn = new ItemBuilder(Material.PACKED_ICE).setName(getDisplayName()).build();
+                } else if (isElytraTrack()) {
+                    toReturn = new ItemBuilder(Material.ELYTRA).setName(getDisplayName()).build();
+                } else {
+                    toReturn = new ItemBuilder(Material.BIG_DRIPLEAF).setName(getDisplayName()).build();
+                }
+            } else {
+                toReturn = item.clone();
             }
-            tags = tags.append(Component.text(tag.getValue()).color(tag.getColor()));
-            notFirst = true;
+
+            if (toReturn == null) {
+                return null;
+            }
+            TPlayer tPlayer = TSDatabase.getPlayer(uuid);
+
+            List<Component> loreToSet = new ArrayList<>();
+
+            loreToSet.add(Text.get(tPlayer, Gui.POSITION, "%pos%", getTimeTrials().getCachedPlayerPosition(tPlayer) == -1 ? "(-)" : String.valueOf(getTimeTrials().getCachedPlayerPosition(tPlayer))));
+            loreToSet.add(Text.get(tPlayer, Gui.BEST_TIME, "%time%", getTimeTrials().getBestFinish(tPlayer) == null ? "(-)" : ApiUtilities.formatAsTime(getTimeTrials().getBestFinish(tPlayer).getTime())));
+            loreToSet.add(Text.get(tPlayer, Gui.TOTAL_FINISHES, "%total%", String.valueOf(getTimeTrials().getPlayerTotalFinishes(tPlayer))));
+            loreToSet.add(Text.get(tPlayer, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(getTimeTrials().getPlayerTotalFinishes(tPlayer) + getTimeTrials().getPlayerTotalAttempts(tPlayer))));
+            loreToSet.add(Text.get(tPlayer, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(getTimeTrials().getPlayerTotalTimeSpent(tPlayer))));
+            loreToSet.add(Text.get(tPlayer, Gui.CREATED_BY, "%player%", getOwner().getName()));
+            if(!getContributorsAsString().isBlank()) loreToSet.add(Text.get(tPlayer, Gui.CONTRIBUTORS, "%contributors%", getContributorsAsString()));
+
+            Component tags = Component.empty();
+            boolean notFirst = false;
+            for (TrackTag tag : trackTags.getDisplayTags()) {
+                if (notFirst) {
+                    tags = tags.append(Component.text(", ").color(tPlayer.getTheme().getSecondary()));
+                }
+                tags = tags.append(Component.text(tag.getValue()).color(tag.getColor()));
+                notFirst = true;
+            }
+            loreToSet.add(Text.get(tPlayer.getPlayer(), Gui.TAGS).append(tags));
+
+
+            ItemMeta im = toReturn.getItemMeta();
+            im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            im.addItemFlags(ItemFlag.HIDE_ITEM_SPECIFICS);
+            im.addItemFlags(ItemFlag.HIDE_DYE);
+            im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            im.displayName(Component.text(getDisplayName()).color(tPlayer.getTheme().getSecondary()));
+            im.lore(loreToSet);
+            toReturn.setItemMeta(im);
+
+            return toReturn;
         }
-        loreToSet.add(Text.get(tPlayer.getPlayer(), Gui.TAGS).append(tags));
-
-
-        ItemMeta im = toReturn.getItemMeta();
-        im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        im.addItemFlags(ItemFlag.HIDE_ITEM_SPECIFICS);
-        im.addItemFlags(ItemFlag.HIDE_DYE);
-        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        im.displayName(Component.text(getDisplayName()).color(tPlayer.getTheme().getSecondary()));
-        im.lore(loreToSet);
-        toReturn.setItemMeta(im);
-
-        return toReturn;
     }
 
     public void setWeight(int weight) {

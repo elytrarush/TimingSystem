@@ -24,6 +24,7 @@ public class TimingSystemConfiguration {
     private int scoreboardMaxRows;
     private Integer scoreboardInterval;
     private final boolean customBoatsAddOnEnabled;
+    private final boolean medalsAddOnEnabled;
 
     private final Object databaseType;
 
@@ -51,6 +52,7 @@ public class TimingSystemConfiguration {
         scoreboardMaxRows = plugin.getConfig().getInt("scoreboard.maxRows", 15);
         scoreboardInterval = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("scoreboard.interval","1000"));
         customBoatsAddOnEnabled = plugin.getConfig().getBoolean("customboatsaddon.enabled");
+        medalsAddOnEnabled = plugin.getConfig().getBoolean("medalsaddon.enabled");
 
         databaseType = switch (databaseTypeRaw.toLowerCase()) {
             case "sqlite" -> new SQLiteDatabase();

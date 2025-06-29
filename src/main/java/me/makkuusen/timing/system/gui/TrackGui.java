@@ -33,8 +33,8 @@ public class TrackGui extends TrackPageGui {
     }
 
     @Override
-    public GuiButton getTrackButton(Player player, Track track) {
-        var item = setTrackLore(player, track, track.getItem(player.getUniqueId()));
+    public GuiButton getTrackButton(Player player, Track track, boolean isMedal) {
+        var item = setTrackLore(player, track, track.getItem(player.getUniqueId(), isMedal));
         var button = new GuiButton(item);
         button.setAction(() -> {
             if (!track.getSpawnLocation().isWorldLoaded()) {

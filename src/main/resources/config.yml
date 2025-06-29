@@ -1,5 +1,7 @@
 customboatsaddon:
    enabled: false
+medalsaddon:
+   enabled: false
 leaderboards:
    updateticks: 18000
    fastesttime:

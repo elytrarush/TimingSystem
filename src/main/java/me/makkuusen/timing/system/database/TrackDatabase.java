@@ -155,10 +155,14 @@ public interface TrackDatabase {
                     maybeTrack.ifPresent(track -> track.getTimeTrials().addFinish(new TimeTrialFinish(finish)));
                 }
             }
+            if (TimingSystem.configuration.isMedalsAddOnEnabled()) {
+                for (Track track : tracks) {
+                    track.getTrackMedals().updateMedalsTimes(track.getTimeTrials());
+                }
+            }
         } catch (SQLException e) {
             TaskChain.abort();
         }
-
         TimingSystem.getPlugin().getLogger().warning("Finish loading finishes");
     }
 

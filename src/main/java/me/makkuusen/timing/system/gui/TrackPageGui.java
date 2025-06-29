@@ -1,6 +1,7 @@
 package me.makkuusen.timing.system.gui;
 
 import me.makkuusen.timing.system.ItemBuilder;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.sounds.PlaySound;
 import me.makkuusen.timing.system.theme.Text;
@@ -10,6 +11,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +24,7 @@ public abstract class TrackPageGui extends BaseGui {
 
     public static final Integer SORT_SLOT = 45;
     public static final Integer FILTER_SLOT = 46;
+    public static final Integer MEDALS_SLOT = 47;
     public static final Integer RESET_SLOT = 53;
 
     public Integer page;
@@ -31,6 +34,7 @@ public abstract class TrackPageGui extends BaseGui {
     public Track.TrackType trackType;
     public TrackSort trackSort;
     public TrackFilter filter;
+    public boolean isMedal;
 
     public Comparator<Track> compareTrackPosition = (k1, k2) -> {
         if (k1.getTimeTrials().getCachedPlayerPosition(tPlayer) == -1 && k2.getTimeTrials().getCachedPlayerPosition(tPlayer) > 0) {
@@ -53,6 +57,7 @@ public abstract class TrackPageGui extends BaseGui {
         }
         this.trackSort = tPlayer.getTrackSort() == null ? TrackSort.WEIGHT : tPlayer.getTrackSort();
         this.trackType = tPlayer.getTrackType() == null ? Track.TrackType.BOAT : tPlayer.getTrackType();
+        this.isMedal = tPlayer.isMedal();
         update();
     }
 
@@ -66,6 +71,9 @@ public abstract class TrackPageGui extends BaseGui {
         setNavigationItems();
         setSortingItem();
         setFilterItems();
+        if (TimingSystem.configuration.isMedalsAddOnEnabled()) {
+            setMedalItem();
+        }
         setResetItem();
     }
 
@@ -134,6 +142,25 @@ public abstract class TrackPageGui extends BaseGui {
         button.setAction(() -> {
             PlaySound.buttonClick(tPlayer);
             new FilterGui(this).show(tPlayer.getPlayer());
+        });
+        return button;
+    }
+
+    private void setMedalItem() {
+        setItem(getMedalButton(), MEDALS_SLOT);
+    }
+
+    public GuiButton getMedalButton() {
+        ItemStack i = new ItemStack(Material.DIAMOND, 1);
+        ItemMeta im = i.getItemMeta();
+        im.displayName(Component.text("§fToggle Trophies"));
+        im.setCustomModelData(2);
+        i.setItemMeta(im);
+        var button = new GuiButton(i);
+        button.setAction(() -> {
+            PlaySound.buttonClick(tPlayer);
+            tPlayer.setMedal(!tPlayer.isMedal());
+            openNewTrackPage(this, tPlayer, title);
         });
         return button;
     }
@@ -255,13 +282,13 @@ public abstract class TrackPageGui extends BaseGui {
         int count = 0;
         for (Track track : tracks) {
             if (count < slots.length) {
-                setItem(getTrackButton(tPlayer.getPlayer(), track), slots[count]);
+                setItem(getTrackButton(tPlayer.getPlayer(), track, isMedal), slots[count]);
                 count++;
             }
         }
     }
 
-    public abstract GuiButton getTrackButton(Player player, Track track);
+    public abstract GuiButton getTrackButton(Player player, Track track, boolean isMedal);
 
     public abstract List<Track> getTracks();
 
