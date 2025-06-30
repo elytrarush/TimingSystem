@@ -76,7 +76,7 @@ public class TrackMedals {
         Medals medal = getMedal(time);
         if (medal.getNumber() > prevMedal.getNumber()) {
             Component hoverText = Component.join(JoinConfiguration.builder().separator(Component.text("\n")).build(), getMedalLore(time));
-            return Component.text("\n§f=== " + medal.getColor() + "§lNew Time Trial Trophy§r§f ===\n\nYou unlocked " + medal.getColor() + "§l" + medal.getName() + "§r§f on " + trackName + "!").hoverEvent(HoverEvent.showText(hoverText));
+            return Component.text("\n§f=== §e§lNew Time Trial Trophy§r§f ===\n\nYou unlocked " + medal.getColor() + "§l" + medal.getName() + "§r§f on " + trackName + "!").hoverEvent(HoverEvent.showText(hoverText));
         }
         return null;
     }
