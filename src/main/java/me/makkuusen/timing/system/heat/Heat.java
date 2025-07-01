@@ -12,6 +12,7 @@ import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventResults;
+import me.makkuusen.timing.system.loneliness.DeltaGhostingController;
 import me.makkuusen.timing.system.loneliness.LonelinessController;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
@@ -30,6 +31,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+
+import static me.makkuusen.timing.system.loneliness.DeltaGhostingController.checkDeltas;
 
 @Getter
 @Setter
@@ -55,6 +58,7 @@ public class Heat {
     private Boolean lonely;
     private Boolean reset;
     private Boolean lapReset;
+    private Integer ghostingDelta;
     private SpectatorScoreboard scoreboard;
     private Instant lastScoreboardUpdate = Instant.now();
 
@@ -73,6 +77,7 @@ public class Heat {
         lonely = data.get("lonely") instanceof Boolean ? data.get("lonely") : data.get("lonely").equals(1);
         reset = data.get("canReset") instanceof Boolean ? data.get("canReset") : data.get("canReset").equals(1);
         lapReset = data.get("lapReset") instanceof Boolean ? data.get("lapReset") : data.get("lapReset").equals(1);
+        ghostingDelta = data.get("ghostingDelta") == null ? null : data.getInt("ghostingDelta");
         startDelay = data.get("startDelay") == null ? round instanceof FinalRound ? TimingSystem.configuration.getFinalStartDelayInMS() : TimingSystem.configuration.getQualyStartDelayInMS() : data.getInt("startDelay");
         fastestLapUUID = data.getString("fastestLapUUID") == null ? null : UUID.fromString(data.getString("fastestLapUUID"));
         gridManager = new GridManager(round instanceof QualificationRound);
@@ -196,6 +201,7 @@ public class Heat {
         updatePositions();
         setHeatState(HeatState.FINISHED);
         setEndTime(TimingSystem.currentTime);
+        DeltaGhostingController.clearDeltaGhosts(this);
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(TimingSystem.getPlugin(), () -> {
             getDrivers().values().forEach(Driver::removeScoreboard);
             scoreboard.removeScoreboards();
@@ -356,6 +362,7 @@ public class Heat {
         }
         driver.disqualify();
         driver.removeScoreboard();
+        DeltaGhostingController.removeHeatDriver(driver);
         getEvent().removeSpectator(driver.getTPlayer().getUniqueId());
         EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
         if (noDriversRunning()) {

@@ -4,12 +4,7 @@ import co.aikar.idb.*;
 import com.sk89q.worldedit.math.BlockVector2;
 import me.makkuusen.timing.system.*;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
-import me.makkuusen.timing.system.database.updates.Version2;
-import me.makkuusen.timing.system.database.updates.Version3;
-import me.makkuusen.timing.system.database.updates.Version4;
-import me.makkuusen.timing.system.database.updates.Version5;
-import me.makkuusen.timing.system.database.updates.Version6;
-import me.makkuusen.timing.system.database.updates.Version7;
+import me.makkuusen.timing.system.database.updates.*;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
@@ -62,7 +57,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 7;
+            int databaseVersion = 8;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(?, ?);",
                         databaseVersion,
@@ -130,6 +125,9 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         }
         if (previousVersion < 7) {
             Version7.updateMySQL();
+        }
+        if (previousVersion < 8) {
+            Version8.updateMySQL();
         }
     }
 
@@ -249,6 +247,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       `lonely` tinyint(1) NOT NULL DEFAULT '0',
                       `canReset` tinyint(1) NOT NULL DEFAULT '0',
                       `lapReset` tinyint(1) NOT NULL DEFAULT '0',
+                      `ghostingDelta` int(11) DEFAULT NULL,
                       `isRemoved` tinyint(1) NOT NULL DEFAULT '0',
                       PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");

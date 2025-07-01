@@ -11,6 +11,7 @@ import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
+import me.makkuusen.timing.system.loneliness.DeltaGhostingController;
 import me.makkuusen.timing.system.network.UUIDFetcher;
 import me.makkuusen.timing.system.network.UUIDFetcherCallback;
 import me.makkuusen.timing.system.participant.Driver;
@@ -50,6 +51,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static me.makkuusen.timing.system.commands.CommandReset.performInHeatReset;
+import static me.makkuusen.timing.system.loneliness.DeltaGhostingController.checkDeltas;
 
 public class TSListener implements Listener {
 
@@ -616,14 +618,16 @@ public class TSListener implements Listener {
                 } else if (driver.getCurrentLap() != null && driver.getCurrentLap().getLatestCheckpoint() != 0) {
                     if (!driver.getCurrentLap().hasPassedAllCheckpoints()) {
                         int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
-                        var maybeCheckpoint = track.getTrackRegions().getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
-                        maybeCheckpoint.ifPresent(trackRegion -> ApiUtilities.teleportPlayerAndSpawnBoat(player, track, trackRegion.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN));
+                        performInHeatReset(driver);
                         Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
 
                         return;
                     }
                     heat.passLap(driver);
                     heat.updatePositions();
+                    if (heat.getGhostingDelta() != null) {
+                        checkDeltas(driver);
+                    }
                     return;
                 }
             }
@@ -635,8 +639,7 @@ public class TSListener implements Listener {
                     if (driver.getCurrentLap() != null) {
                         if (!(driver.getCurrentLap().hasPassedAllCheckpoints())) {
                             int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
-                            var maybeCheckpoint = track.getTrackRegions().getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
-                            maybeCheckpoint.ifPresent(trackRegion -> ApiUtilities.teleportPlayerAndSpawnBoat(player, track, trackRegion.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN));
+                            performInHeatReset(driver);
                             Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
                             return;
                         }
@@ -701,6 +704,11 @@ public class TSListener implements Listener {
             if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() == lap.getNextCheckpoint()) {
                 lap.passNextCheckpoint(TimingSystem.currentTime);
                 heat.updatePositions();
+
+                if (heat.getGhostingDelta() != null) {
+                    checkDeltas(driver);
+                }
+
                 new DriverPassCheckpointEvent(driver, lap, maybeCheckpoint.get(), TimingSystem.currentTime).callEvent();
             } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() > lap.getNextCheckpoint()) {
                 if (!track.getTrackOptions().hasOption(TrackOption.NO_RESET_ON_FUTURE_CHECKPOINT)) {
