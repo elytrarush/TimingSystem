@@ -1,10 +1,8 @@
 package me.makkuusen.timing.system.track.medals;
 
 import lombok.Getter;
-import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.TimeTrials;
 import net.kyori.adventure.text.Component;
@@ -20,30 +18,37 @@ import java.util.List;
 @Getter
 public class TrackMedals {
     private boolean isActive;
-    private long netheriteCupTime; // top 3
-    private long emeraldCupTime; // top 10
-    private long diamondMedalTime; // top 5%
-    private long goldMedalTime; // top 10%
-    private long silverMedalTime; // top 25%
-    private long copperMedalTime; // top 50%
+    private final int playersLimit;
+    private final TrackMedalsData netherite;
+    private final TrackMedalsData emerald;
+    private final TrackMedalsData diamond;
+    private final TrackMedalsData gold;
+    private final TrackMedalsData silver;
+    private final TrackMedalsData copper;
 
     public TrackMedals() {
         isActive = false;
+        playersLimit = TimingSystem.configuration.getMedalsPlayersLimit();
+        netherite = new TrackMedalsData(TimingSystem.configuration.getNetheritePos(), getPositionText(TimingSystem.configuration.getNetheritePos()));
+        emerald = new TrackMedalsData(TimingSystem.configuration.getEmeraldPos(), getPositionText(TimingSystem.configuration.getEmeraldPos()));
+        diamond = new TrackMedalsData(TimingSystem.configuration.getDiamondPos(), getPositionText(TimingSystem.configuration.getDiamondPos()));
+        gold = new TrackMedalsData(TimingSystem.configuration.getGoldPos(), getPositionText(TimingSystem.configuration.getGoldPos()));
+        silver = new TrackMedalsData(TimingSystem.configuration.getSilverPos(), getPositionText(TimingSystem.configuration.getSilverPos()));
+        copper = new TrackMedalsData(TimingSystem.configuration.getCopperPos(), getPositionText(TimingSystem.configuration.getCopperPos()));
     }
 
     public void updateMedalsTimes(TimeTrials timeTrials) {
         if (TimingSystem.configuration.isMedalsAddOnEnabled()) {
             timeTrials.getTopList(1);
             int totalPositions = timeTrials.getCachedPositions().size();
-            TimingSystem.getPlugin().logger.info(totalPositions + " total positions");
-            if (totalPositions < 10) { isActive = false; return; }
+            if (totalPositions < playersLimit) { isActive = false; return; }
             isActive = true;
-            copperMedalTime = timeTrials.getBestFinish(timeTrials.getCachedPositions().get((int) (totalPositions * 0.9))).getTime();
-            silverMedalTime = timeTrials.getBestFinish(timeTrials.getCachedPositions().get((int) (totalPositions * 0.75))).getTime();
-            goldMedalTime = timeTrials.getBestFinish(timeTrials.getCachedPositions().get((int) (totalPositions * 0.5))).getTime();
-            diamondMedalTime = timeTrials.getBestFinish(timeTrials.getCachedPositions().get((int) (totalPositions * 0.25))).getTime();
-            emeraldCupTime = timeTrials.getBestFinish(timeTrials.getCachedPositions().get(1)).getTime();
-            netheriteCupTime = timeTrials.getBestFinish(timeTrials.getCachedPositions().get(0)).getTime();
+            netherite.setTime(timeTrials.getBestFinish(timeTrials.getCachedPositions().get(getPosition(netherite.getPos(), totalPositions))).getTime());
+            emerald.setTime(timeTrials.getBestFinish(timeTrials.getCachedPositions().get(getPosition(emerald.getPos(), totalPositions))).getTime());
+            diamond.setTime(timeTrials.getBestFinish(timeTrials.getCachedPositions().get(getPosition(diamond.getPos(), totalPositions))).getTime());
+            gold.setTime(timeTrials.getBestFinish(timeTrials.getCachedPositions().get(getPosition(gold.getPos(), totalPositions))).getTime());
+            silver.setTime(timeTrials.getBestFinish(timeTrials.getCachedPositions().get(getPosition(silver.getPos(), totalPositions))).getTime());
+            copper.setTime(timeTrials.getBestFinish(timeTrials.getCachedPositions().get(getPosition(copper.getPos(), totalPositions))).getTime());
         }
     }
 
@@ -85,45 +90,65 @@ public class TrackMedals {
         List<Component> lore = new ArrayList<>();
         if (time != 0L) {
             String yourTime = ApiUtilities.formatAsMedalTime(time);
-            if (time <= netheriteCupTime) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
-            String color = time <= netheriteCupTime ? "§a" : "§c";
-            lore.add(Component.text("§f" + Medals.NETHERITE_CUP.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(netheriteCupTime) + " §f(top 1)"));
-            if (time > netheriteCupTime && time <= emeraldCupTime) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
-            color = time <= emeraldCupTime ? "§a" : "§c";
-            lore.add(Component.text("§f" + Medals.EMERALD_CUP.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(emeraldCupTime) + " §f(top 2)"));
-            if (time > emeraldCupTime && time <= diamondMedalTime) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
-            color = time <= diamondMedalTime ? "§a" : "§c";
-            lore.add(Component.text("§f" + Medals.DIAMOND_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(diamondMedalTime) + " §f(top 25%)"));
-            if (time > diamondMedalTime && time <= goldMedalTime) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
-            color = time <= goldMedalTime ? "§a" : "§c";
-            lore.add(Component.text("§f" + Medals.GOLD_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(goldMedalTime) + " §f(top 50%)"));
-            if (time > goldMedalTime && time <= silverMedalTime) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
-            color = time <= silverMedalTime ? "§a" : "§c";
-            lore.add(Component.text("§f" + Medals.SILVER_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(silverMedalTime) + " §f(top 75%)"));
-            if (time > silverMedalTime && time <= copperMedalTime) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
-            color = time <= copperMedalTime ? "§a" : "§c";
-            lore.add(Component.text("§f" + Medals.COPPER_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(copperMedalTime) + " §f(top 99%)"));
-            if (time > copperMedalTime) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
+            if (time <= netherite.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
+            String color = time <= netherite.getTime() ? "§a" : "§c";
+            lore.add(Component.text("§f" + Medals.NETHERITE_CUP.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(netherite.getTime()) + " §f" + netherite.getText()));
+            if (time > netherite.getTime() && time <= emerald.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
+            color = time <= emerald.getTime() ? "§a" : "§c";
+            lore.add(Component.text("§f" + Medals.EMERALD_CUP.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(emerald.getTime()) + " §f" + emerald.getText()));
+            if (time > emerald.getTime() && time <= diamond.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
+            color = time <= diamond.getTime() ? "§a" : "§c";
+            lore.add(Component.text("§f" + Medals.DIAMOND_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(diamond.getTime()) + " §f" + diamond.getText()));
+            if (time > diamond.getTime() && time <= gold.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
+            color = time <= gold.getTime() ? "§a" : "§c";
+            lore.add(Component.text("§f" + Medals.GOLD_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(gold.getTime()) + " §f" + gold.getText()));
+            if (time > gold.getTime() && time <= silver.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
+            color = time <= silver.getTime() ? "§a" : "§c";
+            lore.add(Component.text("§f" + Medals.SILVER_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(silver.getTime()) + " §f" + silver.getText()));
+            if (time > silver.getTime() && time <= copper.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
+            color = time <= copper.getTime() ? "§a" : "§c";
+            lore.add(Component.text("§f" + Medals.COPPER_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(copper.getTime()) + " §f" + copper.getText()));
+            if (time > copper.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
         } else {
             String color = "§c";
-            lore.add(Component.text("§f" + Medals.NETHERITE_CUP.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(netheriteCupTime) + " §f(top 1)"));
-            lore.add(Component.text("§f" + Medals.EMERALD_CUP.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(emeraldCupTime) + " §f(top 2)"));
-            lore.add(Component.text("§f" + Medals.DIAMOND_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(diamondMedalTime) + " §f(top 25%)"));
-            lore.add(Component.text("§f" + Medals.GOLD_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(goldMedalTime) + " §f(top 50%)"));
-            lore.add(Component.text("§f" + Medals.SILVER_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(silverMedalTime) + " §f(top 75%)"));
-            lore.add(Component.text("§f" + Medals.COPPER_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(copperMedalTime) + " §f(top 99%)"));
+            lore.add(Component.text("§f" + Medals.NETHERITE_CUP.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(netherite.getTime()) + " §f" + netherite.getText()));
+            lore.add(Component.text("§f" + Medals.EMERALD_CUP.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(emerald.getTime()) + " §f" + emerald.getText()));
+            lore.add(Component.text("§f" + Medals.DIAMOND_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(diamond.getTime()) + " §f" + diamond.getText()));
+            lore.add(Component.text("§f" + Medals.GOLD_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(gold.getTime()) + " §f" + gold.getText()));
+            lore.add(Component.text("§f" + Medals.SILVER_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(silver.getTime()) + " §f" + silver.getText()));
+            lore.add(Component.text("§f" + Medals.COPPER_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(copper.getTime()) + " §f" + copper.getText()));
         }
         return lore;
     }
 
-    private @NotNull Medals getMedal(long time) {
-        if (time == 0)                     return Medals.NO_MEDAL;
-        else if (time <= netheriteCupTime) return Medals.NETHERITE_CUP;
-        else if (time <= emeraldCupTime)   return Medals.EMERALD_CUP;
-        else if (time <= diamondMedalTime) return Medals.DIAMOND_MEDAL;
-        else if (time <= goldMedalTime)    return Medals.GOLD_MEDAL;
-        else if (time <= silverMedalTime)  return Medals.SILVER_MEDAL;
-        else if (time <= copperMedalTime)  return Medals.COPPER_MEDAL;
-        else                               return Medals.NO_MEDAL;
+    public @NotNull Medals getMedal(long time) {
+        if (time == 0)                        return Medals.NO_MEDAL;
+        else if (time <= netherite.getTime()) return Medals.NETHERITE_CUP;
+        else if (time <= emerald.getTime())   return Medals.EMERALD_CUP;
+        else if (time <= diamond.getTime())   return Medals.DIAMOND_MEDAL;
+        else if (time <= gold.getTime())      return Medals.GOLD_MEDAL;
+        else if (time <= silver.getTime())    return Medals.SILVER_MEDAL;
+        else if (time <= copper.getTime())    return Medals.COPPER_MEDAL;
+        else                                   return Medals.NO_MEDAL;
+    }
+
+    private int getPosition(double num, int totalPositions) {
+        if (num <= 0) {
+            return 0;
+        } else if (num < 1) {
+            return (int) (totalPositions * num);
+        } else {
+            return (int) (num - 1);
+        }
+    }
+
+    private String getPositionText(double num) {
+        if (num <= 0) {
+            return "(top 1)";
+        } else if (num < 1) {
+            return "(top " + (int) (num * 100) + "%)";
+        } else {
+            return "(top " + (int) num + ")";
+        }
     }
 }

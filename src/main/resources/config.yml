@@ -2,6 +2,13 @@ customboatsaddon:
    enabled: false
 medalsaddon:
    enabled: false
+   playersLimit: 500
+   netheritePos: 3
+   emeraldPos: 10
+   diamondPos: 0.05
+   goldPos: 0.1
+   silverPos: 0.25
+   copperPos: 0.5
 leaderboards:
    updateticks: 18000
    fastesttime:

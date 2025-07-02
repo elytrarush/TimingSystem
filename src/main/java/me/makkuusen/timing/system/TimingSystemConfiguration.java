@@ -25,6 +25,13 @@ public class TimingSystemConfiguration {
     private Integer scoreboardInterval;
     private final boolean customBoatsAddOnEnabled;
     private final boolean medalsAddOnEnabled;
+    private final int medalsPlayersLimit;
+    private final double netheritePos;
+    private final double emeraldPos;
+    private final double diamondPos;
+    private final double goldPos;
+    private final double silverPos;
+    private final double copperPos;
 
     private final Object databaseType;
 
@@ -53,6 +60,13 @@ public class TimingSystemConfiguration {
         scoreboardInterval = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("scoreboard.interval","1000"));
         customBoatsAddOnEnabled = plugin.getConfig().getBoolean("customboatsaddon.enabled");
         medalsAddOnEnabled = plugin.getConfig().getBoolean("medalsaddon.enabled");
+        medalsPlayersLimit = plugin.getConfig().getInt("medalsaddon.playersLimit", 500);
+        netheritePos = plugin.getConfig().getDouble("medalsaddon.netheritePos", 3);
+        emeraldPos = plugin.getConfig().getDouble("medalsaddon.emeraldPos", 10);
+        diamondPos = plugin.getConfig().getDouble("medalsaddon.diamondPos", 0.05);
+        goldPos = plugin.getConfig().getDouble("medalsaddon.goldPos", 0.1);
+        silverPos = plugin.getConfig().getDouble("medalsaddon.silverPos", 0.25);
+        copperPos = plugin.getConfig().getDouble("medalsaddon.copperPos", 0.50);
 
         databaseType = switch (databaseTypeRaw.toLowerCase()) {
             case "sqlite" -> new SQLiteDatabase();

@@ -4,14 +4,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Boat;
-import org.bukkit.entity.ChestBoat;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -75,21 +74,41 @@ public class LonelinessController implements Listener {
                 // Do not hide players in the same non loneliness heat, unless they are ghosted
                 maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(p.getUniqueId());
                 if (maybeDriver.isPresent() && maybeDriver.get().getHeat().getId() == heat.getId() && !ghostedPlayers.contains(p.getUniqueId()) && !(DeltaGhostingController.isDeltaGhosted(driver, maybeDriver.get()))) {
-                    if (p.isInsideVehicle() && (p.getVehicle() instanceof Boat || p.getVehicle() instanceof ChestBoat)) {
-                        player.showEntity(plugin, p.getVehicle());
-                    }
-
-                    player.showEntity(plugin, p);
+                    showPlayerAndCustomBoat(player, p);
                     continue;
                 }
 
-                if (p.isInsideVehicle() && p.getVehicle() instanceof Boat || p.getVehicle() instanceof ChestBoat) {
-                    player.hideEntity(plugin, p.getVehicle());
-                }
-
-                player.hideEntity(plugin, p);
+                hidePlayerAndCustomBoat(player, p);
             }
         }, 5L);
+    }
+
+    private static void showPlayerAndCustomBoat(Player player, Player boatOwner) {
+        if (boatOwner.isInsideVehicle() && (boatOwner.getVehicle() instanceof Boat || boatOwner.getVehicle() instanceof ChestBoat)) {
+            if (TimingSystem.configuration.isCustomBoatsAddOnEnabled() && !boatOwner.getVehicle().getPassengers().isEmpty()) {
+                for (Entity e : boatOwner.getVehicle().getPassengers()) {
+                    if (e instanceof Villager) {
+                        player.showEntity(plugin, e);
+                    }
+                }
+            }
+            player.showEntity(plugin, boatOwner.getVehicle());
+        }
+        player.showEntity(plugin, boatOwner);
+    }
+
+    private static void hidePlayerAndCustomBoat(Player player, Player boatOwner) {
+        if (boatOwner.isInsideVehicle() && (boatOwner.getVehicle() instanceof Boat || boatOwner.getVehicle() instanceof ChestBoat)) {
+            if (TimingSystem.configuration.isCustomBoatsAddOnEnabled() && !boatOwner.getVehicle().getPassengers().isEmpty()) {
+                for (Entity e : boatOwner.getVehicle().getPassengers()) {
+                    if (e instanceof Villager) {
+                        player.hideEntity(plugin, e);
+                    }
+                }
+            }
+            player.hideEntity(plugin, boatOwner.getVehicle());
+        }
+        player.hideEntity(plugin, boatOwner);
     }
 
     private static void showAllOthers(Player player) {
@@ -97,12 +116,7 @@ public class LonelinessController implements Listener {
             if (p.getUniqueId().equals(player.getUniqueId())) {
                 continue;
             }
-
-            if (p.isInsideVehicle() && p.getVehicle() instanceof Boat || p.getVehicle() instanceof ChestBoat) {
-                player.showEntity(plugin, p.getVehicle());
-            }
-
-            player.showEntity(plugin, p);
+            showPlayerAndCustomBoat(player, p);
         }
     }
 
@@ -111,12 +125,7 @@ public class LonelinessController implements Listener {
             if (p.getUniqueId().equals(player.getUniqueId())) {
                 continue;
             }
-
-            if (p.isInsideVehicle() && p.getVehicle() instanceof Boat || p.getVehicle() instanceof ChestBoat) {
-                player.hideEntity(plugin, p.getVehicle());
-            }
-
-            player.hideEntity(plugin, p);
+            hidePlayerAndCustomBoat(player, p);
         }
     }
 
@@ -128,30 +137,18 @@ public class LonelinessController implements Listener {
                 }
                 // if p is not in a boat there is no situation where they should not see player
                 if (!(p.getVehicle() instanceof Boat) && !(p.getVehicle() instanceof ChestBoat)) {
-                    if (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) {
-                        p.showEntity(plugin, player.getVehicle());
-                    }
-
-                    p.showEntity(plugin, player);
+                    showPlayerAndCustomBoat(p, player);
                     continue;
                 }
 
                 if (TimeTrialController.timeTrials.containsKey(p.getUniqueId())) {
-                    if (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) {
-                        p.hideEntity(plugin, player.getVehicle());
-                    }
-
-                    p.hideEntity(plugin, player);
+                    hidePlayerAndCustomBoat(p, player);
                     continue;
                 }
 
                 var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(p.getUniqueId());
                 if (!maybeDriver.isPresent()) {
-                    if (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) {
-                        p.showEntity(plugin, player.getVehicle());
-                    }
-
-                    p.showEntity(plugin, player);
+                    showPlayerAndCustomBoat(p, player);
                     continue;
                 }
 
@@ -160,57 +157,33 @@ public class LonelinessController implements Listener {
 
                 // Driver is not participating
                 if (d.getState() == DriverState.DISQUALIFIED || d.getState() == DriverState.SETUP || d.getState() == DriverState.FINISHED) {
-                    if (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) {
-                        p.showEntity(plugin, player.getVehicle());
-                    }
-
-                    p.showEntity(plugin, player);
+                    showPlayerAndCustomBoat(p, player);
                     continue;
                 }
 
                 maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
 
                 if (!maybeDriver.isPresent()) {
-                    if (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) {
-                        p.hideEntity(plugin, player.getVehicle());
-                    }
-
-                    p.hideEntity(plugin, player);
+                    hidePlayerAndCustomBoat(p, player);
                     continue;
                 }
 
                 if (maybeDriver.get().getHeat().getId() != heat.getId()) {
-                    if (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) {
-                        p.hideEntity(plugin, player.getVehicle());
-                    }
-
-                    p.hideEntity(plugin, player);
+                    hidePlayerAndCustomBoat(p, player);
                     continue;
                 }
 
                 if (heat.getLonely()) {
-                    if (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) {
-                        p.hideEntity(plugin, player.getVehicle());
-                    }
-
-                    p.hideEntity(plugin, player);
+                    hidePlayerAndCustomBoat(p, player);
                     continue;
                 }
 
                 if (ghostedPlayers.contains(player.getUniqueId())) {
-                    if (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) {
-                        p.hideEntity(plugin, player.getVehicle());
-                    }
-
-                    p.hideEntity(plugin, player);
+                    hidePlayerAndCustomBoat(p, player);
                     continue;
                 }
 
-                if (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat) {
-                    p.showEntity(plugin, player.getVehicle());
-                }
-
-                p.showEntity(plugin, player);
+                showPlayerAndCustomBoat(p, player);
             }
          }, 5L);
     }
