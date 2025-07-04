@@ -291,7 +291,14 @@ public class TSListener implements Listener {
                 }
             }
         }
-        if (event.getVehicle() instanceof Boat && event.getVehicle().hasMetadata("spawned")) {
+        if (event.getVehicle() instanceof Boat boat && event.getVehicle().hasMetadata("spawned")) {
+            if (!boat.getPassengers().isEmpty()) {
+                for (Entity e : boat.getPassengers()){
+                    if (e instanceof Villager) {
+                        e.remove();
+                    }
+                }
+            }
             event.getVehicle().remove();
             event.setCancelled(true);
         }
