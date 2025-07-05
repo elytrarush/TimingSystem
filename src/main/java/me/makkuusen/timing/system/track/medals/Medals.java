@@ -3,6 +3,11 @@ package me.makkuusen.timing.system.track.medals;
 import lombok.Getter;
 import org.bukkit.Material;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Getter
 public enum Medals {
     NETHERITE_CUP("Netherite Cup", "§8", "\uE070", Material.NETHERITE_INGOT, 1, 6, 1),
@@ -22,6 +27,8 @@ public enum Medals {
     private final int number;
     private final double xpBonus;
 
+    private static final Map<Integer, Medals> BY_NUMBER = Arrays.stream(values()).collect(Collectors.toMap(Medals::getNumber, Function.identity()));
+
     Medals(String name, String color, String font, Material material, int customModelData, int number, double xpBonus) {
         this.name = name;
         this.color = color;
@@ -30,5 +37,9 @@ public enum Medals {
         this.customModelData = customModelData;
         this.number = number;
         this.xpBonus = xpBonus;
+    }
+
+    public static Medals fromNumber(int number) {
+        return BY_NUMBER.getOrDefault(number, NO_MEDAL);
     }
 }

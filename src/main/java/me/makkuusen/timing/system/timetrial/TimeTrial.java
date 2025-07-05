@@ -14,6 +14,7 @@ import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Info;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.medals.Medals;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -267,7 +268,8 @@ public class TimeTrial {
             finishMessage = Text.get(player, Info.TIME_TRIAL_FIRST_FINISH,"%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%pos%", String.valueOf(track.getTimeTrials().getPlayerTopListPosition(tPlayer)));
             finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, finishMessage);
             if (TimingSystem.configuration.isMedalsAddOnEnabled()) {
-                medalMessage = track.getTrackMedals().getMedalMessage(track.getTimeTrials(), 0, timeTrialTime, track.getDisplayName());
+                Medals prevMedal = track.getTrackMedals().getMedal(0);
+                medalMessage = track.getTrackMedals().getMedalMessage(track.getTimeTrials(), prevMedal, timeTrialTime, track.getDisplayName());
             }
         } else if (timeTrialTime < bestFinish.getTime()) {
 
@@ -283,11 +285,13 @@ public class TimeTrial {
                 //New personal best
                 var oldPos = track.getTimeTrials().getCachedPlayerPosition(tPlayer);
                 var oldFinish = bestFinish;
+                Medals prevMedal = Medals.NO_MEDAL;
+                if (TimingSystem.configuration.isMedalsAddOnEnabled()) { prevMedal = track.getTrackMedals().getMedal(oldFinish.getTime()); }
                 finish = newBestFinish(player, timeTrialTime, oldFinish.getTime());
                 finishMessage = Text.get(player, Info.TIME_TRIAL_NEW_RECORD, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%delta%", ApiUtilities.formatAsPersonalGap(oldFinish.getTime() - timeTrialTime), "%oldPos%", oldPos.toString(), "%pos%", track.getTimeTrials().getPlayerTopListPosition(tPlayer).toString());
                 finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, oldFinish, finishMessage);
                 if (TimingSystem.configuration.isMedalsAddOnEnabled()) {
-                    medalMessage = track.getTrackMedals().getMedalMessage(track.getTimeTrials(), oldFinish.getTime(), timeTrialTime, track.getDisplayName());
+                    medalMessage = track.getTrackMedals().getMedalMessage(track.getTimeTrials(), prevMedal, timeTrialTime, track.getDisplayName());
                 }
             }
         } else {
@@ -301,6 +305,17 @@ public class TimeTrial {
         player.sendMessage(finishMessage);
         if (TimingSystem.configuration.isMedalsAddOnEnabled() && medalMessage != null) {
             player.sendMessage(medalMessage);
+            if (TimingSystem.configuration.isMedalsShowEveryone()) {
+                Medals medal = getTrack().getTrackMedals().getMedal(timeTrialTime);
+                if (medal == Medals.EMERALD_CUP || medal == Medals.NETHERITE_CUP) {
+                    Component text = Component.text("§7" + player.getName() + " unlocked " + medal.getColor() + "§l" + medal.getName() + "§r§7 on " + track.getDisplayName() + "!");
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        if (p != player) {
+                            p.sendMessage(text);
+                        }
+                    }
+                }
+            }
         }
     }
 

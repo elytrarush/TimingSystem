@@ -75,13 +75,17 @@ public class TrackMedals {
         return item;
     }
 
-    public Component getMedalMessage(TimeTrials timeTrials, long prevTime, long time, String trackName) {
+    public Component getMedalMessage(TimeTrials timeTrials, Medals prevMedal, long time, String trackName) {
         updateMedalsTimes(timeTrials);
-        Medals prevMedal = getMedal(prevTime);
         Medals medal = getMedal(time);
         if (medal.getNumber() > prevMedal.getNumber()) {
+            String nextTime = "\n";
+            if (TimingSystem.configuration.isMedalsShowNextMedal()) {
+                Medals nextMedal = Medals.fromNumber(medal.getNumber() + 1);
+                if (nextMedal != Medals.NO_MEDAL) { nextTime = "\nImprove by §l" + ApiUtilities.formatAsPersonalGap(time - fromNumber(medal.getNumber() + 1).getTime()) + "§r§f to unlock " + nextMedal.getColor() + "§l" + nextMedal.getName() + "\n"; }
+            }
             Component hoverText = Component.join(JoinConfiguration.builder().separator(Component.text("\n")).build(), getMedalLore(time));
-            return Component.text("\n§f=== §e§lNew Time Trial Trophy§r§f ===\n\nYou unlocked " + medal.getColor() + "§l" + medal.getName() + "§r§f on " + trackName + "!").hoverEvent(HoverEvent.showText(hoverText));
+            return Component.text("\n§f=== §e§lNew Time Trial Trophy§r§f ===\n\nYou unlocked " + medal.getColor() + "§l" + medal.getName() + "§r§f on " + trackName + "!" + nextTime).hoverEvent(HoverEvent.showText(hoverText));
         }
         return null;
     }
@@ -129,7 +133,7 @@ public class TrackMedals {
         else if (time <= gold.getTime())      return Medals.GOLD_MEDAL;
         else if (time <= silver.getTime())    return Medals.SILVER_MEDAL;
         else if (time <= copper.getTime())    return Medals.COPPER_MEDAL;
-        else                                   return Medals.NO_MEDAL;
+        else                                  return Medals.NO_MEDAL;
     }
 
     private int getPosition(double num, int totalPositions) {
@@ -150,5 +154,16 @@ public class TrackMedals {
         } else {
             return "(top " + (int) num + ")";
         }
+    }
+
+    private TrackMedalsData fromNumber(int number) {
+        return switch (number) {
+            case 2 -> silver;
+            case 3 -> gold;
+            case 4 -> diamond;
+            case 5 -> emerald;
+            case 6 -> netherite;
+            default -> copper;
+        };
     }
 }
