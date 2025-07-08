@@ -291,14 +291,7 @@ public class TSListener implements Listener {
                 }
             }
         }
-        if (event.getVehicle() instanceof Boat boat && event.getVehicle().hasMetadata("spawned")) {
-            if (!boat.getPassengers().isEmpty()) {
-                for (Entity e : boat.getPassengers()){
-                    if (e instanceof Villager) {
-                        e.remove();
-                    }
-                }
-            }
+        if (event.getVehicle() instanceof Boat && event.getVehicle().hasMetadata("spawned")) {
             event.getVehicle().remove();
             event.setCancelled(true);
         }
@@ -306,7 +299,7 @@ public class TSListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByBlock(EntityDamageByBlockEvent event) {
-        if (event.getEntity() instanceof Player && event.getEntity().getVehicle() != null && event.getEntity().getVehicle().getType() == EntityType.BOAT && event.getEntity().getVehicle().hasMetadata("spawned")) {
+        if (event.getEntity() instanceof Player && event.getEntity().getVehicle() != null && event.getEntity().getVehicle() instanceof Boat && event.getEntity().getVehicle().hasMetadata("spawned")) {
             event.setCancelled(true);
         }
     }

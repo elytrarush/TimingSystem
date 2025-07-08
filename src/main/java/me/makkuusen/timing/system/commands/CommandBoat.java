@@ -11,6 +11,7 @@ import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -42,13 +43,7 @@ public class CommandBoat extends BaseCommand {
     }
 
     private static boolean isPlayerInBoat(Player p) {
-        Entity v = p.getVehicle();
-        if (v != null) {
-            v.getType();
-            return v.getType().equals(EntityType.BOAT) || v.getType().equals(EntityType.CHEST_BOAT);
-        }
-
-        return false;
+        return p.getVehicle() instanceof Boat boat;
     }
 
     @Subcommand("mode")

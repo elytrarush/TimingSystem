@@ -12,6 +12,10 @@ import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.locations.TrackLocation;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import static me.makkuusen.timing.system.heat.QualifyHeat.timeIsOver;
@@ -37,16 +41,22 @@ public class CommandReset extends BaseCommand {
         }
     }
 
-        if (maybeDriver.isEmpty()) {
-            ApiUtilities.resetPlayerTimeTrial(player);
-            return;
+    private static boolean canResetDriver(Driver driver) {
+        if (driver.getHeat().getRound() instanceof QualificationRound) {
+            return canResetInQualification(driver);
+        } else if (driver.getHeat().getRound() instanceof FinalRound) {
+            return canResetInFinal(driver);
+        }
+        return false;
+    }
+
+    private static boolean canResetInQualification(Driver driver) {
+        if (!isValidStateForQualificationReset(driver.getState())) {
+            return false;
         }
 
-        Driver driver = maybeDriver.get();
-
-        if (!driver.isRunning()) {
-            Text.send(player, Error.NOT_NOW);
-            return;
+        if (driver.getHeat().getReset()) {
+            return !timeIsOver(driver);
         }
 
         return !isPlayerInPit(driver);
@@ -79,5 +89,62 @@ public class CommandReset extends BaseCommand {
         } else if (driver.getState() == DriverState.RESET) {
             resetToTrackSpawn(driver);
         }
+    }
+
+    private static void resetToCheckpoint(Driver driver) {
+        int latestCheckpoint = driver.getCurrentLap().getLatestCheckpoint();
+        Location resetLocation = latestCheckpoint == 0
+                ? getStartLineLocation(driver)
+                : getCheckpointLocation(driver, latestCheckpoint);
+
+        teleportPlayerToLocation(driver, resetLocation);
+    }
+
+    private static void resetToGrid(Driver driver) {
+        Track track = driver.getHeat().getEvent().getTrack();
+        Location gridLocation = driver.getHeat().getRound() instanceof QualificationRound
+                ? getLastQualificationGridLocation(track)
+                : getLastRaceGridLocation(track);
+
+        teleportPlayerToLocation(driver, gridLocation);
+    }
+
+    private static void resetToTrackSpawn(Driver driver) {
+        Location spawnLocation = driver.getHeat().getEvent().getTrack().getSpawnLocation();
+        teleportPlayerToLocation(driver, spawnLocation);
+    }
+
+    private static Location getStartLineLocation(Driver driver) {
+        return driver.getHeat().getEvent().getTrack()
+                .getTrackRegions()
+                .getRegions(TrackRegion.RegionType.START)
+                .get(0)
+                .getSpawnLocation();
+    }
+
+    private static Location getCheckpointLocation(Driver driver, int checkpoint) {
+        return driver.getHeat().getEvent().getTrack()
+                .getTrackRegions()
+                .getCheckpoints(checkpoint)
+                .get(0)
+                .getSpawnLocation();
+    }
+
+    private static Location getLastQualificationGridLocation(Track track) {
+        var qualyGrids = track.getTrackLocations().getLocations(TrackLocation.Type.QUALYGRID);
+        return qualyGrids.get(qualyGrids.size() - 1).getLocation();
+    }
+
+    private static Location getLastRaceGridLocation(Track track) {
+        var raceGrids = track.getTrackLocations().getLocations(TrackLocation.Type.GRID);
+        return raceGrids.get(raceGrids.size() - 1).getLocation();
+    }
+
+    private static void teleportPlayerToLocation(Driver driver, Location location) {
+        ApiUtilities.teleportPlayerAndSpawnBoat(
+                driver.getTPlayer().getPlayer(),
+                driver.getHeat().getEvent().getTrack(),
+                location
+        );
     }
 }
