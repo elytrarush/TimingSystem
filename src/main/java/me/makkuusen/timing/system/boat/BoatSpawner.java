@@ -5,8 +5,6 @@ import org.bukkit.entity.Boat;
 
 public interface BoatSpawner {
 
-	public Boat spawnBoat(Location location);
-	
-	public Boat spawnChestBoat(Location location);
-	
+	public Boat spawnBoat(Location location, String woodType, Boolean chestBoat);
+
 }
