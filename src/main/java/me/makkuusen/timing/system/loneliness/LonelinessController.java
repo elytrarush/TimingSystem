@@ -12,6 +12,7 @@ import me.makkuusen.timing.system.participant.DriverState;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -19,16 +20,15 @@ import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.plugin.Plugin;
 
-import me.makkuusen.timing.system.api.TimingSystemAPI;
-import me.makkuusen.timing.system.api.events.TimeTrialStartEvent;
-import me.makkuusen.timing.system.timetrial.TimeTrialController;
-
-
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class LonelinessController implements Listener {
 
     private static Plugin plugin = null;
     private static final Set<UUID> ghostedPlayers = ConcurrentHashMap.newKeySet();
+    private static final boolean DEBUG_ENABLED = false;
 
     public LonelinessController(Plugin plugin) {
         LonelinessController.plugin = plugin;
@@ -151,9 +151,17 @@ public class LonelinessController implements Listener {
                     showPlayerAndCustomBoat(p, player);
                     continue;
                 }
+            }
+        };
+        plugin.getServer().getScheduler().runTask(plugin, visibilityTask);
+    }
 
-                Driver d = maybeDriver.get();
-                Heat heat = d.getHeat();
+    // Boat Visibility Management Methods
+    public static void updateBoatsVisibility(Player player, boolean inBoat) {
+        if (player == null || !player.isOnline()) {
+            plugin.getLogger().warning("Attempted to update visibility for invalid player");
+            return;
+        }
 
                 // Driver is not participating
                 if (d.getState() == DriverState.DISQUALIFIED || d.getState() == DriverState.SETUP || d.getState() == DriverState.FINISHED) {
@@ -167,6 +175,12 @@ public class LonelinessController implements Listener {
                     hidePlayerAndCustomBoat(p, player);
                     continue;
                 }
+            } catch (Exception e) {
+                plugin.getLogger().severe("Error updating boat visibility: " + e.getMessage());
+            }
+        };
+        plugin.getServer().getScheduler().runTask(plugin, visibilityTask);
+    }
 
                 if (maybeDriver.get().getHeat().getId() != heat.getId()) {
                     hidePlayerAndCustomBoat(p, player);
@@ -185,10 +199,11 @@ public class LonelinessController implements Listener {
 
                 showPlayerAndCustomBoat(p, player);
             }
-         }, 5L);
+        }
     }
 
-    @EventHandler
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         updatePlayerVisibility(player);
@@ -200,69 +215,55 @@ public class LonelinessController implements Listener {
             return;
         }
 
-        if (event.getVehicle() instanceof Boat || event.getVehicle() instanceof ChestBoat) {
-            if (event.getEntered() instanceof Player) {
-                Player player = (Player) event.getEntered();
-                updatePlayerVisibility(player);
-                updatePlayersVisibility(player);
+        if (player.isInsideVehicle() && (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat)) {
+            updateBoatsVisibility(player, true);
+            updateBoatVisibilityToAllPlayers(player.getVehicle());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onEnterBoat(VehicleEnterEvent event) {
+        if (event.getEntered() instanceof Player player) {
+            updateBoatsVisibility(player, true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onExitBoat(VehicleExitEvent event) {
+        if (event.isCancelled()) return;
+
+        if (event.getExited() instanceof Player player) {
+            updateBoatsVisibility(player, false);
+            for (Player p: plugin.getServer().getOnlinePlayers()) {
+                p.showEntity(plugin, player);
             }
         }
     }
 
-    @EventHandler
-    public void onVehicleExit(VehicleExitEvent event) {
-        if (event.isCancelled()) {
-            return;
-        }
-
-        if (event.getVehicle() instanceof Boat || event.getVehicle() instanceof ChestBoat) {
-            if (event.getExited() instanceof Player) {
-                Player player = (Player) event.getExited();
-                updatePlayersVisibility(player);
-            }
-        }
-    }
-
-    @EventHandler
-    public void onPlayerChangeWorld(PlayerChangedWorldEvent event) {
-        Player player = event.getPlayer();
-        updatePlayerVisibility(player);
-        updatePlayersVisibility(player);
-    }
-
-    @EventHandler
-    public void onPlayerStartTimeTrial(TimeTrialStartEvent event) {
-        Player player = event.getPlayer();
-
-        updatePlayersVisibility(player);
-    }
-
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onBoatSpawn(BoatSpawnEvent event) {
-        if (event.getPlayer() == null) {
-            return;
-        }
+        plugin.getServer().getScheduler().runTaskLater(plugin,
+                () -> updateBoatVisibilityToAllPlayers(event.getBoat()), 5);
+    }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onChangeWorld(PlayerChangedWorldEvent event) {
         Player player = event.getPlayer();
-        updatePlayersVisibility(player);
-        updatePlayerVisibility(player);
+        boolean isInBoat = player.isInsideVehicle() &&
+                (player.getVehicle() instanceof Boat || player.getVehicle() instanceof ChestBoat);
+        updateBoatsVisibility(player, isInBoat);
     }
 
-    public static boolean isGhosted(UUID player) {
-        return ghostedPlayers.contains(player);
+    public static boolean isGhosted(UUID uuid) {
+        return ghostedPlayers.contains(uuid);
     }
 
-    public static void ghost(UUID player) {
-        ghostedPlayers.add(player);
-        updatePlayerVisibility(plugin.getServer().getPlayer(player));
-    }
-
-    public static boolean unghost(UUID player) {
-        if (ghostedPlayers.contains(player)) {
-            ghostedPlayers.remove(player);
-            updatePlayerVisibility(plugin.getServer().getPlayer(player));
-            return true;
-        }
-        return false;
+    public void removeAllGhosted() {
+        new ArrayList<>(ghostedPlayers).forEach(uuid -> {
+            TPlayer tPlayer = TimingSystemAPI.getTPlayer(uuid);
+            if (tPlayer != null) {
+                ghost(tPlayer, false);
+            }
+        });
     }
 }

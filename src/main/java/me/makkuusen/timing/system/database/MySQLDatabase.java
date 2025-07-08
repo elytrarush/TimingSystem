@@ -123,12 +123,14 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         if (previousVersion < 6) {
             Version6.updateMySQL();
         }
+
         if (previousVersion < 7) {
             Version7.updateMySQL();
         }
         if (previousVersion < 8) {
             Version8.updateMySQL();
         }
+
     }
 
 
@@ -142,6 +144,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       `shortName` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
                       `boat` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
                       `verbose` tinyint(1) NOT NULL DEFAULT '0',
+                      `lonely` tinyint(1) NOT NULL DEFAULT '0',
                       `timetrial` tinyint(1) NOT NULL DEFAULT '1',
                       `override` tinyint(1) NOT NULL DEFAULT '0',
                       `chestBoat` tinyint(1) NOT NULL DEFAULT '0',
@@ -248,6 +251,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       `canReset` tinyint(1) NOT NULL DEFAULT '0',
                       `lapReset` tinyint(1) NOT NULL DEFAULT '0',
                       `ghostingDelta` int(11) DEFAULT NULL,
+
                       `isRemoved` tinyint(1) NOT NULL DEFAULT '0',
                       PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
@@ -374,7 +378,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
             DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `boat`) VALUES(?, ?, ?);",
                     uuid.toString(),
                     name,
-                    "BIRCH"
+                    Boat.Type.BIRCH.name()
             );
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_players` WHERE `uuid` = ?;",
                     uuid.toString()

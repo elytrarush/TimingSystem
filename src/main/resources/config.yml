@@ -12,7 +12,7 @@ medalsaddon:
    silverPos: 0.25
    copperPos: 0.5
 leaderboards:
-   updateticks: 18000
+   updateticks: 6000
    fastesttime:
       lines:
          - '§6§lLeaderboard for §e§l{mapname}'

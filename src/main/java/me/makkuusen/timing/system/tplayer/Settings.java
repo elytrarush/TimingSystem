@@ -4,9 +4,13 @@ import co.aikar.idb.DbRow;
 import lombok.Getter;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.EventDatabase;
+import me.makkuusen.timing.system.loneliness.LonelinessController;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Boat;
+import org.bukkit.entity.ChestBoat;
+
 import java.awt.*;
 import java.util.UUID;
 
@@ -14,8 +18,7 @@ import java.util.UUID;
 public class Settings {
 
     private final UUID uuid;
-    //private Boat.Type boat;
-    private String boat;
+    private Boat.Type boat;
     private boolean chestBoat;
     private boolean toggleSound;
     private String color;
@@ -29,8 +32,7 @@ public class Settings {
 
     public Settings(TPlayer tPlayer, DbRow data) {
         this.uuid = tPlayer.getUniqueId();
-        //boat = stringToType(data.getString("boat"));
-        boat = data.getString("boat");
+        boat = stringToType(data.getString("boat"));
         chestBoat = getBoolean(data, "chestBoat");
         toggleSound = getBoolean(data, "toggleSound");
         verbose = getBoolean(data, "verbose");
@@ -39,6 +41,7 @@ public class Settings {
         compactScoreboard = getBoolean(data, "compactScoreboard");
         sendFinalLaps = getBoolean(data, "sendFinalLaps");
         shortName = data.getString("shortName") != null ? data.getString("shortName") : extractShortName(tPlayer.getName());
+        lonely = getBoolean(data, "lonely");
     }
 
     private String extractShortName(String name) {
@@ -80,9 +83,9 @@ public class Settings {
         TimingSystem.getDatabase().playerUpdateValue(uuid, "shortName", name);
     }
 
-    public void setBoat(String boat) {
-        this.boat = boat.toUpperCase();
-        TimingSystem.getDatabase().playerUpdateValue(uuid, "boat", boat);
+    public void setBoat(Boat.Type boat) {
+        this.boat = boat;
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "boat", boat.name());
     }
 
     public void setChestBoat(boolean b) {
@@ -100,6 +103,29 @@ public class Settings {
     public void toggleVerbose() {
         verbose = !verbose;
         TimingSystem.getDatabase().playerUpdateValue(uuid, "verbose", verbose);
+    }
+
+    public void toggleLonely() {
+        lonely = !lonely;
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "lonely", lonely);
+
+
+        if (Bukkit.getPlayer(uuid).isInsideVehicle() && (Bukkit.getPlayer(uuid).getVehicle() instanceof Boat || Bukkit.getPlayer(uuid).getVehicle() instanceof ChestBoat)) {
+            LonelinessController.updateBoatsVisibility(Bukkit.getPlayer(uuid), lonely);
+        }
+    }
+
+    public void setLonely(boolean lonely) {
+        this.lonely = lonely;
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "lonely", lonely);
+
+        if (Bukkit.getPlayer(uuid).isInsideVehicle() && (Bukkit.getPlayer(uuid).getVehicle() instanceof Boat || Bukkit.getPlayer(uuid).getVehicle() instanceof ChestBoat)) {
+            LonelinessController.updateBoatsVisibility(Bukkit.getPlayer(uuid), lonely);
+        }
+    }
+
+    public boolean isLonely() {
+        return lonely;
     }
 
     public void toggleTimeTrial() {
@@ -135,7 +161,7 @@ public class Settings {
     }
 
     public Material getBoatMaterial() {
-        String boat = getBoat();
+        String boat = getBoat().name();
         if (chestBoat) {
             boat += "_CHEST";
         }
@@ -147,15 +173,15 @@ public class Settings {
         return Material.valueOf(boat);
     }
 
-//    private Boat.Type stringToType(String boatType) {
-//        if (boatType == null) {
-//            return Boat.Type.BIRCH;
-//        }
-//        try {
-//            return Boat.Type.valueOf(boatType);
-//        } catch (IllegalArgumentException e) {
-//            //REDWOOD is the only old option possible.
-//            return Boat.Type.SPRUCE;
-//        }
-//    }
+    private Boat.Type stringToType(String boatType) {
+        if (boatType == null) {
+            return Boat.Type.BIRCH;
+        }
+        try {
+            return Boat.Type.valueOf(boatType);
+        } catch (IllegalArgumentException e) {
+            //REDWOOD is the only old option possible.
+            return Boat.Type.SPRUCE;
+        }
+    }
 }
