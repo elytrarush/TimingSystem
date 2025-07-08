@@ -139,7 +139,7 @@ public class CommandTrack extends BaseCommand {
             Text.send(commandSender, Info.PLAYER_STATS_BEST_LAP, "%time%", ApiUtilities.formatAsTime(timeTrials.getBestFinish(tPlayer).getTime()));
         }
         Text.send(commandSender, Info.PLAYER_STATS_FINISHES, "%size%", String.valueOf(timeTrials.getPlayerTotalFinishes(tPlayer)));
-        Text.send(commandSender, Info.PLAYER_STATS_ATTEMPTS, "%size%", String.valueOf(timeTrials.getPlayerTotalFinishes(tPlayer) + timeTrials.getPlayerTotalAttempts(tPlayer)));
+        Text.send(commandSender, Info.PLAYER_STATS_ATTEMPTS, "%size%", String.valueOf(timeTrials.getPlayerTotalAttempts(tPlayer)));
         Text.send(commandSender, Info.PLAYER_STATS_TIME_SPENT, "%size%", ApiUtilities.formatAsTimeSpent(timeTrials.getPlayerTotalTimeSpent(tPlayer)));
     }
 

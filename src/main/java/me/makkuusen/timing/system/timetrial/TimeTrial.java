@@ -161,9 +161,11 @@ public class TimeTrial {
             return;
         }
         var time = ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime));
-        var attempt = getTrack().getTimeTrials().newAttempt(time, tPlayer.getUniqueId());
-        var eventTimeTrialAttempt = new TimeTrialAttemptEvent(tPlayer.getPlayer(), attempt);
-        Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialAttempt);
+        if (time > 1000) {
+            var attempt = getTrack().getTimeTrials().newAttempt(time, tPlayer.getUniqueId());
+            var eventTimeTrialAttempt = new TimeTrialAttemptEvent(tPlayer.getPlayer(), attempt);
+            Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialAttempt);
+        }
         TimeTrialController.timeTrials.remove(tPlayer.getUniqueId());
         ApiUtilities.teleportPlayerAndSpawnBoat(tPlayer.getPlayer(), track, track.getSpawnLocation());
         ApiUtilities.msgConsole(tPlayer.getName() + " has been reset on " + track.getDisplayName());

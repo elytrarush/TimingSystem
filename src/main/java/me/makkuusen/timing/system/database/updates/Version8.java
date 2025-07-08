@@ -8,6 +8,7 @@ public class Version8 {
     public static void updateMySQL() throws SQLException {
         try {
             DB.executeUpdate("ALTER TABLE `ts_heats` ADD `ghostingdelta` int(11) DEFAULT NULL AFTER `lapreset`;");
+            DB.executeUpdate("delete from ts_attempts where time < 1000;");
         } catch (SQLException e) {
             // Log the error for debugging
             System.err.println("Failed to update MySQL schema: " + e.getMessage());
@@ -18,6 +19,7 @@ public class Version8 {
     public static void updateSQLite() throws SQLException {
         try {
             DB.executeUpdate("ALTER TABLE `ts_heats` ADD `ghostingdelta` INTEGER DEFAULT NULL;");
+            DB.executeUpdate("delete from ts_attempts where time < 1000;");
         } catch (SQLException e) {
             // Log the error for debugging
             System.err.println("Failed to update SQLite schema: " + e.getMessage());

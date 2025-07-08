@@ -102,7 +102,7 @@ public class Track {
             loreToSet.add(Text.get(tPlayer, Gui.POSITION, "%pos%", getTimeTrials().getCachedPlayerPosition(tPlayer) == -1 ? "(-)" : String.valueOf(getTimeTrials().getCachedPlayerPosition(tPlayer))));
             loreToSet.add(Text.get(tPlayer, Gui.BEST_TIME, "%time%", getTimeTrials().getBestFinish(tPlayer) == null ? "(-)" : ApiUtilities.formatAsTime(getTimeTrials().getBestFinish(tPlayer).getTime())));
             loreToSet.add(Text.get(tPlayer, Gui.TOTAL_FINISHES, "%total%", String.valueOf(getTimeTrials().getPlayerTotalFinishes(tPlayer))));
-            loreToSet.add(Text.get(tPlayer, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(getTimeTrials().getPlayerTotalFinishes(tPlayer) + getTimeTrials().getPlayerTotalAttempts(tPlayer))));
+            loreToSet.add(Text.get(tPlayer, Gui.TOTAL_ATTEMPTS, "%total%", String.valueOf(getTimeTrials().getPlayerTotalAttempts(tPlayer))));
             loreToSet.add(Text.get(tPlayer, Gui.TIME_SPENT, "%time%", ApiUtilities.formatAsTimeSpent(getTimeTrials().getPlayerTotalTimeSpent(tPlayer))));
             loreToSet.add(Text.get(tPlayer, Gui.CREATED_BY, "%player%", getOwner().getName()));
             if(!getContributorsAsString().isBlank()) loreToSet.add(Text.get(tPlayer, Gui.CONTRIBUTORS, "%contributors%", getContributorsAsString()));
