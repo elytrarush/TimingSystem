@@ -12,9 +12,9 @@ TimingSystem is a plugin that aims to do a few things.
 ## Installation
 First of all you need a Minecraft server running [Paper](https://papermc.io). Then you can get started by following these easy steps:
 
-1. Download the [latest release](https://github.com/FrostHexABG/TimingSystem/releases) of TimingSystem and put the .jar in /plugins folder. 
-1. Add World Edit or [FastAsyncWorldEdit](https://www.spigotmc.org/resources/fastasyncworldedit.13932/) to your /plugins folder.
-1. _[Optional] Add [DecentHolograms](https://www.spigotmc.org/resources/decentholograms-1-8-1-20-1-papi-support-no-dependencies.96927/) to enable the use of hologram leaderboards._
+1. Download the TimingSystem version that is built for your MC server version. If you are running MC 1.21.4 or newer use the [latest release](https://github.com/FrostHexABG/TimingSystem/releases/latest/). If you are running MC 1.21.1 or lower use version [2.3.x](https://github.com/FrostHexABG/TimingSystem/releases/tag/2.3).
+2. Add World Edit or [FastAsyncWorldEdit](https://www.spigotmc.org/resources/fastasyncworldedit.13932/) to your /plugins folder.
+3. [Optional] Add [DecentHolograms](https://www.spigotmc.org/resources/decentholograms-1-8-1-20-1-papi-support-no-dependencies.96927/) to enable the use of hologram leaderboards.
 
 
 ## Plugin Add-ons
@@ -43,7 +43,7 @@ Step 2. Add the TimingSystem dependancy
 <dependency>
     <groupId>com.github.FrostHexABG</groupId>
     <artifactId>TimingSystem</artifactId>
-    <version>2.2.1</version>
+    <version>2.3</version>
 </dependency>
 ```
 
