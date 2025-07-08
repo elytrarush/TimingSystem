@@ -344,6 +344,25 @@ public class CommandHeat extends BaseCommand {
         Text.send(player, Success.SAVED);
     }
 
+    @Subcommand("set ghostingDelta")
+    @CommandCompletion("@heat <false/h/m/s>")
+    @CommandPermission("%permissionheat_set_ghostingdelta")
+    public static void onHeatGhostingDelta(Player player, Heat heat, String time) {
+        if (time.equalsIgnoreCase("false")) {
+            heat.setGhostingDelta(null);
+            Text.send(player, Success.SAVED);
+            return;
+        }
+
+        Integer timeLimit = ApiUtilities.parseDurationToMillis(time);
+        if (timeLimit == null) {
+            Text.send(player, Error.TIME_FORMAT);
+            return;
+        }
+        heat.setGhostingDelta(timeLimit);
+        Text.send(player, Success.SAVED);
+    }
+
     @Subcommand("set driverposition")
     @CommandCompletion("@heat @players <[+/-]pos>")
     @CommandPermission("%permissionheat_set_driverposition")

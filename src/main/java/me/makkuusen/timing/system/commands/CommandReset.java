@@ -22,7 +22,20 @@ public class CommandReset extends BaseCommand {
     @Default
     @CommandPermission("%permissiontimingsystem_reset")
     public static void onReset(Player player) {
-        var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
+        TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId())
+                .ifPresentOrElse(
+                        driver -> handleDriverReset(player, driver),
+                        () -> ApiUtilities.resetPlayerTimeTrial(player)
+                );
+    }
+
+    private static void handleDriverReset(Player player, Driver driver) {
+        if (canResetDriver(driver)) {
+            performInHeatReset(driver);
+        } else {
+            Text.send(player, Error.NOT_NOW);
+        }
+    }
 
         if (maybeDriver.isEmpty()) {
             ApiUtilities.resetPlayerTimeTrial(player);
@@ -36,22 +49,35 @@ public class CommandReset extends BaseCommand {
             return;
         }
 
-        var round = driver.getHeat().getRound();
-        if (round instanceof QualificationRound && driver.getState() == DriverState.RUNNING) {
-            if (timeIsOver(driver)) {
-                Text.send(player, Error.NOT_NOW);
-                return;
-            }
-            if (driver.getHeat().getReset()) {
-                ApiUtilities.teleportPlayerAndSpawnBoat(driver.getTPlayer().getPlayer(), driver.getHeat().getEvent().getTrack(), driver.getHeat().getEvent().getTrack().getSpawnLocation());
-                driver.setState(DriverState.RESET);
-            } else {
-                Text.send(player, Error.NOT_NOW);
-            }
-        } else if (round instanceof FinalRound) {
-            // reset to the last checkpoint
-        } else {
-            Text.send(player, Error.NOT_NOW);
+        return !isPlayerInPit(driver);
+    }
+
+    private static boolean canResetInFinal(Driver driver) {
+        return (driver.getState() == DriverState.RUNNING || driver.getState() == DriverState.STARTING)
+                && !isPlayerInPit(driver);
+    }
+
+    private static boolean isValidStateForQualificationReset(DriverState state) {
+        return state == DriverState.RUNNING ||
+                state == DriverState.LAPRESET ||
+                state == DriverState.RESET ||
+                state == DriverState.STARTING;
+    }
+
+    private static boolean isPlayerInPit(Driver driver) {
+        return driver.getHeat().getEvent().getTrack().getTrackRegions()
+                .getRegions(TrackRegion.RegionType.INPIT)
+                .stream()
+                .anyMatch(region -> region.contains(driver.getTPlayer().getPlayer().getLocation()));
+    }
+
+    public static void performInHeatReset(Driver driver) {
+        if (driver.getState() == DriverState.RUNNING) {
+            resetToCheckpoint(driver);
+        } else if (driver.getState() == DriverState.STARTING) {
+            resetToGrid(driver);
+        } else if (driver.getState() == DriverState.RESET) {
+            resetToTrackSpawn(driver);
         }
     }
 }

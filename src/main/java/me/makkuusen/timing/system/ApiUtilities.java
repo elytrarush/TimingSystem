@@ -279,6 +279,22 @@ public class ApiUtilities {
         return toReturn;
     }
 
+    public static String formatAsMedalTime(long time) {
+        String toReturn;
+        long timeInMillis = getRoundedToTick(time);
+        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
+        String millis = String.format("%03d", (timeInMillis % 1000));
+
+        if (hours == 0) {
+            toReturn = String.format("%02d:%02d", minutes, seconds) + "." + millis;
+        } else {
+            toReturn = String.format("%d:%02d:%02d", hours, minutes, seconds) + "." + millis;
+        }
+        return toReturn;
+    }
+
     public static String formatAsTimeWithoutRounding(long timeInMillis) {
         String toReturn;
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);

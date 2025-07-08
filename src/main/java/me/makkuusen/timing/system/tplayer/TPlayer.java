@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.tplayer;
 
 import co.aikar.idb.DbRow;
 import lombok.Getter;
+import lombok.Setter;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.gui.BaseGui;
@@ -39,6 +40,9 @@ public class TPlayer implements Comparable<TPlayer> {
     private TrackFilter filter;
     @Getter
     private TrackSort trackSort;
+    @Getter
+    @Setter
+    private boolean isMedal;
     @Getter
     private Track.TrackType trackType;
     private Integer page;

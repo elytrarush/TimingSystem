@@ -24,10 +24,16 @@ public class TimingSystemConfiguration {
     private int scoreboardMaxRows;
     private Integer scoreboardInterval;
     private final boolean customBoatsAddOnEnabled;
-    private final String guiPrefix3;
-    private final String guiPrefix4;
-    private final String guiPrefix5;
-    private final String guiPrefix6;
+    private final boolean medalsAddOnEnabled;
+    private final boolean medalsShowNextMedal;
+    private final boolean medalsShowEveryone;
+    private final int medalsPlayersLimit;
+    private final double netheritePos;
+    private final double emeraldPos;
+    private final double diamondPos;
+    private final double goldPos;
+    private final double silverPos;
+    private final double copperPos;
 
     private final Object databaseType;
 
@@ -55,10 +61,16 @@ public class TimingSystemConfiguration {
         scoreboardMaxRows = plugin.getConfig().getInt("scoreboard.maxRows", 15);
         scoreboardInterval = ApiUtilities.parseDurationToMillis(plugin.getConfig().getString("scoreboard.interval","1000"));
         customBoatsAddOnEnabled = plugin.getConfig().getBoolean("customboatsaddon.enabled");
-        guiPrefix3 = plugin.getConfig().getString("customboatsaddon.guiprefix3");
-        guiPrefix4 = plugin.getConfig().getString("customboatsaddon.guiprefix4");
-        guiPrefix5 = plugin.getConfig().getString("customboatsaddon.guiprefix5");
-        guiPrefix6 = plugin.getConfig().getString("customboatsaddon.guiprefix6");
+        medalsAddOnEnabled = plugin.getConfig().getBoolean("medalsaddon.enabled");
+        medalsShowNextMedal = plugin.getConfig().getBoolean("medalsaddon.showNextMedal");
+        medalsShowEveryone = plugin.getConfig().getBoolean("medalsaddon.showEveryone");
+        medalsPlayersLimit = plugin.getConfig().getInt("medalsaddon.playersLimit", 500);
+        netheritePos = plugin.getConfig().getDouble("medalsaddon.netheritePos", 3);
+        emeraldPos = plugin.getConfig().getDouble("medalsaddon.emeraldPos", 10);
+        diamondPos = plugin.getConfig().getDouble("medalsaddon.diamondPos", 0.05);
+        goldPos = plugin.getConfig().getDouble("medalsaddon.goldPos", 0.1);
+        silverPos = plugin.getConfig().getDouble("medalsaddon.silverPos", 0.25);
+        copperPos = plugin.getConfig().getDouble("medalsaddon.copperPos", 0.50);
 
         databaseType = switch (databaseTypeRaw.toLowerCase()) {
             case "sqlite" -> new SQLiteDatabase();

@@ -59,7 +59,13 @@ public class SettingsGui extends BaseGui {
 
     public static GuiButton getBoatMenuButton(TPlayer tPlayer) {
         var button = new GuiButton(new ItemBuilder(tPlayer.getSettings().getBoatMaterial()).setName(Text.get(tPlayer, Gui.CHANGE_BOAT_TYPE)).build());
-        button.setAction(() -> new BoatSettingsGui(tPlayer).show(tPlayer.getPlayer()));
+        button.setAction(() -> {
+            if (TimingSystem.configuration.isCustomBoatsAddOnEnabled()) {
+                tPlayer.getPlayer().performCommand("garage default");
+            } else {
+                new BoatSettingsGui(tPlayer).show(tPlayer.getPlayer());
+            }
+        });
         return button;
     }
 
@@ -100,9 +106,7 @@ public class SettingsGui extends BaseGui {
         setItem(tPlayer.getSettings().isSendFinalLaps() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 4);
         setItem(getHeatLapsButton(tPlayer), 13);
 
-        if (!TimingSystem.configuration.isCustomBoatsAddOnEnabled()) {
-            setItem(getBoatMenuButton(tPlayer), 15);
-        }
+        setItem(getBoatMenuButton(tPlayer), 15);
         setItem(getColorMenuButton(tPlayer), 16);
     }
 }

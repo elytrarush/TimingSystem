@@ -11,6 +11,7 @@ import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
+import me.makkuusen.timing.system.loneliness.DeltaGhostingController;
 import me.makkuusen.timing.system.network.UUIDFetcher;
 import me.makkuusen.timing.system.network.UUIDFetcherCallback;
 import me.makkuusen.timing.system.participant.Driver;
@@ -48,6 +49,9 @@ import org.bukkit.event.vehicle.VehicleExitEvent;
 
 import java.time.Instant;
 import java.util.*;
+
+import static me.makkuusen.timing.system.commands.CommandReset.performInHeatReset;
+import static me.makkuusen.timing.system.loneliness.DeltaGhostingController.checkDeltas;
 
 public class TSListener implements Listener {
 
@@ -175,29 +179,21 @@ public class TSListener implements Listener {
 
     @EventHandler
     public void onVehicleEnter(VehicleEnterEvent e) {
-        if (!e.getVehicle().getPassengers().isEmpty()) {
-            var passenger = e.getVehicle().getPassengers().get(0);
-            if (passenger instanceof Player player) {
-                if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
-                    e.setCancelled(true);
-                }
-            }
+        if (e.getEntered() instanceof Player && e.getVehicle() instanceof Boat boat && (boat.getPersistentDataContainer().has(Objects.requireNonNull(NamespacedKey.fromString("spawned", plugin))) || boat.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.COMMAND)) && !e.getVehicle().getPassengers().isEmpty() && e.getVehicle().getPassengers().get(0) instanceof Player) {
+            e.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onVehicleExit(VehicleExitEvent event) {
-        if (event.getVehicle() instanceof Boat boat && (boat.getPersistentDataContainer().has(Objects.requireNonNull(NamespacedKey.fromString("spawned", plugin))) || boat.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.COMMAND))) {
-            if (event.getExited() instanceof Player player) {
-                var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
-                if (maybeDriver.isPresent()) {
-                    if (maybeDriver.get().getState() == DriverState.LOADED) {
-                        event.setCancelled(true);
-                        return;
-                    }
+        if (event.getExited() instanceof Player player && event.getVehicle() instanceof Boat boat && (boat.getPersistentDataContainer().has(Objects.requireNonNull(NamespacedKey.fromString("spawned", plugin))) || boat.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.COMMAND))) {
+            var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
+            if (maybeDriver.isPresent()) {
+                if (maybeDriver.get().getState() == DriverState.LOADED || maybeDriver.get().getState() == DriverState.STARTING || maybeDriver.get().getState() == DriverState.RUNNING || maybeDriver.get().getState() == DriverState.RESET || maybeDriver.get().getState() == DriverState.LAPRESET) {
+                    event.setCancelled(true);
+                    return;
                 }
             }
-
             if (!boat.getPassengers().isEmpty()) {
                 for (Entity e : boat.getPassengers()){
                     if (e instanceof Villager) {
@@ -295,7 +291,14 @@ public class TSListener implements Listener {
                 }
             }
         }
-        if (event.getVehicle() instanceof Boat && event.getVehicle().hasMetadata("spawned")) {
+        if (event.getVehicle() instanceof Boat boat && event.getVehicle().hasMetadata("spawned")) {
+            if (!boat.getPassengers().isEmpty()) {
+                for (Entity e : boat.getPassengers()){
+                    if (e instanceof Villager) {
+                        e.remove();
+                    }
+                }
+            }
             event.getVehicle().remove();
             event.setCancelled(true);
         }
@@ -619,14 +622,16 @@ public class TSListener implements Listener {
                 } else if (driver.getCurrentLap() != null && driver.getCurrentLap().getLatestCheckpoint() != 0) {
                     if (!driver.getCurrentLap().hasPassedAllCheckpoints()) {
                         int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
-                        var maybeCheckpoint = track.getTrackRegions().getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
-                        maybeCheckpoint.ifPresent(trackRegion -> ApiUtilities.teleportPlayerAndSpawnBoat(player, track, trackRegion.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN));
+                        performInHeatReset(driver);
                         Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
 
                         return;
                     }
                     heat.passLap(driver);
                     heat.updatePositions();
+                    if (heat.getGhostingDelta() != null) {
+                        checkDeltas(driver);
+                    }
                     return;
                 }
             }
@@ -638,8 +643,7 @@ public class TSListener implements Listener {
                     if (driver.getCurrentLap() != null) {
                         if (!(driver.getCurrentLap().hasPassedAllCheckpoints())) {
                             int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
-                            var maybeCheckpoint = track.getTrackRegions().getRegions(TrackRegion.RegionType.CHECKPOINT).stream().filter(trackRegion -> trackRegion.getRegionIndex() == checkpoint).findFirst();
-                            maybeCheckpoint.ifPresent(trackRegion -> ApiUtilities.teleportPlayerAndSpawnBoat(player, track, trackRegion.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN));
+                            performInHeatReset(driver);
                             Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
                             return;
                         }
@@ -704,12 +708,15 @@ public class TSListener implements Listener {
             if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() == lap.getNextCheckpoint()) {
                 lap.passNextCheckpoint(TimingSystem.currentTime);
                 heat.updatePositions();
+
+                if (heat.getGhostingDelta() != null) {
+                    checkDeltas(driver);
+                }
+
                 new DriverPassCheckpointEvent(driver, lap, maybeCheckpoint.get(), TimingSystem.currentTime).callEvent();
             } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() > lap.getNextCheckpoint()) {
                 if (!track.getTrackOptions().hasOption(TrackOption.NO_RESET_ON_FUTURE_CHECKPOINT)) {
-                    var maybeRegion = track.getTrackRegions().getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
-                    TrackRegion region = maybeRegion.orElseGet(() -> track.getTrackRegions().getStart().get());
-                    ApiUtilities.teleportPlayerAndSpawnBoat(player, track, region.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+                    performInHeatReset(driver);
                     Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
                 }
             }

@@ -7,11 +7,7 @@ import co.aikar.idb.PooledDatabaseOptions;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.database.updates.Version2;
-import me.makkuusen.timing.system.database.updates.Version3;
-import me.makkuusen.timing.system.database.updates.Version4;
-import me.makkuusen.timing.system.database.updates.Version5;
-import me.makkuusen.timing.system.database.updates.Version6;
+import me.makkuusen.timing.system.database.updates.*;
 import org.bukkit.Material;
 
 import java.io.File;
@@ -34,7 +30,8 @@ public class SQLiteDatabase extends MySQLDatabase {
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 6;
+            int databaseVersion = 8;
+
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(?, ?);",
                         databaseVersion,
@@ -84,6 +81,14 @@ public class SQLiteDatabase extends MySQLDatabase {
 
         if (previousVersion < 6) {
             Version6.updateSQLite();
+        }
+
+        if (previousVersion < 7) {
+            Version7.updateSQLite();
+        }
+
+        if (previousVersion < 8) {
+            Version8.updateSQLite();
         }
     }
 
