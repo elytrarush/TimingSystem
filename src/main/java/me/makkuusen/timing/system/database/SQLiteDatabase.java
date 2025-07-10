@@ -31,7 +31,6 @@ public class SQLiteDatabase extends MySQLDatabase {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
             int databaseVersion = 8;
-
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(?, ?);",
                         databaseVersion,
@@ -107,7 +106,6 @@ public class SQLiteDatabase extends MySQLDatabase {
                         `compactScoreboard` INTEGER NOT NULL DEFAULT 0,
                         `override` INTEGER NOT NULL DEFAULT 0,
                         `verbose` INTEGER NOT NULL DEFAULT 0,
-                        `lonely` INTEGER NOT NULL DEFAULT 0,
                         `timetrial` INTEGER NOT NULL DEFAULT 1,
                         `toggleSound` INTEGER DEFAULT 1 NOT NULL,
                         `sendFinalLaps` INTEGER DEFAULT 0 NOT NULL
