@@ -57,7 +57,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 8;
+            int databaseVersion = 9;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(?, ?);",
                         databaseVersion,
@@ -129,6 +129,9 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         if (previousVersion < 8) {
             Version8.updateMySQL();
         }
+        if (previousVersion < 9) {
+            Version9.updateMySQL();
+        }
     }
 
 
@@ -153,6 +156,16 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
 
             DB.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS `ts_custom_boatutils_modes` (
+                      `id` int(11) NOT NULL AUTO_INCREMENT,
+                      `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                      `data` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
+                      PRIMARY KEY (`id`),
+                      UNIQUE KEY `name` (`name`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                    """);
+
+            DB.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS `ts_tracks` (
                       `id` int(11) NOT NULL AUTO_INCREMENT,
                       `uuid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -167,9 +180,10 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       `timeTrial` tinyint(1) NOT NULL DEFAULT 1,
                       `toggleOpen` tinyint(1) NOT NULL DEFAULT 0,
                       `boatUtilsMode` int(4) NOT NULL DEFAULT '-1',
+                      `customBoatUtilsModeId` int(11) DEFAULT NULL,
                       `isRemoved` tinyint(1) NOT NULL,
                       PRIMARY KEY (`id`)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
 
             DB.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS `ts_finishes` (

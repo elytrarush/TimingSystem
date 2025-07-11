@@ -30,7 +30,7 @@ public class SQLiteDatabase extends MySQLDatabase {
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 8;
+            int databaseVersion = 9;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(?, ?);",
                         databaseVersion,
@@ -89,6 +89,10 @@ public class SQLiteDatabase extends MySQLDatabase {
         if (previousVersion < 8) {
             Version8.updateSQLite();
         }
+
+        if (previousVersion < 9) {
+            Version9.updateSQLite();
+        }
     }
 
 
@@ -113,6 +117,14 @@ public class SQLiteDatabase extends MySQLDatabase {
                         """);
 
             DB.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS `ts_custom_boatutils_modes` (
+                          `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                          `name` TEXT NOT NULL UNIQUE,
+                          `data` TEXT NOT NULL
+                        );
+                        """);
+
+            DB.executeUpdate("""
                         CREATE TABLE IF NOT EXISTS `ts_tracks` (
                           `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                           `uuid` TEXT DEFAULT NULL,
@@ -127,6 +139,7 @@ public class SQLiteDatabase extends MySQLDatabase {
                           `timeTrial` INTEGER NOT NULL DEFAULT 1,
                           `toggleOpen` INTEGER NOT NULL,
                           `boatUtilsMode` INTEGER NOT NULL DEFAULT -1,
+                          `customBoatUtilsModeId` INTEGER DEFAULT NULL,
                           `isRemoved` INTEGER NOT NULL
                         );""");
 
