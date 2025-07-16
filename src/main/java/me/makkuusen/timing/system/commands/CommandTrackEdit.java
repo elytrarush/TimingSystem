@@ -162,6 +162,14 @@ public class CommandTrackEdit extends BaseCommand {
         Text.send(player, response);
     }
 
+    @Subcommand("customboatutils")
+    @CommandCompletion("customModeName @track")
+    @CommandPermission("%permissiontrackedit_boatutilsmode")
+    public static void onCustomBoatUtils(Player player, String modeName, @Optional Track track) {
+        Message response = TrackEditor.setCustomBoatUtilsMode(player, modeName, track);
+        Text.send(player, response);
+    }
+
     @Subcommand("regionspawn")
     @CommandCompletion("@region")
     @CommandPermission("%permissiontrackedit_regionspawn")

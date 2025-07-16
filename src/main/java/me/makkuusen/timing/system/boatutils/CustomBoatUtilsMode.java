@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.TimingSystem;
-import org.antlr.v4.runtime.misc.Pair;
-import org.antlr.v4.runtime.misc.Triple;
 import org.bukkit.entity.Player;
 
 import java.io.ByteArrayOutputStream;
@@ -13,12 +11,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 @Getter
 @Setter
-public class CustomBoatutilsMode {
+public class CustomBoatUtilsMode {
 
     private static final short PACKET_ID_RESET = 0;
     private static final short PACKET_ID_SET_STEP_HEIGHT = 1;
@@ -39,8 +39,6 @@ public class CustomBoatutilsMode {
     private static final short PACKET_ID_SET_COYOTE_TIME = 19;
     private static final short PACKET_ID_SET_WATER_JUMPING = 20;
     private static final short PACKET_ID_SET_SWIM_FORCE = 21;
-    private static final short PACKET_ID_CLEAR_BLOCKS_SLIPPERINESS = 22;
-    private static final short PACKET_ID_CLEAR_ALL_SLIPPERINESS = 23;
     private static final short PACKET_ID_SET_PER_BLOCK_SETTING = 26;
     private static final short PACKET_ID_SET_AIR_STEPPING = 28;
 
@@ -49,9 +47,10 @@ public class CustomBoatutilsMode {
     private static final int SEGMENT_BITS = 0x7F;
     private static final int CONTINUE_BIT = 0x80;
 
+    private String name;
     private float stepHeight;
     private float defaultSlipperiness;
-    private List<Pair<Float, String>> blocksSlipperiness = new ArrayList<>();
+    private Map<String, Float> blocksSlipperiness = new HashMap<>();
     private boolean boatFallDamage;
     private boolean boatWaterElevation;
     private boolean boatAirControl;
@@ -68,12 +67,13 @@ public class CustomBoatutilsMode {
     private int coyoteTime;
     private boolean waterJumping;
     private float swimForce;
-    private List<Triple<Short, Float, String>> perBlockSettings = new ArrayList<>();
+
+    private Map<String, PerBlockSetting> perBlockSettings = new HashMap<>();
 
     /**
      * Creates a new CustomBoatutilsMode with default vanilla values
      */
-    public CustomBoatutilsMode() {
+    public CustomBoatUtilsMode() {
         resetToVanilla();
     }
 
@@ -139,13 +139,26 @@ public class CustomBoatutilsMode {
         if (this.waterJumping) sendShortAndBooleanPacket(player, PACKET_ID_SET_WATER_JUMPING, this.waterJumping);
         if (this.swimForce != 0f) sendShortAndFloatPacket(player, PACKET_ID_SET_SWIM_FORCE, this.swimForce);
 
-        // List-based settings
-        for (Pair<Float, String> slipperinessPair : this.blocksSlipperiness) {
-            sendShortAndFloatAndStringPacket(player, PACKET_ID_SET_BLOCKS_SLIPPERINESS, slipperinessPair.a, slipperinessPair.b);
+        // Block slipperiness settings
+        for (Map.Entry<String, Float> entry : this.blocksSlipperiness.entrySet()) {
+            sendShortAndFloatAndStringPacket(player, PACKET_ID_SET_BLOCKS_SLIPPERINESS, entry.getValue(), entry.getKey());
         }
 
-        for (Triple<Short, Float, String> perBlockSetting : this.perBlockSettings) {
-            sendShortAndShortAndFloatAndStringPacket(player, PACKET_ID_SET_PER_BLOCK_SETTING, perBlockSetting.a, perBlockSetting.b, perBlockSetting.c);
+        // Per-block settings
+        for (PerBlockSetting setting : this.perBlockSettings.values()) {
+            if (setting.getValue() instanceof Boolean) {
+                sendShortAndBooleanPacket(player, setting.getType(), setting.getAsBoolean());
+            } else if (setting.getValue() instanceof Float) {
+                sendShortAndFloatPacket(player, setting.getType(), setting.getAsFloat());
+            } else if (setting.getValue() instanceof Integer) {
+                sendShortAndIntPacket(player, setting.getType(), setting.getAsInt());
+            } else if (setting.getValue() instanceof Double) {
+                sendShortAndDoublePacket(player, setting.getType(), setting.getAsDouble());
+            }
+            // Send block ID as a separate packet if needed
+            if (setting.getBlockId() != null && !setting.getBlockId().isEmpty()) {
+                sendShortAndStringPacket(player, PACKET_ID_SET_PER_BLOCK_SETTING, setting.getBlockId());
+            }
         }
     }
 
@@ -237,6 +250,17 @@ public class CustomBoatutilsMode {
             logPacketError(player, packetId, e);
         }
     }
+    
+    private static void sendShortAndStringPacket(Player player, short packetId, String stringValue) {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+             DataOutputStream out = new DataOutputStream(byteStream)) {
+            out.writeShort(packetId);
+            writeString(out, stringValue);
+            player.sendPluginMessage(TimingSystem.getPlugin(), "openboatutils:settings", byteStream.toByteArray());
+        } catch (IOException e) {
+            logPacketError(player, packetId, e);
+        }
+    }
 
     private static void logPacketError(Player player, short packetId, IOException e) {
         TimingSystem.getPlugin().getLogger().log(Level.SEVERE, "Failed to serialize and send packet " + packetId + " for player " + player.getName(), e);
@@ -273,12 +297,12 @@ public class CustomBoatutilsMode {
      * Applies settings from another mode to this mode
      * @param other The mode to copy settings from
      */
-    public void applySettingsFrom(CustomBoatutilsMode other) {
+    public void applySettingsFrom(CustomBoatUtilsMode other) {
         if (other == null) return;
 
         if (other.stepHeight != 0f) this.stepHeight = other.stepHeight;
         if (other.defaultSlipperiness != 0.6f) this.defaultSlipperiness = other.defaultSlipperiness;
-        this.blocksSlipperiness.addAll(other.blocksSlipperiness);
+        this.blocksSlipperiness.putAll(other.blocksSlipperiness);
         this.boatFallDamage = other.boatFallDamage;
         this.boatWaterElevation = other.boatWaterElevation;
         this.boatAirControl = other.boatAirControl;
@@ -294,25 +318,25 @@ public class CustomBoatutilsMode {
         if (other.coyoteTime != 0) this.coyoteTime = other.coyoteTime;
         this.waterJumping = other.waterJumping;
         if (other.swimForce != 0f) this.swimForce = other.swimForce;
-        this.perBlockSettings.addAll(other.perBlockSettings);
+        this.perBlockSettings.putAll(other.perBlockSettings);
         this.airStepping = other.airStepping;
     }
 
     /**
      * Sets block slipperiness for specific blocks
      * @param slipperiness The slipperiness value
-     * @param blockIds Comma-separated list of block IDs
+     * @param blockId The block ID
      */
-    public void setBlocksSlipperiness(float slipperiness, String blockIds) {
-        blocksSlipperiness.add(new Pair<>(slipperiness, blockIds));
+    public void setBlocksSlipperiness(float slipperiness, String blockId) {
+        blocksSlipperiness.put(blockId, slipperiness);
     }
 
     /**
      * Clears specific block slipperiness settings
-     * @param blockIds Comma-separated list of block IDs to clear
+     * @param blockId The block ID to clear
      */
-    public void clearBlocksSlipperiness(String blockIds) {
-        blocksSlipperiness.removeIf(pair -> pair.b.equals(blockIds));
+    public void clearBlocksSlipperiness(String blockId) {
+        blocksSlipperiness.remove(blockId);
     }
 
     /**
@@ -326,18 +350,18 @@ public class CustomBoatutilsMode {
      * Sets per-block settings for specific blocks
      * @param settingType The setting type (0=jumpForce, 1=forwardsAccel, etc.)
      * @param value The value to set
-     * @param blockIds Comma-separated list of block IDs
+     * @param blockId The block ID
      */
-    public void setPerBlockSetting(short settingType, float value, String blockIds) {
-        perBlockSettings.add(new Triple<>(settingType, value, blockIds));
+    public void setPerBlockSetting(short settingType, Object value, String blockId) {
+        perBlockSettings.put(blockId, new PerBlockSetting(settingType, value, blockId));
     }
 
     /**
      * Clears per-block settings for specific blocks
-     * @param blockIds Comma-separated list of block IDs to clear
+     * @param blockId The block ID to clear
      */
-    public void clearPerBlockSettings(String blockIds) {
-        perBlockSettings.removeIf(triple -> triple.c.equals(blockIds));
+    public void clearPerBlockSettings(String blockId) {
+        perBlockSettings.remove(blockId);
     }
 
     /**
@@ -348,7 +372,7 @@ public class CustomBoatutilsMode {
     }
 
     /**
-     * Converts this CustomBoatutilsMode object to a JSON string.
+     * Converts this CustomBoatUtilsMode object to a JSON string.
      * @return A JSON representation of this object.
      */
     public String toJson() {
@@ -356,11 +380,75 @@ public class CustomBoatutilsMode {
     }
 
     /**
-     * Creates a CustomBoatutilsMode object from a JSON string.
+     * Creates a CustomBoatUtilsMode object from a JSON string.
      * @param json The JSON string to parse.
-     * @return A new CustomBoatutilsMode instance.
+     * @return A new CustomBoatUtilsMode instance.
      */
-    public static CustomBoatutilsMode fromJson(String json) {
-        return GSON.fromJson(json, CustomBoatutilsMode.class);
+    public static CustomBoatUtilsMode fromJson(String json) {
+        return GSON.fromJson(json, CustomBoatUtilsMode.class);
+    }
+
+    /**
+     * Gathers all settings that are not at their vanilla default value.
+     * The settings are grouped by category for cleaner display.
+     *
+     * @return A map where keys are category names and values are lists of formatted setting strings.
+     */
+    public Map<String, List<String>> getNonDefaultSettings() {
+        Map<String, List<String>> nonDefaultSettings = new HashMap<>();
+
+        List<String> numericSettings = new ArrayList<>();
+        if (this.stepHeight != 0f) numericSettings.add("  &e- stepHeight: &f" + this.stepHeight);
+        if (this.defaultSlipperiness != 0.6f) numericSettings.add("  &e- defaultSlipperiness: &f" + this.defaultSlipperiness);
+        if (this.boatJumpForce != 0f) numericSettings.add("  &e- boatJumpForce: &f" + this.boatJumpForce);
+        if (this.yawAcceleration != 1.0f) numericSettings.add("  &e- yawAcceleration: &f" + this.yawAcceleration);
+        if (this.forwardAcceleration != 0.04f) numericSettings.add("  &e- forwardAcceleration: &f" + this.forwardAcceleration);
+        if (this.backwardAcceleration != 0.005f) numericSettings.add("  &e- backwardAcceleration: &f" + this.backwardAcceleration);
+        if (this.turningForwardAcceleration != 0.005f) numericSettings.add("  &e- turningForwardAcceleration: &f" + this.turningForwardAcceleration);
+        if (this.swimForce != 0f) numericSettings.add("  &e- swimForce: &f" + this.swimForce);
+        if (this.gravity != -0.03999999910593033) numericSettings.add("  &e- gravity: &f" + this.gravity);
+        if (this.coyoteTime != 0) numericSettings.add("  &e- coyoteTime: &f" + this.coyoteTime);
+        if (!numericSettings.isEmpty()) {
+            nonDefaultSettings.put("&bNumeric Settings:", numericSettings);
+        }
+
+        List<String> booleanSettings = new ArrayList<>();
+        if (!this.boatFallDamage) booleanSettings.add("  &e- boatFallDamage: &f" + this.boatFallDamage);
+        if (this.boatWaterElevation) booleanSettings.add("  &e- boatWaterElevation: &f" + this.boatWaterElevation);
+        if (this.boatAirControl) booleanSettings.add("  &e- boatAirControl: &f" + this.boatAirControl);
+        if (this.airStepping) booleanSettings.add("  &e- airStepping: &f" + this.airStepping);
+        if (this.allowAccelerationStacking) booleanSettings.add("  &e- allowAccelerationStacking: &f" + this.allowAccelerationStacking);
+        if (this.underwaterControl) booleanSettings.add("  &e- underwaterControl: &f" + this.underwaterControl);
+        if (this.surfaceWaterControl) booleanSettings.add("  &e- surfaceWaterControl: &f" + this.surfaceWaterControl);
+        if (this.waterJumping) booleanSettings.add("  &e- waterJumping: &f" + this.waterJumping);
+        if (!booleanSettings.isEmpty()) {
+            nonDefaultSettings.put("&bBoolean Toggles:", booleanSettings);
+        }
+
+        if (this.blocksSlipperiness != null && !this.blocksSlipperiness.isEmpty()) {
+            List<String> slipperinessList = new ArrayList<>();
+            this.blocksSlipperiness.forEach((blockId, slipperiness) ->
+                    slipperinessList.add("  &e- " + blockId + ": &f" + slipperiness)
+            );
+            nonDefaultSettings.put("&bBlock Slipperiness:", slipperinessList);
+        }
+
+        if (this.perBlockSettings != null && !this.perBlockSettings.isEmpty()) {
+            Map<Short, List<String>> settingsByType = new HashMap<>();
+            this.perBlockSettings.forEach((blockId, setting) -> {
+                String valueStr = setting.getValue() != null ? 
+                    (setting.getValue() instanceof Float ? String.format("%.3f", setting.getValue()) : 
+                     String.valueOf(setting.getValue())) : "null";
+                settingsByType.computeIfAbsent(setting.getType(), k -> new ArrayList<>())
+                    .add("  &e- " + blockId + ": &f" + valueStr + " &7(" + 
+                        (setting.getValue() != null ? setting.getValue().getClass().getSimpleName() : "null") + ")");
+            });
+            
+            settingsByType.forEach((type, settings) -> {
+                nonDefaultSettings.put("&bPer-Block Settings (Type " + type + "):", settings);
+            });
+        }
+
+        return nonDefaultSettings;
     }
 }

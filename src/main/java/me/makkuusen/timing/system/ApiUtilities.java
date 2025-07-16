@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import me.makkuusen.timing.system.loneliness.LonelinessController;
+import me.makkuusen.timing.system.boatutils.CustomBoatUtilsMode;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
@@ -55,6 +55,8 @@ import me.makkuusen.timing.system.track.regions.TrackPolyRegion;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+
+import static me.makkuusen.timing.system.database.TSDatabase.getCustomBoatUtilsModeFromId;
 
 public class ApiUtilities {
 
@@ -654,6 +656,9 @@ public class ApiUtilities {
 
         var mode = track.getBoatUtilsMode();
         BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode, track, sameAsLastTrack);
+
+        CustomBoatUtilsMode bume = getCustomBoatUtilsModeFromId(track.getCustomBoatUtilsModeId());
+        if (bume != null) bume.applyToPlayer(player);
 
         var tPlayer = TSDatabase.getPlayer(player.getUniqueId());
 
