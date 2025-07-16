@@ -271,7 +271,7 @@ public class TimeTrial {
             finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, finishMessage);
             if (TimingSystem.configuration.isMedalsAddOnEnabled()) {
                 Medals prevMedal = track.getTrackMedals().getMedal(0);
-                medalMessage = track.getTrackMedals().getMedalMessage(track.getTimeTrials(), prevMedal, timeTrialTime, track.getDisplayName());
+                medalMessage = track.getTrackMedals().getMedalMessage(track.getTimeTrials(), player.hasResourcePack(), prevMedal, timeTrialTime, track.getDisplayName());
             }
         } else if (timeTrialTime < bestFinish.getTime()) {
 
@@ -293,7 +293,7 @@ public class TimeTrial {
                 finishMessage = Text.get(player, Info.TIME_TRIAL_NEW_RECORD, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%delta%", ApiUtilities.formatAsPersonalGap(oldFinish.getTime() - timeTrialTime), "%oldPos%", oldPos.toString(), "%pos%", track.getTimeTrials().getPlayerTopListPosition(tPlayer).toString());
                 finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, oldFinish, finishMessage);
                 if (TimingSystem.configuration.isMedalsAddOnEnabled()) {
-                    medalMessage = track.getTrackMedals().getMedalMessage(track.getTimeTrials(), prevMedal, timeTrialTime, track.getDisplayName());
+                    medalMessage = track.getTrackMedals().getMedalMessage(track.getTimeTrials(), player.hasResourcePack(), prevMedal, timeTrialTime, track.getDisplayName());
                 }
             }
         } else {

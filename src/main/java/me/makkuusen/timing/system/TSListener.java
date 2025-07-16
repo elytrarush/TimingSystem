@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system;
 
+import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import com.destroystokyo.paper.event.server.ServerTickStartEvent;
 import me.makkuusen.timing.system.api.events.driver.DriverPassCheckpointEvent;
 import me.makkuusen.timing.system.boatutils.BoatUtilsManager;
@@ -38,10 +39,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
@@ -204,6 +202,10 @@ public class TSListener implements Listener {
             Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> event.getVehicle().remove(), 4);
         }
 
+        if (event.getExited() instanceof Villager villager && event.getVehicle() instanceof Boat boat && (boat.getPersistentDataContainer().has(Objects.requireNonNull(NamespacedKey.fromString("spawned", plugin))) || boat.getEntitySpawnReason().equals(CreatureSpawnEvent.SpawnReason.COMMAND))) {
+            villager.remove();
+        }
+
         if (event.getExited() instanceof Player player) {
 
             var maybeDriver = EventDatabase.getDriverFromRunningHeat(player.getUniqueId());
@@ -293,7 +295,7 @@ public class TSListener implements Listener {
         }
         if (event.getVehicle() instanceof Boat boat && event.getVehicle().hasMetadata("spawned")) {
             if (!boat.getPassengers().isEmpty()) {
-                for (Entity e : boat.getPassengers()){
+                for (Entity e : boat.getPassengers()) {
                     if (e instanceof Villager) {
                         e.remove();
                     }
@@ -301,6 +303,32 @@ public class TSListener implements Listener {
             }
             boat.remove();
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onEntityRemoveEvent(EntityRemoveEvent event) {
+        if (event.getEntity() instanceof Boat boat && event.getEntity().hasMetadata("spawned")) {
+            if (!boat.getPassengers().isEmpty()) {
+                for (Entity e : boat.getPassengers()) {
+                    if (e instanceof Villager) {
+                        e.remove();
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onEntityRemoveEvent(EntityRemoveFromWorldEvent event) {
+        if (event.getEntity() instanceof Boat boat && event.getEntity().hasMetadata("spawned")) {
+            if (!boat.getPassengers().isEmpty()) {
+                for (Entity e : boat.getPassengers()) {
+                    if (e instanceof Villager) {
+                        e.remove();
+                    }
+                }
+            }
         }
     }
 
