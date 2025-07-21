@@ -368,10 +368,10 @@ public class TSListener implements Listener {
 
         if (!TimeTrialController.timeTrials.containsKey(e.getPlayer().getUniqueId())) {
             Player player = e.getPlayer();
-            if (player.getInventory().getChestplate() == null || !player.getInventory().getChestplate().getItemMeta().hasCustomModelData()) {
+            var elytra = player.getInventory().getChestplate();
+            if (elytra == null || elytra.getItemMeta() == null || !elytra.getItemMeta().hasCustomModelData()) {
                 return;
             }
-            var elytra = player.getInventory().getChestplate();
             if (!player.isGliding() && elytra.getItemMeta().getCustomModelData() == 747) {
                 if (TimeTrialController.elytraProtection.get(player.getUniqueId()) != null) {
                     if (TimingSystem.currentTime.getEpochSecond() > TimeTrialController.elytraProtection.get(player.getUniqueId())) {
