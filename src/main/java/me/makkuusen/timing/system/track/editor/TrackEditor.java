@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.track.editor;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.LeaderboardManager;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.database.TSDatabase;
@@ -26,8 +27,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
-
-import static me.makkuusen.timing.system.database.TSDatabase.getCustomBoatUtilsModeIdFromName;
 
 public class TrackEditor {
 
@@ -261,7 +260,7 @@ public class TrackEditor {
     }
 
     public static Message setCustomBoatUtilsMode(Player player, String modeName, Track track) {
-        int modeId = getCustomBoatUtilsModeIdFromName(modeName);
+        int modeId = TimingSystem.getTrackDatabase().getCustomBoatUtilsModeIdFromName(modeName);
         if (modeId == -1) return Error.GENERIC;
 
         return setCustomBoatUtilsMode(player, modeId, track);

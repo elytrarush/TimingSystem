@@ -1,34 +1,24 @@
 package me.makkuusen.timing.system.boatutils;
 
+import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
 @Getter
 public class PerBlockSetting {
+    @Expose
     private final short type;
+    @Expose
     private final Object value;
+    @Expose
     private final String blockId;
-    private final Class<?> valueType;
 
     public PerBlockSetting(short type, Object value, String blockId) {
         this.type = type;
         this.value = value;
         this.blockId = blockId;
-        this.valueType = value != null ? value.getClass() : null;
-    }
-
-    public boolean getAsBoolean() {
-        return (boolean) value;
     }
 
     public float getAsFloat() {
         return ((Number) value).floatValue();
-    }
-
-    public int getAsInt() {
-        return ((Number) value).intValue();
-    }
-
-    public double getAsDouble() {
-        return ((Number) value).doubleValue();
     }
 }

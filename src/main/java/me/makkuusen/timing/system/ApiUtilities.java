@@ -56,7 +56,7 @@ import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-import static me.makkuusen.timing.system.database.TSDatabase.getCustomBoatUtilsModeFromId;
+
 
 public class ApiUtilities {
 
@@ -657,8 +657,11 @@ public class ApiUtilities {
         var mode = track.getBoatUtilsMode();
         BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode, track, sameAsLastTrack);
 
-        CustomBoatUtilsMode bume = getCustomBoatUtilsModeFromId(track.getCustomBoatUtilsModeId());
-        if (bume != null) bume.applyToPlayer(player);
+        Integer customModeId = track.getCustomBoatUtilsModeId();
+        if (customModeId != null) {
+            CustomBoatUtilsMode bume = TimingSystem.getTrackDatabase().getCustomBoatUtilsModeFromId(customModeId);
+            if (bume != null) bume.applyToPlayer(player);
+        }
 
         var tPlayer = TSDatabase.getPlayer(player.getUniqueId());
 

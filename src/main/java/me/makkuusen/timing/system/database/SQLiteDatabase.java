@@ -7,6 +7,7 @@ import co.aikar.idb.PooledDatabaseOptions;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.boatutils.CustomBoatUtilsMode;
 import me.makkuusen.timing.system.database.updates.*;
 import org.bukkit.Material;
 
@@ -329,5 +330,56 @@ public class SQLiteDatabase extends MySQLDatabase {
                 (value ? 1 : 0),
                 uuid.toString()
         );
+    }
+
+    @Override
+    public CustomBoatUtilsMode getCustomBoatUtilsModeFromName(String name) {
+        try {
+            var rows = DB.getResults("SELECT data FROM ts_custom_boatutils_modes WHERE name = ?", name);
+            if (rows == null || rows.isEmpty()) return null;
+            String json = rows.get(0).getString("data");
+            return CustomBoatUtilsMode.fromJson(json);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public int getCustomBoatUtilsModeIdFromName(String name) {
+        try {
+            var rows = DB.getResults("SELECT id FROM ts_custom_boatutils_modes WHERE name = ?", name);
+            if (rows == null || rows.isEmpty()) return -1;
+            return rows.get(0).getInt("id");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    @Override
+    public CustomBoatUtilsMode getCustomBoatUtilsModeFromId(int id) {
+        try {
+            var rows = DB.getResults("SELECT data FROM ts_custom_boatutils_modes WHERE id = ?", id);
+            if (rows == null || rows.isEmpty()) return null;
+            String json = rows.get(0).getString("data");
+            return CustomBoatUtilsMode.fromJson(json);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public boolean saveOrUpdateCustomBoatUtilsMode(CustomBoatUtilsMode mode) {
+        try {
+            String json = mode.toJson();
+            // SQLite uses INSERT OR REPLACE instead of ON CONFLICT
+            DB.executeUpdate("INSERT OR REPLACE INTO ts_custom_boatutils_modes (name, data) VALUES (?, ?)", mode.getName(), json);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

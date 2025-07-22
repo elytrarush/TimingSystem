@@ -1,7 +1,6 @@
 package me.makkuusen.timing.system.database;
 
 import co.aikar.idb.DbRow;
-import me.makkuusen.timing.system.boatutils.CustomBoatUtilsMode;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import org.bukkit.Bukkit;
@@ -126,49 +125,5 @@ public interface TSDatabase {
         return TimingSystem.getDatabase();
     }
 
-    public static CustomBoatUtilsMode getCustomBoatUtilsModeFromName(String name) {
-        try {
-            var rows = co.aikar.idb.DB.getResults("SELECT data FROM ts_custom_boatutils_modes WHERE name = ?", name);
-            if (rows == null || rows.isEmpty()) return null;
-            String json = rows.get(0).getString("data");
-            return CustomBoatUtilsMode.fromJson(json);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
-    public static int getCustomBoatUtilsModeIdFromName(String name) {
-        try {
-            var rows = co.aikar.idb.DB.getResults("SELECT id FROM ts_custom_boatutils_modes WHERE name = ?", name);
-            if (rows == null || rows.isEmpty()) return -1;
-            return rows.get(0).getInt("id");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return -1;
-        }
-    }
-
-    public static CustomBoatUtilsMode getCustomBoatUtilsModeFromId(int id) {
-        try {
-            var rows = co.aikar.idb.DB.getResults("SELECT data FROM ts_custom_boatutils_modes WHERE id = ?", id);
-            if (rows == null || rows.isEmpty()) return null;
-            String json = rows.get(0).getString("data");
-            return CustomBoatUtilsMode.fromJson(json);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static boolean saveOrUpdateCustomBoatUtilsMode(CustomBoatUtilsMode mode) {
-        try {
-            String json = mode.toJson();
-            co.aikar.idb.DB.executeUpdate("INSERT INTO ts_custom_boatutils_modes (name, data) VALUES (?, ?)\nON CONFLICT(name) DO UPDATE SET data = excluded.data", mode.getName(), json);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 }

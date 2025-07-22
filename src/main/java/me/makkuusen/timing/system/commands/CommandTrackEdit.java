@@ -163,7 +163,7 @@ public class CommandTrackEdit extends BaseCommand {
     }
 
     @Subcommand("customboatutils")
-    @CommandCompletion("customModeName @track")
+    @CommandCompletion("@bume @track")
     @CommandPermission("%permissiontrackedit_boatutilsmode")
     public static void onCustomBoatUtils(Player player, String modeName, @Optional Track track) {
         Message response = TrackEditor.setCustomBoatUtilsMode(player, modeName, track);

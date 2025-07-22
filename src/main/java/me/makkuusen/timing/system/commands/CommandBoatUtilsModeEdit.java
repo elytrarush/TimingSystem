@@ -3,7 +3,7 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.boatutils.CustomBoatUtilsMode;
-import me.makkuusen.timing.system.database.TSDatabase;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
@@ -22,23 +22,33 @@ public class CommandBoatUtilsModeEdit extends BaseCommand {
     @CommandCompletion("name")
     @CommandPermission("%permissionboatutilsmode_create")
     public static void onCreate(Player player, String name) {
+        if (TimingSystem.getTrackDatabase().getCustomBoatUtilsModeFromName(name) != null) {
+            Text.send(player, Error.CUSTOM_BOATUTILS_MODE_EXISTS, "%mode%", name);
+            return;
+        }
+
+        if (!name.matches("[a-zA-Z0-9_]+")) {
+            Text.send(player, Error.CUSTOM_BOATUTILS_MODE_INVALID_NAME);
+            return;
+        }
+
         CustomBoatUtilsMode mode = new CustomBoatUtilsMode();
         mode.setName(name);
         modeEditSessions.put(player, mode);
-        Text.send(player, Success.CREATED, "%mode%", name);
+        Text.send(player, Success.CUSTOM_BOATUTILS_MODE_CREATED, "%mode%", name);
     }
 
     @Subcommand("edit")
-    @CommandCompletion("name")
+    @CommandCompletion("@bume")
     @CommandPermission("%permissionboatutilsmode_edit")
     public static void onEdit(Player player, String name) {
-        CustomBoatUtilsMode mode = TSDatabase.getCustomBoatUtilsModeFromName(name);
+        CustomBoatUtilsMode mode = TimingSystem.getTrackDatabase().getCustomBoatUtilsModeFromName(name);
         if (mode == null) {
-            Text.send(player, Error.GENERIC);
+            Text.send(player, Error.CUSTOM_BOATUTILS_MODE_NOT_FOUND, "%mode%", name);
             return;
         }
         modeEditSessions.put(player, mode);
-        Text.send(player, Success.GHOSTING_OFF);
+        Text.send(player, Success.CUSTOM_BOATUTILS_MODE_SELECTED, "%mode%", name);
     }
 
     @Subcommand("save")
@@ -46,14 +56,14 @@ public class CommandBoatUtilsModeEdit extends BaseCommand {
     public static void onSave(Player player) {
         CustomBoatUtilsMode mode = modeEditSessions.get(player);
         if (mode == null) {
-            Text.send(player, Error.GENERIC);
+            Text.send(player, Error.NO_CUSTOM_BOATUTILS_MODE_SELECTED);
             return;
         }
-        boolean success = TSDatabase.saveOrUpdateCustomBoatUtilsMode(mode);
+        boolean success = TimingSystem.getTrackDatabase().saveOrUpdateCustomBoatUtilsMode(mode);
         if (success) {
-            Text.send(player, Success.GHOSTING_OFF);
+            Text.send(player, Success.CUSTOM_BOATUTILS_MODE_SAVED, "%mode%", mode.getName());
         } else {
-            Text.send(player, Error.GENERIC);
+            Text.send(player, Error.FAILED_TO_SAVE_CUSTOM_BOATUTILS_MODE);
         }
     }
 
@@ -62,7 +72,10 @@ public class CommandBoatUtilsModeEdit extends BaseCommand {
     @CommandPermission("%permissionboatutilsmode_edit")
     public static void onSet(Player player, String property, String value) {
         CustomBoatUtilsMode mode = modeEditSessions.get(player);
-        if (mode == null) return;
+        if (mode == null) {
+            Text.send(player, Error.NO_CUSTOM_BOATUTILS_MODE_SELECTED);
+            return;
+        }
         try {
             switch (property.toLowerCase()) {
                 case "name" -> mode.setName(value);
@@ -85,7 +98,12 @@ public class CommandBoatUtilsModeEdit extends BaseCommand {
                 case "waterjumping" -> mode.setWaterJumping(Boolean.parseBoolean(value));
                 case "coyotetime" -> mode.setCoyoteTime(Integer.parseInt(value));
             }
-        } catch (Exception ignored) {}
+            Text.send(player, Success.CUSTOM_BOATUTILS_MODE_PROPERTY_SET, "%property%", property, "%value%", value);
+        } catch (NumberFormatException e) {
+            Text.send(player, Error.NUMBER_FORMAT);
+        } catch (Exception e) {
+            Text.send(player, Error.SYNTAX);
+        }
     }
 
     @Subcommand("addblockslip")
@@ -93,8 +111,13 @@ public class CommandBoatUtilsModeEdit extends BaseCommand {
     @CommandPermission("%permissionboatutilsmode_edit")
     public static void onAddBlockSlip(Player player, float slipperiness, String blockIds) {
         CustomBoatUtilsMode mode = modeEditSessions.get(player);
-        if (mode == null) return;
-        mode.setBlocksSlipperiness(slipperiness, blockIds);
+        if (mode == null) {
+            Text.send(player, Error.NO_CUSTOM_BOATUTILS_MODE_SELECTED);
+            return;
+        }
+        String normalizedBlockIds = normalizeBlockIds(blockIds);
+        mode.setBlocksSlipperiness(slipperiness, normalizedBlockIds);
+        Text.send(player, Success.CUSTOM_BOATUTILS_MODE_BLOCK_SLIP_ADDED, "%blocks%", normalizedBlockIds);
     }
 
     @Subcommand("clearblockslip")
@@ -102,25 +125,104 @@ public class CommandBoatUtilsModeEdit extends BaseCommand {
     @CommandPermission("%permissionboatutilsmode_edit")
     public static void onClearBlockSlip(Player player, String blockIds) {
         CustomBoatUtilsMode mode = modeEditSessions.get(player);
-        if (mode == null) return;
-        mode.clearBlocksSlipperiness(blockIds);
+        if (mode == null) {
+            Text.send(player, Error.NO_CUSTOM_BOATUTILS_MODE_SELECTED);
+            return;
+        }
+        String normalizedBlockIds = normalizeBlockIds(blockIds);
+        mode.clearBlocksSlipperiness(normalizedBlockIds);
+        Text.send(player, Success.CUSTOM_BOATUTILS_MODE_BLOCK_SLIP_CLEARED, "%blocks%", normalizedBlockIds);
     }
 
     @Subcommand("clearallblockslip")
     @CommandPermission("%permissionboatutilsmode_edit")
     public static void onClearAllBlockSlip(Player player) {
         CustomBoatUtilsMode mode = modeEditSessions.get(player);
-        if (mode == null) return;
+        if (mode == null) {
+            Text.send(player, Error.NO_CUSTOM_BOATUTILS_MODE_SELECTED);
+            return;
+        }
         mode.clearAllSlipperiness();
+        Text.send(player, Success.CUSTOM_BOATUTILS_MODE_BLOCK_SLIP_CLEARED, "%blocks%", "all blocks");
     }
 
     @Subcommand("addperblock")
-    @CommandCompletion("<settingType> <value> <blockIds>")
+    @CommandCompletion("boatJumpForce|forwardAcceleration|backwardAcceleration|yawAcceleration|turningForwardAcceleration <value> <blockIds>")
     @CommandPermission("%permissionboatutilsmode_edit")
-    public static void onAddPerBlock(Player player, short settingType, float value, String blockIds) {
+    public static void onAddPerBlock(Player player, String settingName, String value, String blockIds) {
         CustomBoatUtilsMode mode = modeEditSessions.get(player);
-        if (mode == null) return;
-        mode.setPerBlockSetting(settingType, value, blockIds);
+        if (mode == null) {
+            Text.send(player, Error.NO_CUSTOM_BOATUTILS_MODE_SELECTED);
+            return;
+        }
+
+        try {
+            short settingType = getSettingTypeFromName(settingName);
+            Object parsedValue = parseValueForSetting(settingName, value);
+            String normalizedBlockIds = normalizeBlockIds(blockIds);
+
+            mode.setPerBlockSetting(settingType, parsedValue, normalizedBlockIds);
+            Text.send(player, Success.CUSTOM_BOATUTILS_MODE_PER_BLOCK_ADDED, "%blocks%", normalizedBlockIds);
+        } catch (IllegalArgumentException e) {
+            Text.send(player, Error.SYNTAX);
+        }
+    }
+
+    /**
+     * Normalizes block IDs by adding the minecraft: prefix if not present
+     * @param blockIds Comma-separated block IDs
+     * @return Normalized block IDs with minecraft: prefix
+     */
+    private static String normalizeBlockIds(String blockIds) {
+        if (blockIds == null || blockIds.trim().isEmpty()) {
+            return blockIds;
+        }
+        
+        String[] blocks = blockIds.split(",");
+        StringBuilder normalized = new StringBuilder();
+        
+        for (int i = 0; i < blocks.length; i++) {
+            String block = blocks[i].trim();
+            if (!block.contains(":")) {
+                block = "minecraft:" + block;
+            }
+            normalized.append(block);
+            if (i < blocks.length - 1) {
+                normalized.append(",");
+            }
+        }
+        
+        return normalized.toString();
+    }
+
+    /**
+     * Maps setting names to their corresponding per-block setting IDs
+     * These are different from global setting packet IDs and follow the BoatUtils documentation:
+     * jumpForce=0, forwardsAccel=1, backwardsAccel=2, yawAccel=3, turnForwardsAccel=4
+     */
+    private static short getSettingTypeFromName(String settingName) throws IllegalArgumentException {
+        return switch (settingName.toLowerCase()) {
+            case "boatjumpforce" -> 0;  // jumpForce
+            case "forwardacceleration" -> 1;  // forwardsAccel
+            case "backwardacceleration" -> 2;  // backwardsAccel
+            case "yawacceleration" -> 3;  // yawAccel
+            case "turningforwardacceleration" -> 4;  // turnForwardsAccel
+            default -> throw new IllegalArgumentException("Per-block setting not supported: " + settingName + 
+                ". Only jumpForce, forwardsAccel, backwardsAccel, yawAccel, and turnForwardsAccel are supported for per-block settings.");
+        };
+    }
+
+    /**
+     * Parses the value string for per-block settings
+     * All per-block settings are float values according to BoatUtils documentation
+     */
+    private static Object parseValueForSetting(String settingName, String value) throws NumberFormatException {
+        return switch (settingName.toLowerCase()) {
+            case "boatjumpforce", "forwardacceleration", "backwardacceleration", 
+                    "yawacceleration", "turningforwardacceleration" ->
+                Float.parseFloat(value);
+            default -> throw new IllegalArgumentException("Unsupported per-block setting: " + settingName);
+        };
     }
 
     @Subcommand("clearperblock")
@@ -128,24 +230,37 @@ public class CommandBoatUtilsModeEdit extends BaseCommand {
     @CommandPermission("%permissionboatutilsmode_edit")
     public static void onClearPerBlock(Player player, String blockIds) {
         CustomBoatUtilsMode mode = modeEditSessions.get(player);
-        if (mode == null) return;
-        mode.clearPerBlockSettings(blockIds);
+        if (mode == null) {
+            Text.send(player, Error.NO_CUSTOM_BOATUTILS_MODE_SELECTED);
+            return;
+        }
+        String normalizedBlockIds = normalizeBlockIds(blockIds);
+        mode.clearPerBlockSettings(normalizedBlockIds);
+        Text.send(player, Success.CUSTOM_BOATUTILS_MODE_PER_BLOCK_CLEARED, "%blocks%", normalizedBlockIds);
     }
 
     @Subcommand("clearallperblock")
     @CommandPermission("%permissionboatutilsmode_edit")
     public static void onClearAllPerBlock(Player player) {
         CustomBoatUtilsMode mode = modeEditSessions.get(player);
-        if (mode == null) return;
+        if (mode == null) {
+            Text.send(player, Error.NO_CUSTOM_BOATUTILS_MODE_SELECTED);
+            return;
+        }
         mode.clearAllPerBlockSettings();
+        Text.send(player, Success.CUSTOM_BOATUTILS_MODE_PER_BLOCK_CLEARED, "%blocks%", "all blocks");
     }
 
     @Subcommand("reset")
     @CommandPermission("%permissionboatutilsmode_edit")
     public static void onReset(Player player) {
         CustomBoatUtilsMode mode = modeEditSessions.get(player);
-        if (mode == null) return;
+        if (mode == null) {
+            Text.send(player, Error.NO_CUSTOM_BOATUTILS_MODE_SELECTED);
+            return;
+        }
         mode.resetToVanilla();
+        Text.send(player, Success.CUSTOM_BOATUTILS_MODE_RESET);
     }
 
     @Subcommand("info")
@@ -153,12 +268,12 @@ public class CommandBoatUtilsModeEdit extends BaseCommand {
     public static void onInfo(Player player) {
         CustomBoatUtilsMode mode = modeEditSessions.get(player);
         if (mode == null) {
-            Text.send(player, Error.GENERIC, "%message%", "You are not currently editing a boatutils mode.");
+            Text.send(player, Error.NO_CUSTOM_BOATUTILS_MODE_SELECTED);
             return;
         }
 
         player.sendMessage("-----------------------------------------------------");
-        player.sendMessage("Editing BoatUtils Mode: &e" + mode.getName());
+        player.sendMessage("Editing BoatUtils Mode: " + mode.getName());
         player.sendMessage("-----------------------------------------------------");
 
         Map<String, List<String>> nonDefaultSettings = mode.getNonDefaultSettings();

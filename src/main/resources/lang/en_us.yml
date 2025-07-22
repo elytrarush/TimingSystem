@@ -104,6 +104,12 @@ error:
   permission_denied: "&ePermission denied!"
   boat_utils_needed_for_race: "&eYou must have the OpenBoatUtils mod installed to join this race. Download at: https://modrinth.com/mod/openboatutils"
   no_hex_color_in_ts_color: "&eYou cannot use hex color codes in /timingsystem color. Use /timingsystem hexcolor instead."
+  custom_boatutils_mode_not_found: "&eCustom BoatUtils mode '%mode%' not found."
+  custom_boatutils_mode_exists: "&eCustom BoatUtils mode '%mode%' already exists."
+  custom_boatutils_mode_invalid_name: "&eInvalid custom BoatUtils mode name. Use only letters, numbers, and underscores."
+  no_custom_boatutils_mode_selected: "&eYou are not currently editing a custom BoatUtils mode."
+  failed_to_save_custom_boatutils_mode: "&eFailed to save custom BoatUtils mode."
+  failed_to_delete_custom_boatutils_mode: "&eFailed to delete custom BoatUtils mode."
 
 warning:
   dangerous_command: "&wThis command is dangerous, Type \"%command%\" to use it anyways"
@@ -199,6 +205,16 @@ success:
   driver_new_start_position: "&s%driver% is now starting %pos%."
   driver_disqualified: "&sDriver has been disqualified."
   driver_removed: "&sDriver has been removed."
+  custom_boatutils_mode_created: "&sCustom BoatUtils mode '%mode%' has been created."
+  custom_boatutils_mode_saved: "&sCustom BoatUtils mode '%mode%' has been saved."
+  custom_boatutils_mode_selected: "&sNow editing custom BoatUtils mode '%mode%'."
+  custom_boatutils_mode_deleted: "&sCustom BoatUtils mode '%mode%' has been deleted."
+  custom_boatutils_mode_reset: "&sCustom BoatUtils mode has been reset to vanilla settings."
+  custom_boatutils_mode_property_set: "&sProperty '%property%' set to '%value%'."
+  custom_boatutils_mode_block_slip_added: "&sBlock slipperiness added for blocks: %blocks%."
+  custom_boatutils_mode_block_slip_cleared: "&sBlock slipperiness cleared for blocks: %blocks%."
+  custom_boatutils_mode_per_block_added: "&sPer-block setting added for blocks: %blocks%."
+  custom_boatutils_mode_per_block_cleared: "&sPer-block settings cleared for blocks: %blocks%."
 
 info:
   page_current_of_max: "&1page &l&2%current% &r&1of &l&2%max%"
