@@ -638,6 +638,9 @@ public class TSListener implements Listener {
                     driver.start();
                     heat.updatePositions();
                     ApiUtilities.msgConsole("Starting : " + player.getName() + " in " + heat.getName());
+                    if (heat.getGhostingDelta() != null) {
+                        checkDeltas(driver);
+                    }
                     return;
                 } else if (driver.getState() == DriverState.RESET) {
                     driver.resetQualyLap();

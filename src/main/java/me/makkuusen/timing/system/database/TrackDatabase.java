@@ -9,8 +9,8 @@ import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import me.makkuusen.timing.system.*;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
+import me.makkuusen.timing.system.boatutils.CustomBoatUtilsMode;
 import me.makkuusen.timing.system.event.Event;
-import me.makkuusen.timing.system.logger.LogEntryBuilder;
 import me.makkuusen.timing.system.permissions.PermissionTrack;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
@@ -110,6 +110,14 @@ public interface TrackDatabase {
     void createCheckpointFinish(long finishId, int checkpointIndex, long time);
 
     void createAttempt(int id, UUID uuid, long date, long time);
+
+    CustomBoatUtilsMode getCustomBoatUtilsModeFromName(String name);
+    
+    int getCustomBoatUtilsModeIdFromName(String name);
+    
+    CustomBoatUtilsMode getCustomBoatUtilsModeFromId(int id);
+    
+    boolean saveOrUpdateCustomBoatUtilsMode(CustomBoatUtilsMode mode);
 
 
     static void initDatabaseSynchronize() throws SQLException {

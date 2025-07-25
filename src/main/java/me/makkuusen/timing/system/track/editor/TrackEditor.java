@@ -3,11 +3,11 @@ package me.makkuusen.timing.system.track.editor;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ItemBuilder;
 import me.makkuusen.timing.system.LeaderboardManager;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
-import me.makkuusen.timing.system.logger.LogEntryBuilder;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
@@ -20,7 +20,6 @@ import me.makkuusen.timing.system.track.options.TrackOption;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -246,6 +245,25 @@ public class TrackEditor {
         }
         track.setBoatUtilsMode(mode);
         return Success.SAVED;
+    }
+
+    public static Message setCustomBoatUtilsMode(Player player, Integer modeId, Track track) {
+        if (track == null) {
+            if (hasTrackSelected(player.getUniqueId())) {
+                track = getPlayerTrackSelection(player.getUniqueId());
+            } else {
+                return Error.TRACK_NOT_FOUND_FOR_EDIT;
+            }
+        }
+        track.setCustomBoatUtilsModeId(modeId);
+        return Success.SAVED;
+    }
+
+    public static Message setCustomBoatUtilsMode(Player player, String modeName, Track track) {
+        int modeId = TimingSystem.getTrackDatabase().getCustomBoatUtilsModeIdFromName(modeName);
+        if (modeId == -1) return Error.GENERIC;
+
+        return setCustomBoatUtilsMode(player, modeId, track);
     }
 
     public static Message setSpawn(Player player, Track track) {

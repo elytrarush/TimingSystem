@@ -43,6 +43,7 @@ public class Track {
     private Location spawnLocation;
     private TrackType type;
     private BoatUtilsMode boatUtilsMode;
+    private Integer customBoatUtilsModeId;
     private int weight;
     private boolean open;
     private boolean timeTrial;
@@ -65,6 +66,7 @@ public class Track {
         weight = data.getInt("weight");
         dateChanged = data.get("dateChanged") == null ? 0 : data.getInt("dateChanged");
         boatUtilsMode = data.get("boatUtilsMode") == null ? BoatUtilsMode.VANILLA : BoatUtilsMode.getMode(data.getInt("boatUtilsMode"));
+        customBoatUtilsModeId = data.get("customBoatUtilsModeId") == null ? null : data.getInt("customBoatUtilsModeId");
         trackRegions = new TrackRegions(this);
         timeTrials = new TimeTrials(id);
         trackOptions = new TrackOptions(id);
@@ -143,12 +145,25 @@ public class Track {
 
     public void setDateChanged() {
         dateChanged = ApiUtilities.getTimestamp();
-        TimingSystem.getTrackDatabase().trackSet(getId(), "dateChanged", String.valueOf(dateChanged));
+        TimingSystem.getTrackDatabase().trackSet(id, "dateChanged", String.valueOf(dateChanged));
     }
 
     public void setBoatUtilsMode(BoatUtilsMode mode) {
         this.boatUtilsMode = mode;
+        if (mode != BoatUtilsMode.VANILLA) {
+            this.customBoatUtilsModeId = null;
+            TimingSystem.getTrackDatabase().trackSet(id, "customBoatUtilsModeId", (Integer) null);
+        }
         TimingSystem.getTrackDatabase().trackSet(id, "boatUtilsMode", (int) mode.getId());
+    }
+
+    public void setCustomBoatUtilsModeId(Integer id) {
+        this.customBoatUtilsModeId = id;
+        if (id != null) {
+            this.boatUtilsMode = BoatUtilsMode.VANILLA;
+            TimingSystem.getTrackDatabase().trackSet(this.id, "boatUtilsMode", (int) BoatUtilsMode.VANILLA.getId());
+        }
+        TimingSystem.getTrackDatabase().trackSet(this.id, "customBoatUtilsModeId", id);
     }
 
     public void setName(String name) {

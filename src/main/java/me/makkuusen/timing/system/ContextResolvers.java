@@ -159,6 +159,21 @@ public class ContextResolvers {
             }
             return res;
         });
+        manager.getCommandCompletions().registerAsyncCompletion("bume", context -> {
+            List<String> res = new ArrayList<>();
+            try {
+                var rows = co.aikar.idb.DB.getResults("SELECT name FROM ts_custom_boatutils_modes");
+                if (rows != null) {
+                    for (var row : rows) {
+                        res.add(row.getString("name"));
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return res;
+        });
+        manager.getCommandCompletions().registerAsyncCompletion("tracks", context -> TrackDatabase.getTracksAsStrings(context.getPlayer()));
     }
     public static ContextResolver<Track.TrackType, BukkitCommandExecutionContext> getTrackTypeContextResolver() {
         return (c) -> {
