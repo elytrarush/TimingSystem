@@ -1,6 +1,6 @@
 package me.makkuusen.timing.system.database;
 
-import co.aikar.idb.DbRow;
+import co.aikar.idb.*;
 import co.aikar.taskchain.TaskChain;
 import lombok.Getter;
 import me.makkuusen.timing.system.tplayer.TPlayer;
@@ -20,6 +20,8 @@ import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public interface EventDatabase {
     @Getter
@@ -83,25 +85,55 @@ public interface EventDatabase {
         return events;
     }
 
+    private static String sqlPlaceholders(int count) {
+        if (count > 0) return String.join(", ", Collections.nCopies(count, "?"));
+        else return "";
+    }
 
     static void initSynchronize() {
+        // TODO: REMOVE ALL LOGS BEFORE PUSH
         TaskChain<?> chain = TimingSystem.newChain();
-        TimingSystem.getPlugin().getLogger().warning("Async events started");
-
+        TimingSystem.getPlugin().getLogger().warning("Start loading events");
+        Logger logger = TimingSystem.getPlugin().logger;
         chain.async(() -> {
             try {
-                var dbRows = TimingSystem.getEventDatabase().selectEvents();
-
-                for (DbRow dbRow : dbRows) {
-                    if (dbRow.getString("name").equalsIgnoreCase("QuickRace") || dbRow.getString("name").equalsIgnoreCase("LobbyRace") ) {
-                        continue;
-                    }
-                    Event event = new Event(dbRow);
+                logger.warning("Events S");
+                List<DbRow> eventRows = DB.getResults("SELECT * FROM ts_events WHERE isRemoved = 0 AND name NOT IN ('QuickRace', 'LobbyRace')");
+                List<Integer> eventIds = eventRows.stream().map(r -> r.getInt("id")).toList();
+                logger.info("Events F");
+                logger.warning("Signs S");
+                List<DbRow> signRows = DB.getResults("SELECT * FROM ts_events_signs WHERE eventId IN (" + sqlPlaceholders(eventIds.size()) + ")", eventIds.toArray());
+                logger.info("Signs F");
+                logger.warning("Rounds S");
+                List<DbRow> roundRows = DB.getResults("SELECT * FROM ts_rounds WHERE isRemoved = 0 AND eventId IN (" + sqlPlaceholders(eventIds.size()) + ")", eventIds.toArray());
+                List<Integer> roundIds = roundRows.stream().map(r -> r.getInt("id")).toList();
+                logger.info("Rounds F");
+                logger.warning("Heats S");
+                List<DbRow> heatRows = DB.getResults("SELECT * FROM ts_heats WHERE isRemoved = 0 AND roundId IN (" + sqlPlaceholders(roundIds.size()) + ")", roundIds.toArray());
+                List<Integer> heatIds = heatRows.stream().map(r -> r.getInt("id")).toList();
+                logger.info("Heats F");
+                logger.warning("Drivers S");
+                List<DbRow> driverRows = DB.getResults("SELECT * FROM ts_drivers WHERE isRemoved = 0 AND heatId IN (" + sqlPlaceholders(heatIds.size()) + ")", heatIds.toArray());
+                logger.info("Drivers F");
+                logger.warning("Laps S");
+                List<DbRow> lapRows = DB.getResults("SELECT * FROM ts_laps WHERE isRemoved = 0 AND heatId IN (" + sqlPlaceholders(heatIds.size()) + ")", heatIds.toArray());
+                logger.info("Laps F");
+                logger.warning("Maps S");
+                Map<Integer, List<DbRow>> signsByEvent = signRows.stream().collect(Collectors.groupingBy(r -> r.getInt("eventId")));
+                Map<Integer, List<DbRow>> roundsByEvent = roundRows.stream().collect(Collectors.groupingBy(r -> r.getInt("eventId")));
+                Map<Integer, List<DbRow>> heatsByRound = heatRows.stream().collect(Collectors.groupingBy(r -> r.getInt("roundId")));
+                Map<Integer, List<DbRow>> driversByHeat = driverRows.stream().collect(Collectors.groupingBy(r -> r.getInt("heatId")));
+                Map<Integer, Map<String, List<DbRow>>> lapsByHeat = lapRows.stream().collect(Collectors.groupingBy(r -> r.getInt("heatId"), Collectors.groupingBy(r -> r.getString("uuid"))));
+                logger.info("Maps F");
+                signRows.clear(); roundRows.clear(); heatRows.clear(); driverRows.clear(); lapRows.clear();
+                for (DbRow eventData : eventRows) {
+                    logger.warning("Event S: " + eventData.getString("name"));
+                    Event event = new Event(eventData);
                     events.add(event);
                     EventSchedule es = new EventSchedule();
+                    logger.warning("SignData S: " + signsByEvent.getOrDefault(event.getId(), List.of()).size());
 
-                    var signsDbRows = TimingSystem.getEventDatabase().selectSigns(event.getId());
-                    for (DbRow signsData : signsDbRows) {
+                    for (DbRow signsData : signsByEvent.getOrDefault(event.getId(), List.of())) {
                         try {
                             var type = Subscriber.Type.valueOf(signsData.getString("type"));
                             if (type == Subscriber.Type.SUBSCRIBER) {
@@ -109,12 +141,12 @@ public interface EventDatabase {
                             } else if (type == Subscriber.Type.RESERVE) {
                                 event.getReserves().put(UUID.fromString(signsData.get("uuid")), new Subscriber(signsData));
                             }
-                        } catch (IllegalArgumentException ignored) {
-                        }
+                        } catch (IllegalArgumentException ignore) { }
                     }
+                    logger.info("SignData F");
 
-                    var roundDbRows = TimingSystem.getEventDatabase().selectRounds(event.getId());
-                    for (DbRow roundData : roundDbRows) {
+                    logger.warning("roundData S: " + roundsByEvent.getOrDefault(event.getId(), List.of()).size());
+                    for (DbRow roundData : roundsByEvent.getOrDefault(event.getId(), List.of())) {
                         Round round;
                         var type = RoundType.valueOf(roundData.getString("type"));
                         if (type == RoundType.FINAL) {
@@ -122,14 +154,33 @@ public interface EventDatabase {
                         } else {
                             round = new QualificationRound(roundData);
                         }
-                        var heatDbRows = TimingSystem.getEventDatabase().selectHeats(round.getId());
-                        for (DbRow heatData : heatDbRows) {
-                            initHeat(round, heatData);
+                        logger.warning("heatData S: " + heatsByRound.getOrDefault(round.getId(), List.of()).size());
+                        for (DbRow heatData : heatsByRound.getOrDefault(round.getId(), List.of())) {
+                            initHeat(round, heatData, driversByHeat.getOrDefault(heatData.getInt("id"), List.of()), lapsByHeat.getOrDefault(heatData.getInt("id"), Map.of()));
                         }
+                        logger.info("heatData F");
                         es.addRound(round);
                     }
+                    logger.info("roundData F");
                     es.setCurrentRound();
                     event.setEventSchedule(es);
+
+                    logger.warning("removing S");
+                    List<DbRow> eventRounds = roundsByEvent.remove(event.getId());
+                    if (eventRounds != null) {
+                        for (DbRow roundRow : eventRounds) {
+                            List<DbRow> roundHeats = heatsByRound.remove(roundRow.getInt("id"));
+                            if (roundHeats != null) {
+                                for (DbRow heatRow : roundHeats) {
+                                    driversByHeat.remove(heatRow.getInt("id"));
+                                    lapsByHeat.remove(heatRow.getInt("id"));
+                                }
+                            }
+                        }
+                    }
+                    signsByEvent.remove(event.getId());
+                    logger.info("removing F");
+                    logger.info("Event F");
                 }
             } catch (SQLException e) {
                 TimingSystem.getPlugin().getLogger().warning("Failed to sync events");
@@ -141,33 +192,27 @@ public interface EventDatabase {
         });
     }
 
-    static void initHeat(Round round, DbRow heatData) {
-        try {
-            Heat heat = new Heat(heatData, round);
-            heats.add(heat);
-            round.addHeat(heat);
-            var driverDbRows = TimingSystem.getEventDatabase().selectDrivers(heat.getId());
-            for (DbRow driverData : driverDbRows) {
-                initDriver(heat, driverData);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    static void initHeat(Round round, DbRow heatData, List<DbRow> driversData, Map<String, List<DbRow>> lapsData) {
+        Heat heat = new Heat(heatData, round);
+        heats.add(heat);
+        round.addHeat(heat);
+        TimingSystem.getPlugin().logger.warning("driverData S: " + driversData.size());
+        for (DbRow driverData : driversData) {
+            initDriver(heat, driverData, lapsData.getOrDefault(driverData.getString("uuid"), List.of()));
         }
+        TimingSystem.getPlugin().logger.warning("driverData F");
     }
 
-    static void initDriver(Heat heat, DbRow driverData) {
-        try {
-            Driver driver = new Driver(driverData);
-            heat.addDriver(driver);
-            List<Lap> laps = new ArrayList<>();
-            var lapsDbRows = TimingSystem.getEventDatabase().selectLaps(heat.getId(), driverData.getString("uuid"));
-            for (DbRow lapsData : lapsDbRows) {
-                laps.add(new Lap(lapsData));
-            }
-            driver.setLaps(laps);
-        } catch (SQLException e) {
-            e.printStackTrace();
+    static void initDriver(Heat heat, DbRow driverData, List<DbRow> lapsData) {
+        Driver driver = new Driver(driverData);
+        heat.addDriver(driver);
+        List<Lap> laps = new ArrayList<>();
+        TimingSystem.getPlugin().logger.warning("lapData S: " + lapsData.size());
+        for (DbRow lapData : lapsData) {
+            laps.add(new Lap(lapData));
         }
+        driver.setLaps(laps);
+        TimingSystem.getPlugin().logger.warning("lapData F");
     }
 
     static void setPlayerSelectedEvent(UUID uuid, Event event) {
