@@ -11,7 +11,6 @@ import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
-import me.makkuusen.timing.system.loneliness.DeltaGhostingController;
 import me.makkuusen.timing.system.network.UUIDFetcher;
 import me.makkuusen.timing.system.network.UUIDFetcherCallback;
 import me.makkuusen.timing.system.participant.Driver;
@@ -152,6 +151,7 @@ public class TSListener implements Listener {
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
         TimeTrialController.playerLeavingMap(e.getPlayer().getUniqueId());
+        BoatUtilsManager.clearPlayerModes(e.getPlayer().getUniqueId());
 
         if (TimeTrialController.timeTrialSessions.containsKey(e.getPlayer().getUniqueId()) && e.getReason() != PlayerQuitEvent.QuitReason.TIMED_OUT) {
             var ttSession = TimeTrialController.timeTrialSessions.get(e.getPlayer().getUniqueId());
@@ -362,7 +362,6 @@ public class TSListener implements Listener {
     @EventHandler
     public static void onPlayerMoveEvent(PlayerMoveEvent e) {
         Player player = e.getPlayer();
-        BoatUtilsMode mode = BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId());
         if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
             TimeTrial timeTrial = TimeTrialController.timeTrials.get(player.getUniqueId());
             Track track = timeTrial.getTrack();
@@ -384,7 +383,7 @@ public class TSListener implements Listener {
             } else if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.SOUL_SPEED) && track.getTrackOptions().hasOption(TrackOption.NO_SOUL_SPEED)) {
                 Text.send(player, Error.NO_SOUL_SPEED);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
-            } else if (mode != null && mode != track.getBoatUtilsMode()) {
+            } else if (!BoatUtilsManager.isPlayerUsingCorrectMode(player, track)) {
                 Text.send(player, Error.WRONG_BOAT_UTILS_MODE);
                 ApiUtilities.removeBoatUtilsEffects(player);
                 timeTrial.playerResetMap();
@@ -478,6 +477,7 @@ public class TSListener implements Listener {
         // Set to offline
         TPlayer.setPlayer(null);
         TPlayer.clearScoreboard();
+        BoatUtilsManager.clearPlayerModes(event.getPlayer().getUniqueId());
     }
 
     static void handleTimeTrials(Player player) {
