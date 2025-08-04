@@ -6,11 +6,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
+@Getter
 public class DriverScoreboardTitleUpdateEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
-    @Getter
     private final Player player;
-    @Getter
     private final String title;
 
     public DriverScoreboardTitleUpdateEvent(Player player, String title) {

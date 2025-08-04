@@ -59,10 +59,10 @@ public class SpectatorScoreboard {
             eventName = heat.getEvent().getDisplayName();
         }
 
+        tPlayer.setScoreBoardTitle(Component.text(heat.getName() + " | " + eventName).color(ScoreboardUtils.getPrimaryColor(tPlayer.getTheme())).decorate(TextDecoration.BOLD));
+
         SpectatorScoreboardTitleUpdateEvent titleUpdateEvent = new SpectatorScoreboardTitleUpdateEvent(tPlayer.getPlayer(), eventName);
         Bukkit.getServer().getPluginManager().callEvent(titleUpdateEvent);
-
-        tPlayer.setScoreBoardTitle(Component.text(heat.getName() + " | " + eventName).color(ScoreboardUtils.getPrimaryColor(tPlayer.getTheme())).decorate(TextDecoration.BOLD));
     }
 
     public void removeScoreboards() {
