@@ -522,8 +522,9 @@ public class CustomBoatUtilsMode {
     }
 
     public boolean playerHasCorrectVersion(Player player) {
-        if (player == null)
-            return false;
-        return (TimingSystemAPI.getTPlayer(player.getUniqueId()).getBoatUtilsVersion() >= getRequiredVersion());
+        if (player == null) return false;
+        TPlayer tplayer = TimingSystemAPI.getTPlayer(player.getUniqueId());
+        if (!tplayer.hasBoatUtils()) return false;
+        return (tplayer.getBoatUtilsVersion() >= getRequiredVersion());
     }
 }

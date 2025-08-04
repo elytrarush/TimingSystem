@@ -40,10 +40,10 @@ public class DriverScoreboard {
             eventName = heat.getEvent().getDisplayName();
         }
 
+        tPlayer.setScoreBoardTitle(Component.text(heat.getName() + " | " + eventName).color(ScoreboardUtils.getPrimaryColor(tPlayer.getTheme())).decorate(TextDecoration.BOLD));
+
         DriverScoreboardTitleUpdateEvent titleUpdateEvent = new DriverScoreboardTitleUpdateEvent(tPlayer.getPlayer(), eventName);
         Bukkit.getServer().getPluginManager().callEvent(titleUpdateEvent);
-
-        tPlayer.setScoreBoardTitle(Component.text(heat.getName() + " | " + eventName).color(ScoreboardUtils.getPrimaryColor(tPlayer.getTheme())).decorate(TextDecoration.BOLD));
     }
 
     public void removeScoreboard() {
