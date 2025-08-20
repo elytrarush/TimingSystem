@@ -771,6 +771,10 @@ public class ApiUtilities {
                 Text.send(player, Error.WORLD_NOT_LOADED);
                 return;
             }
+            if (!track.isOpen() && !(player.hasPermission("timingsystem.packs.trackadmin"))) {
+                Text.send(player, Error.TRACK_IS_CLOSED);
+                return;
+            }
             TimingSystemAPI.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
             return;
         }
