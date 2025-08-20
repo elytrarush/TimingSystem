@@ -272,6 +272,8 @@ public class Heat {
                 if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
                     LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
                 }
+            } else {
+                LonelinessController.unghost(driver.getTPlayer().getUniqueId());
             }
         });
         if (scoreboard != null) {
