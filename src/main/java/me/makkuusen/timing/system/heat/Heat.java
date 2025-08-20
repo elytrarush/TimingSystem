@@ -267,9 +267,13 @@ public class Heat {
         getDrivers().values().forEach(driver -> {
             driver.reset();
             EventDatabase.removePlayerFromRunningHeat(driver.getTPlayer().getUniqueId());
-            LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
-            if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
-                LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
+            if (driver.getTPlayer().getPlayer() != null) {
+                LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
+                if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
+                    LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
+                }
+            } else {
+                LonelinessController.unghost(driver.getTPlayer().getUniqueId());
             }
         });
         if (scoreboard != null) {
@@ -322,9 +326,13 @@ public class Heat {
                 d.setPosition(d.getPosition() - 1);
             }
         }
-        LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
-        if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
-            LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
+        if (driver.getTPlayer().getPlayer() != null) {
+            LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
+            if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
+                LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
+            }
+        } else {
+            LonelinessController.unghost(driver.getTPlayer().getUniqueId());
         }
         return true;
     }
@@ -368,9 +376,13 @@ public class Heat {
         if (noDriversRunning()) {
             finishHeat();
         }
-        LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
-        if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
-            LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
+        if (driver.getTPlayer().getPlayer() != null) {
+            LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
+            if (!LonelinessController.unghost(driver.getTPlayer().getUniqueId())) {
+                LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
+            }
+        } else {
+            LonelinessController.unghost(driver.getTPlayer().getUniqueId());
         }
         return true;
     }
