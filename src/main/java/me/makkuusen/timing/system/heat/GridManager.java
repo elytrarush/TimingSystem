@@ -51,8 +51,9 @@ public class GridManager {
             if (grid != null) {
                 teleportPlayerToGrid(player, grid, track);
             }
-
-            driver.setState(DriverState.LOADED);
+        }
+        driver.setState(DriverState.LOADED);
+        if (driver.getTPlayer().getPlayer() != null) {
             LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
             LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
         }
