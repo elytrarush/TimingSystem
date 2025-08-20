@@ -1,7 +1,9 @@
-customboatsaddon:
+frosthexaddon:
    enabled: false
 medalsaddon:
    enabled: false
+   showNextMedal: true
+   showEveryone: true
    playersLimit: 500
    netheritePos: 3
    emeraldPos: 10

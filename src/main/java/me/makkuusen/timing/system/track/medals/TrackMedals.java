@@ -69,54 +69,58 @@ public class TrackMedals {
         ItemStack item = new ItemStack(medal.getMaterial(), 1);
         ItemMeta im = item.getItemMeta();
         im.displayName(Component.text(trackName).color(tPlayer.getTheme().getSecondary()));
-        im.lore(getMedalLore(time));
+        im.lore(getMedalLore(time, tPlayer.getPlayer().hasResourcePack()));
         im.setCustomModelData(medal.getCustomModelData());
         item.setItemMeta(im);
         return item;
     }
 
-    public Component getMedalMessage(TimeTrials timeTrials, long prevTime, long time, String trackName) {
+    public Component getMedalMessage(TimeTrials timeTrials, boolean hasResourcePack, Medals prevMedal, long time, String trackName) {
         updateMedalsTimes(timeTrials);
-        Medals prevMedal = getMedal(prevTime);
         Medals medal = getMedal(time);
         if (medal.getNumber() > prevMedal.getNumber()) {
-            Component hoverText = Component.join(JoinConfiguration.builder().separator(Component.text("\n")).build(), getMedalLore(time));
-            return Component.text("\n§f=== §e§lNew Time Trial Trophy§r§f ===\n\nYou unlocked " + medal.getColor() + "§l" + medal.getName() + "§r§f on " + trackName + "!").hoverEvent(HoverEvent.showText(hoverText));
+            String nextTime = "\n";
+            if (TimingSystem.configuration.isMedalsShowNextMedal()) {
+                Medals nextMedal = Medals.fromNumber(medal.getNumber() + 1);
+                if (nextMedal != Medals.NO_MEDAL) { nextTime = "\nImprove by §l" + ApiUtilities.formatAsPersonalGap(time - fromNumber(medal.getNumber() + 1).getTime()) + "§r§f to unlock " + nextMedal.getColor() + "§l" + nextMedal.getName() + "\n"; }
+            }
+            Component hoverText = Component.join(JoinConfiguration.builder().separator(Component.text("\n")).build(), getMedalLore(time, hasResourcePack));
+            return Component.text("\n§f=== §e§lNew Time Trial Trophy§r§f ===\n\nYou unlocked " + medal.getColor() + "§l" + medal.getName() + "§r§f on " + trackName + "!" + nextTime).hoverEvent(HoverEvent.showText(hoverText));
         }
         return null;
     }
 
-    public List<Component> getMedalLore(long time) {
+    public List<Component> getMedalLore(long time, boolean hasResourcePack) {
         List<Component> lore = new ArrayList<>();
         if (time != 0L) {
             String yourTime = ApiUtilities.formatAsMedalTime(time);
             if (time <= netherite.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
             String color = time <= netherite.getTime() ? "§a" : "§c";
-            lore.add(Component.text("§f" + Medals.NETHERITE_CUP.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(netherite.getTime()) + " §f" + netherite.getText()));
+            lore.add(Component.text("§f" + Medals.NETHERITE_CUP.getFont(hasResourcePack) + " : " + color + ApiUtilities.formatAsMedalTime(netherite.getTime()) + " §f" + netherite.getText()));
             if (time > netherite.getTime() && time <= emerald.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
             color = time <= emerald.getTime() ? "§a" : "§c";
-            lore.add(Component.text("§f" + Medals.EMERALD_CUP.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(emerald.getTime()) + " §f" + emerald.getText()));
+            lore.add(Component.text("§f" + Medals.EMERALD_CUP.getFont(hasResourcePack) + " : " + color + ApiUtilities.formatAsMedalTime(emerald.getTime()) + " §f" + emerald.getText()));
             if (time > emerald.getTime() && time <= diamond.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
             color = time <= diamond.getTime() ? "§a" : "§c";
-            lore.add(Component.text("§f" + Medals.DIAMOND_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(diamond.getTime()) + " §f" + diamond.getText()));
+            lore.add(Component.text("§f" + Medals.DIAMOND_MEDAL.getFont(hasResourcePack) + " : " + color + ApiUtilities.formatAsMedalTime(diamond.getTime()) + " §f" + diamond.getText()));
             if (time > diamond.getTime() && time <= gold.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
             color = time <= gold.getTime() ? "§a" : "§c";
-            lore.add(Component.text("§f" + Medals.GOLD_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(gold.getTime()) + " §f" + gold.getText()));
+            lore.add(Component.text("§f" + Medals.GOLD_MEDAL.getFont(hasResourcePack) + " : " + color + ApiUtilities.formatAsMedalTime(gold.getTime()) + " §f" + gold.getText()));
             if (time > gold.getTime() && time <= silver.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
             color = time <= silver.getTime() ? "§a" : "§c";
-            lore.add(Component.text("§f" + Medals.SILVER_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(silver.getTime()) + " §f" + silver.getText()));
+            lore.add(Component.text("§f" + Medals.SILVER_MEDAL.getFont(hasResourcePack) + " : " + color + ApiUtilities.formatAsMedalTime(silver.getTime()) + " §f" + silver.getText()));
             if (time > silver.getTime() && time <= copper.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
             color = time <= copper.getTime() ? "§a" : "§c";
-            lore.add(Component.text("§f" + Medals.COPPER_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(copper.getTime()) + " §f" + copper.getText()));
+            lore.add(Component.text("§f" + Medals.COPPER_MEDAL.getFont(hasResourcePack) + " : " + color + ApiUtilities.formatAsMedalTime(copper.getTime()) + " §f" + copper.getText()));
             if (time > copper.getTime()) lore.add(Component.text("§f§l   " + yourTime + " (YOU)"));
         } else {
             String color = "§c";
-            lore.add(Component.text("§f" + Medals.NETHERITE_CUP.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(netherite.getTime()) + " §f" + netherite.getText()));
-            lore.add(Component.text("§f" + Medals.EMERALD_CUP.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(emerald.getTime()) + " §f" + emerald.getText()));
-            lore.add(Component.text("§f" + Medals.DIAMOND_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(diamond.getTime()) + " §f" + diamond.getText()));
-            lore.add(Component.text("§f" + Medals.GOLD_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(gold.getTime()) + " §f" + gold.getText()));
-            lore.add(Component.text("§f" + Medals.SILVER_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(silver.getTime()) + " §f" + silver.getText()));
-            lore.add(Component.text("§f" + Medals.COPPER_MEDAL.getFont() + " : " + color + ApiUtilities.formatAsMedalTime(copper.getTime()) + " §f" + copper.getText()));
+            lore.add(Component.text("§f" + Medals.NETHERITE_CUP.getFont(hasResourcePack) + " : " + color + ApiUtilities.formatAsMedalTime(netherite.getTime()) + " §f" + netherite.getText()));
+            lore.add(Component.text("§f" + Medals.EMERALD_CUP.getFont(hasResourcePack) + " : " + color + ApiUtilities.formatAsMedalTime(emerald.getTime()) + " §f" + emerald.getText()));
+            lore.add(Component.text("§f" + Medals.DIAMOND_MEDAL.getFont(hasResourcePack) + " : " + color + ApiUtilities.formatAsMedalTime(diamond.getTime()) + " §f" + diamond.getText()));
+            lore.add(Component.text("§f" + Medals.GOLD_MEDAL.getFont(hasResourcePack) + " : " + color + ApiUtilities.formatAsMedalTime(gold.getTime()) + " §f" + gold.getText()));
+            lore.add(Component.text("§f" + Medals.SILVER_MEDAL.getFont(hasResourcePack) + " : " + color + ApiUtilities.formatAsMedalTime(silver.getTime()) + " §f" + silver.getText()));
+            lore.add(Component.text("§f" + Medals.COPPER_MEDAL.getFont(hasResourcePack) + " : " + color + ApiUtilities.formatAsMedalTime(copper.getTime()) + " §f" + copper.getText()));
         }
         return lore;
     }
@@ -129,7 +133,7 @@ public class TrackMedals {
         else if (time <= gold.getTime())      return Medals.GOLD_MEDAL;
         else if (time <= silver.getTime())    return Medals.SILVER_MEDAL;
         else if (time <= copper.getTime())    return Medals.COPPER_MEDAL;
-        else                                   return Medals.NO_MEDAL;
+        else                                  return Medals.NO_MEDAL;
     }
 
     private int getPosition(double num, int totalPositions) {
@@ -150,5 +154,16 @@ public class TrackMedals {
         } else {
             return "(top " + (int) num + ")";
         }
+    }
+
+    private TrackMedalsData fromNumber(int number) {
+        return switch (number) {
+            case 2 -> silver;
+            case 3 -> gold;
+            case 4 -> diamond;
+            case 5 -> emerald;
+            case 6 -> netherite;
+            default -> copper;
+        };
     }
 }

@@ -33,7 +33,6 @@ public class QualificationRound extends Round {
             var nextHeat = maybeHeat.get();
             nextHeat.setTimeLimit(TimingSystem.configuration.getTimeLimit());
             nextHeat.setStartDelayInTicks(TimingSystem.configuration.getQualyStartDelayInMS());
-            nextHeat.setLonely(true); // Make qualifying heats lonely by default
         }
     }
 }

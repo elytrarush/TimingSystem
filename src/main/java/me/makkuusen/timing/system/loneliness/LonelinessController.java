@@ -33,7 +33,7 @@ public class LonelinessController implements Listener {
     public LonelinessController(Plugin plugin) {
         LonelinessController.plugin = plugin;
     }
-    
+
     public static void updatePlayersVisibility(Player player) {
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -85,7 +85,7 @@ public class LonelinessController implements Listener {
 
     private static void showPlayerAndCustomBoat(Player player, Player boatOwner) {
         if (boatOwner.isInsideVehicle() && (boatOwner.getVehicle() instanceof Boat || boatOwner.getVehicle() instanceof ChestBoat)) {
-            if (TimingSystem.configuration.isCustomBoatsAddOnEnabled() && !boatOwner.getVehicle().getPassengers().isEmpty()) {
+            if (TimingSystem.configuration.isFrostHexAddOnEnabled() && !boatOwner.getVehicle().getPassengers().isEmpty()) {
                 for (Entity e : boatOwner.getVehicle().getPassengers()) {
                     if (e instanceof Villager) {
                         player.showEntity(plugin, e);
@@ -99,7 +99,7 @@ public class LonelinessController implements Listener {
 
     private static void hidePlayerAndCustomBoat(Player player, Player boatOwner) {
         if (boatOwner.isInsideVehicle() && (boatOwner.getVehicle() instanceof Boat || boatOwner.getVehicle() instanceof ChestBoat)) {
-            if (TimingSystem.configuration.isCustomBoatsAddOnEnabled() && !boatOwner.getVehicle().getPassengers().isEmpty()) {
+            if (TimingSystem.configuration.isFrostHexAddOnEnabled() && !boatOwner.getVehicle().getPassengers().isEmpty()) {
                 for (Entity e : boatOwner.getVehicle().getPassengers()) {
                     if (e instanceof Villager) {
                         player.hideEntity(plugin, e);
@@ -130,7 +130,7 @@ public class LonelinessController implements Listener {
     }
 
     public static void updatePlayerVisibility(Player player) {
-         Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
             for (Player p : plugin.getServer().getOnlinePlayers()) {
                 if (p.getUniqueId().equals(player.getUniqueId())) {
                     continue;
@@ -185,7 +185,7 @@ public class LonelinessController implements Listener {
 
                 showPlayerAndCustomBoat(p, player);
             }
-         }, 5L);
+        }, 5L);
     }
 
     @EventHandler

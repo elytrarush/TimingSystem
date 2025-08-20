@@ -437,9 +437,9 @@ public class ApiUtilities {
         if (!location.isWorldLoaded()) {
             return null;
         }
-        
+
         Boat boat;
-        
+
         if (isChestBoat) {
             boat = BoatSpawnManager.getBoatSpawner().spawnBoat(location, type, true);
         } else {
@@ -453,10 +453,10 @@ public class ApiUtilities {
 
         // Handle event cancellation
         if (boatSpawnEvent.isCancelled()) {
-           boat.remove();
+            boat.remove();
             return null;
         }
-        
+
         Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), ()-> {
             boat.getPersistentDataContainer().set(Objects.requireNonNull(NamespacedKey.fromString("spawned", TimingSystem.getPlugin())), PersistentDataType.INTEGER, 1);
         }, 3);

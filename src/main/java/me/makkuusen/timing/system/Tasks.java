@@ -216,7 +216,7 @@ public class Tasks {
         } else if (region.getRegionType().equals(TrackRegion.RegionType.START)) {
             particle = Particle.HAPPY_VILLAGER;
         } else if (region.getRegionType().equals(TrackRegion.RegionType.END)) {
-            particle = Particle.ANGRY_VILLAGER;
+            particle = Particle.HAPPY_VILLAGER;
         } else if (region.getRegionType().equals(TrackRegion.RegionType.PIT)) {
             particle = Particle.HEART;
         } else if (region.getRegionType().equals(TrackRegion.RegionType.INPIT)) {

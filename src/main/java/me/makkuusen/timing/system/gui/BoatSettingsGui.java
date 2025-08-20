@@ -30,9 +30,6 @@ public class BoatSettingsGui extends BaseGui {
         button.setAction(() -> {
             tPlayer.getSettings().setBoat(ApiUtilities.getBoatType(boatType));
             tPlayer.getSettings().setChestBoat(ApiUtilities.isChestBoat(boatType));
-//            if (tPlayer.getPlayer() instanceof Boat boat) {
-//                boat.setBoatType(tPlayer.getSettings().getBoat());
-//            }
             PlaySound.buttonClick(tPlayer);
             new SettingsGui(tPlayer).show(tPlayer.getPlayer());
         });

@@ -146,16 +146,4 @@ public class Settings {
         }
         return Material.valueOf(boat);
     }
-
-//    private Boat.Type stringToType(String boatType) {
-//        if (boatType == null) {
-//            return Boat.Type.BIRCH;
-//        }
-//        try {
-//            return Boat.Type.valueOf(boatType);
-//        } catch (IllegalArgumentException e) {
-//            //REDWOOD is the only old option possible.
-//            return Boat.Type.SPRUCE;
-//        }
-//    }
 }
