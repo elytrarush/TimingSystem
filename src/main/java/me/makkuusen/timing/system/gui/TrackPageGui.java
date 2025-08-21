@@ -154,7 +154,7 @@ public abstract class TrackPageGui extends BaseGui {
     public GuiButton getMedalButton() {
         ItemStack i = new ItemStack(Medals.GOLD_MEDAL.getMaterial(), 1);
         ItemMeta im = i.getItemMeta();
-        im.displayName(Component.text("§fToggle Trophies"));
+        im.displayName(Component.text("§fToggle Medals"));
         im.setCustomModelData(Medals.GOLD_MEDAL.getCustomModelData());
         i.setItemMeta(im);
         var button = new GuiButton(i);
