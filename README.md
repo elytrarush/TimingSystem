@@ -43,7 +43,7 @@ Step 2. Add the TimingSystem dependancy
 <dependency>
     <groupId>com.github.FrostHexABG</groupId>
     <artifactId>TimingSystem</artifactId>
-    <version>2.3</version>
+    <version>3.0</version>
 </dependency>
 ```
 
