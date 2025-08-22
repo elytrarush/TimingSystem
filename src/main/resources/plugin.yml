@@ -44,6 +44,9 @@ commands:
    ghost:
       description: Command for ghosting.
       aliases: [gh]
+   boatutilsmodeedit:
+      description: Command for creating and editing boat utils modes
+      aliases: [bume]
 
 permissions:
    timingsystem.packs.default:
@@ -95,6 +98,9 @@ permissions:
          timingsystem.trackedit.region: true
          timingsystem.trackedit.location: true
          timingsystem.trackedit.overload: true
+         timingsystem.boatutilsmode.create: true
+         timingsystem.boatutilsmode.edit: true
+         timingsystem.boatutilsmode.save: true
 
    timingsystem.packs.trackadmin:
       description: Player has all track commands
