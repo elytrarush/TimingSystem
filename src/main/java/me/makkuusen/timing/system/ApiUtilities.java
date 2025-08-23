@@ -654,9 +654,6 @@ public class ApiUtilities {
             return null;
         }
 
-        var mode = track.getBoatUtilsMode();
-        BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode, track, sameAsLastTrack);
-
         Integer customModeId = track.getCustomBoatUtilsModeId();
         if (customModeId != null) {
             CustomBoatUtilsMode bume = TimingSystem.getTrackDatabase().getCustomBoatUtilsModeFromId(customModeId);
@@ -665,9 +662,14 @@ public class ApiUtilities {
             } else {
                 CustomBoatUtilsMode.resetPlayer(player);
                 BoatUtilsManager.playerCustomBoatUtilsModeId.remove(player.getUniqueId());
+                var mode = track.getBoatUtilsMode();
+                BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode, track, sameAsLastTrack);
             }
         } else {
+            CustomBoatUtilsMode.resetPlayer(player);
             BoatUtilsManager.playerCustomBoatUtilsModeId.remove(player.getUniqueId());
+            var mode = track.getBoatUtilsMode();
+            BoatUtilsManager.sendBoatUtilsModePluginMessage(player, mode, track, sameAsLastTrack);
         }
 
         var tPlayer = TSDatabase.getPlayer(player.getUniqueId());
