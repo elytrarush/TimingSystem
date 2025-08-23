@@ -110,6 +110,7 @@ error:
   no_custom_boatutils_mode_selected: "&eYou are not currently editing a custom BoatUtils mode."
   failed_to_save_custom_boatutils_mode: "&eFailed to save custom BoatUtils mode."
   failed_to_delete_custom_boatutils_mode: "&eFailed to delete custom BoatUtils mode."
+  wrong_or_missing_boatutils: "&eYou need a later version of boat utils for this feature."
 
 warning:
   dangerous_command: "&wThis command is dangerous, Type \"%command%\" to use it anyways"
