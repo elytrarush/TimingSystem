@@ -2,8 +2,10 @@ package me.makkuusen.timing.system.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
+import me.makkuusen.timing.system.boatutils.CustomBoatUtilsMode;
 import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.heat.Heat;
@@ -201,11 +203,23 @@ public class CommandRace extends BaseCommand {
         Event raceEvent = heat.getEvent();
         if (raceEvent != null) {
             Track raceTrack = raceEvent.getTrack();
-            if (raceTrack != null && raceTrack.getBoatUtilsMode() != BoatUtilsMode.VANILLA) {
-                TPlayer tPlayer = TimingSystemAPI.getTPlayer(player.getUniqueId());
-                if (tPlayer != null && !tPlayer.hasBoatUtils()) {
+            if (raceTrack == null) return;
+            TPlayer tPlayer = TimingSystemAPI.getTPlayer(player.getUniqueId());
+            if (raceTrack.getBoatUtilsMode() != BoatUtilsMode.VANILLA) {
+                if (tPlayer != null && (!tPlayer.hasBoatUtils() || tPlayer.getBoatUtilsVersion() < raceTrack.getBoatUtilsMode().getRequiredVersion())) {
                     Text.send(player, Error.BOAT_UTILS_NEEDED_FOR_RACE);
                     return;
+                }
+            }
+
+            Integer customModeId = raceTrack.getCustomBoatUtilsModeId();
+            if (customModeId != null) {
+                CustomBoatUtilsMode bume = TimingSystem.getTrackDatabase().getCustomBoatUtilsModeFromId(customModeId);
+                if (bume != null) {
+                    if (tPlayer != null && (!tPlayer.hasBoatUtils() || tPlayer.getBoatUtilsVersion() < bume.getRequiredVersion())) {
+                        Text.send(player, Error.BOAT_UTILS_NEEDED_FOR_RACE);
+                        return;
+                    }
                 }
             }
         }
