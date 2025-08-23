@@ -159,7 +159,7 @@ public class CommandTrack extends BaseCommand {
             Integer customModeId = track.getCustomBoatUtilsModeId();
             CustomBoatUtilsMode bume = TimingSystem.getTrackDatabase().getCustomBoatUtilsModeFromId(customModeId);
             if (bume != null) {
-                Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", "CUSTOM");
+                Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", "CUSTOM (" + bume.getName() + ")");
             } else {
                 Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", "VANILLA");
             }
