@@ -6,6 +6,7 @@ import co.aikar.taskchain.TaskChain;
 import me.makkuusen.timing.system.*;
 
 import me.makkuusen.timing.system.api.TimingSystemAPI;
+import me.makkuusen.timing.system.boatutils.CustomBoatUtilsMode;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.gui.TrackGui;
@@ -125,7 +126,6 @@ public class CommandTrack extends BaseCommand {
         }
 
         sendTrackInfo(commandSender, track);
-
     }
 
     private static void sendPlayerStatsInfo(CommandSender commandSender, TPlayer tPlayer, Track track) {
@@ -155,7 +155,17 @@ public class CommandTrack extends BaseCommand {
         Text.send(commandSender, Info.TRACK_TYPE, "%type%", track.getTypeAsString());
         Text.send(commandSender, Info.TRACK_DATE_CREATED, "%date%", ApiUtilities.niceDate(track.getDateCreated()), "%owner%", track.getOwner().getName());
         Text.send(commandSender, Info.TRACK_OPTIONS, "%options%", track.getTrackOptions().listOfOptions());
-        Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", track.getBoatUtilsMode().name());
+        if (track.getBoatUtilsMode().name().equalsIgnoreCase("vanilla")) {
+            Integer customModeId = track.getCustomBoatUtilsModeId();
+            CustomBoatUtilsMode bume = TimingSystem.getTrackDatabase().getCustomBoatUtilsModeFromId(customModeId);
+            if (bume != null) {
+                Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", "CUSTOM");
+            } else {
+                Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", "VANILLA");
+            }
+        } else {
+            Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", track.getBoatUtilsMode().name());
+        }
         Text.send(commandSender, Info.TRACK_CHECKPOINTS, "%size%", String.valueOf(track.getTrackRegions().getRegions(TrackRegion.RegionType.CHECKPOINT).size()));
         if (!track.getTrackLocations().getLocations(TrackLocation.Type.GRID).isEmpty()) {
             Text.send(commandSender, Info.TRACK_GRIDS, "%size%", String.valueOf(track.getTrackLocations().getLocations(TrackLocation.Type.GRID).size()));
