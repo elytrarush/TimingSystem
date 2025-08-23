@@ -713,7 +713,7 @@ public class TSListener implements Listener {
 
                     TrackRegion region;
                     region = maybeRegion.orElseGet(() -> track.getTrackRegions().getStart().get());
-                    ApiUtilities.teleportPlayerAndSpawnBoat(player, track, region.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+                    performInHeatReset(driver);
                     return;
                 }
             }
