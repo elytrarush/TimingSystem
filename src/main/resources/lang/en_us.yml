@@ -110,6 +110,7 @@ error:
   no_custom_boatutils_mode_selected: "&eYou are not currently editing a custom BoatUtils mode."
   failed_to_save_custom_boatutils_mode: "&eFailed to save custom BoatUtils mode."
   failed_to_delete_custom_boatutils_mode: "&eFailed to delete custom BoatUtils mode."
+  wrong_or_missing_boatutils: "&eYou need a later version of boat utils for this feature."
 
 warning:
   dangerous_command: "&wThis command is dangerous, Type \"%command%\" to use it anyways"
@@ -279,7 +280,14 @@ info:
   time_trial_checkpoint: "&1Checkpoint %checkpoint% > &2%time%"
   time_trial_lag_start: "&1Lagstart > &2%time%"
   time_trial_lag_end: "&1Lagend > &2%time%"
-
+  bume_info_divider: "&1-----------------------------------------------------"
+  bume_info_title: "&2Editing %mode%"
+  bume_per_block_setting_title: "&2Per-Block %setting%:"
+  bume_per_block_setting: "&1- %block%: &2%value%"
+  bume_numeric_settings_title: "&2Numeric Settings:"
+  bume_boolean_settings_title: "&2Boolean Toggles:"
+  bume_setting: "&1- %setting%: &2%value%"
+  bume_all_settings_default: "&2All settings are at vanilla default values"
 hover:
   click_to_add: "Click to add"
   click_to_delete: "Click to delete"

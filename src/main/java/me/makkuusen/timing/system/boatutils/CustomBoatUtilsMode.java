@@ -418,77 +418,81 @@ public class CustomBoatUtilsMode {
         return GSON.fromJson(json, CustomBoatUtilsMode.class);
     }
 
-    public Map<String, List<String>> getNonDefaultSettings() {
-        Map<String, List<String>> nonDefaultSettings = new HashMap<>();
+    public Map<String, List<NonDefaultSetting>> getNonDefaultSettings() {
+        Map<String, List<NonDefaultSetting>> nonDefaultSettings = new HashMap<>();
 
-        List<String> numericSettings = new ArrayList<>();
+        // --- Numeric Settings ---
+        List<NonDefaultSetting> numericSettings = new ArrayList<>();
         if (this.stepHeight != 0f)
-            numericSettings.add("  &e- stepHeight: &f" + this.stepHeight);
+            numericSettings.add(new NonDefaultSetting("stepHeight", this.stepHeight, 0f));
         if (this.defaultSlipperiness != 0.6f)
-            numericSettings.add("  &e- defaultSlipperiness: &f" + this.defaultSlipperiness);
+            numericSettings.add(new NonDefaultSetting("defaultSlipperiness", this.defaultSlipperiness, 0.6f));
         if (this.boatJumpForce != 0f)
-            numericSettings.add("  &e- boatJumpForce: &f" + this.boatJumpForce);
+            numericSettings.add(new NonDefaultSetting("boatJumpForce", this.boatJumpForce, 0f));
         if (this.yawAcceleration != 1.0f)
-            numericSettings.add("  &e- yawAcceleration: &f" + this.yawAcceleration);
+            numericSettings.add(new NonDefaultSetting("yawAcceleration", this.yawAcceleration, 1.0f));
         if (this.forwardAcceleration != 0.04f)
-            numericSettings.add("  &e- forwardAcceleration: &f" + this.forwardAcceleration);
+            numericSettings.add(new NonDefaultSetting("forwardAcceleration", this.forwardAcceleration, 0.04f));
         if (this.backwardAcceleration != 0.005f)
-            numericSettings.add("  &e- backwardAcceleration: &f" + this.backwardAcceleration);
+            numericSettings.add(new NonDefaultSetting("backwardAcceleration", this.backwardAcceleration, 0.005f));
         if (this.turningForwardAcceleration != 0.005f)
-            numericSettings.add("  &e- turningForwardAcceleration: &f" + this.turningForwardAcceleration);
+            numericSettings.add(new NonDefaultSetting("turningForwardAcceleration", this.turningForwardAcceleration, 0.005f));
         if (this.swimForce != 0f)
-            numericSettings.add("  &e- swimForce: &f" + this.swimForce);
+            numericSettings.add(new NonDefaultSetting("swimForce", this.swimForce, 0f));
         if (this.gravity != -0.03999999910593033)
-            numericSettings.add("  &e- gravity: &f" + this.gravity);
+            numericSettings.add(new NonDefaultSetting("gravity", this.gravity, -0.03999999910593033));
         if (this.coyoteTime != 0)
-            numericSettings.add("  &e- coyoteTime: &f" + this.coyoteTime);
+            numericSettings.add(new NonDefaultSetting("coyoteTime", this.coyoteTime, 0));
+
         if (!numericSettings.isEmpty()) {
-            nonDefaultSettings.put("&bNumeric Settings:", numericSettings);
+            nonDefaultSettings.put("Numeric Settings", numericSettings);
         }
 
-        List<String> booleanSettings = new ArrayList<>();
+        // --- Boolean Toggles ---
+        List<NonDefaultSetting> booleanSettings = new ArrayList<>();
         if (!this.boatFallDamage)
-            booleanSettings.add("  &e- boatFallDamage: &f" + this.boatFallDamage);
+            booleanSettings.add(new NonDefaultSetting("boatFallDamage", this.boatFallDamage, true));
         if (this.boatWaterElevation)
-            booleanSettings.add("  &e- boatWaterElevation: &f" + this.boatWaterElevation);
+            booleanSettings.add(new NonDefaultSetting("boatWaterElevation", this.boatWaterElevation, false));
         if (this.boatAirControl)
-            booleanSettings.add("  &e- boatAirControl: &f" + this.boatAirControl);
+            booleanSettings.add(new NonDefaultSetting("boatAirControl", this.boatAirControl, false));
         if (this.airStepping)
-            booleanSettings.add("  &e- airStepping: &f" + this.airStepping);
+            booleanSettings.add(new NonDefaultSetting("airStepping", this.airStepping, false));
         if (this.allowAccelerationStacking)
-            booleanSettings.add("  &e- allowAccelerationStacking: &f" + this.allowAccelerationStacking);
+            booleanSettings.add(new NonDefaultSetting("allowAccelerationStacking", this.allowAccelerationStacking, false));
         if (this.underwaterControl)
-            booleanSettings.add("  &e- underwaterControl: &f" + this.underwaterControl);
+            booleanSettings.add(new NonDefaultSetting("underwaterControl", this.underwaterControl, false));
         if (this.surfaceWaterControl)
-            booleanSettings.add("  &e- surfaceWaterControl: &f" + this.surfaceWaterControl);
+            booleanSettings.add(new NonDefaultSetting("surfaceWaterControl", this.surfaceWaterControl, false));
         if (this.waterJumping)
-            booleanSettings.add("  &e- waterJumping: &f" + this.waterJumping);
+            booleanSettings.add(new NonDefaultSetting("waterJumping", this.waterJumping, false));
+
         if (!booleanSettings.isEmpty()) {
-            nonDefaultSettings.put("&bBoolean Toggles:", booleanSettings);
+            nonDefaultSettings.put("Boolean Toggles", booleanSettings);
         }
 
+        // --- Block Slipperiness ---
         if (this.blocksSlipperiness != null && !this.blocksSlipperiness.isEmpty()) {
-            List<String> slipperinessList = new ArrayList<>();
+            List<NonDefaultSetting> slipperinessList = new ArrayList<>();
             this.blocksSlipperiness.forEach(
-                    (blockId, slipperiness) -> slipperinessList.add("  &e- " + blockId + ": &f" + slipperiness));
-            nonDefaultSettings.put("&bBlock Slipperiness:", slipperinessList);
+                    (blockId, slipperiness) -> slipperinessList.add(
+                            new NonDefaultSetting(blockId, slipperiness, null) // No simple default for a map entry
+                    )
+            );
+            nonDefaultSettings.put("Block Slipperiness", slipperinessList);
         }
 
+        // --- Per-Block Settings ---
         if (this.perBlockSettings != null && !this.perBlockSettings.isEmpty()) {
-            Map<Short, List<String>> settingsByType = new HashMap<>();
+            Map<Short, List<NonDefaultSetting>> settingsByType = new HashMap<>();
             this.perBlockSettings.forEach((blockId, setting) -> {
-                String valueStr = setting.getValue() != null
-                        ? (setting.getValue() instanceof Float ? String.format("%.3f", setting.getValue())
-                                : String.valueOf(setting.getValue()))
-                        : "null";
-                settingsByType.computeIfAbsent(setting.getType(), k -> new ArrayList<>())
-                        .add("  &e- " + blockId + ": &f" + valueStr + " &7(" +
-                                (setting.getValue() != null ? setting.getValue().getClass().getSimpleName() : "null")
-                                + ")");
+                settingsByType
+                        .computeIfAbsent(setting.getType(), k -> new ArrayList<>())
+                        .add(new NonDefaultSetting(blockId, setting.getValue(), null)); // No simple default
             });
 
             settingsByType.forEach((type, settings) -> {
-                nonDefaultSettings.put("&bPer-Block Settings (Type " + type + "):", settings);
+                nonDefaultSettings.put("Per-Block Settings (Type " + type + ")", settings);
             });
         }
 
@@ -507,18 +511,14 @@ public class CustomBoatUtilsMode {
     }
 
     public int getRequiredVersion() {
-        int requiredVersion = 0;
-        Map<String, List<String>> nonDefaultSettings = this.getNonDefaultSettings();
-        for (Map.Entry<String, List<String>> entry : nonDefaultSettings.entrySet()) {
-            for (String setting : entry.getValue()) {
-                String settingName = setting.split(":")[0].trim();
-                int versionRequirement = getVersionRequirementFromSettingName(settingName);
-                if (versionRequirement > requiredVersion) {
-                    requiredVersion = versionRequirement;
-                }
-            }
-        }
-        return requiredVersion;
+        Map<String, List<NonDefaultSetting>> nonDefaultSettings = this.getNonDefaultSettings();
+
+        return nonDefaultSettings.values().stream()
+                .flatMap(List::stream)
+                .map(NonDefaultSetting::name)
+                .mapToInt(this::getVersionRequirementFromSettingName)
+                .max()
+                .orElse(0);
     }
 
     public boolean playerHasCorrectVersion(Player player) {

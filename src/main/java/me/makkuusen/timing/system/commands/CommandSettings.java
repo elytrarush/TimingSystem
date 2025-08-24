@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static me.makkuusen.timing.system.boatutils.NocolManager.playerCanUseNocol;
+import static me.makkuusen.timing.system.loneliness.LonelinessController.updatePlayersVisibility;
+
 @CommandAlias("settings|s")
 public class CommandSettings extends BaseCommand {
 
@@ -99,6 +102,18 @@ public class CommandSettings extends BaseCommand {
         Text.send(player, tPlayer.getSettings().isOverride() ? Success.OVERRIDE_ON : Success.OVERRIDE_OFF);
     }
 
+    @Subcommand("lonely")
+    @CommandPermission("%permissiontimingsystem_settings")
+    public static void onLonely(Player player) {
+        TPlayer tPlayer = TSDatabase.getPlayer(player);
+        tPlayer.getSettings().toggleLonely();
+        updatePlayersVisibility(player);
+        if (playerCanUseNocol(player)) {
+            Text.send(player, tPlayer.getSettings().isLonely() ? Success.LONELY_ON : Success.LONELY_OFF);
+        } else {
+            Text.send(player, Error.WRONG_OR_MISSING_BOATUTILS);
+        }
+    }
 
     @Subcommand("color")
     @CommandCompletion("<hexcolorcode>")

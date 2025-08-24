@@ -1,5 +1,6 @@
 package me.makkuusen.timing.system.loneliness;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,71 +22,78 @@ import org.bukkit.plugin.Plugin;
 
 import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.api.events.TimeTrialStartEvent;
-import me.makkuusen.timing.system.timetrial.TimeTrialController;
 
-
+import static me.makkuusen.timing.system.boatutils.NocolManager.playerCanUseNocol;
+import static me.makkuusen.timing.system.boatutils.NocolManager.setCollisionMode;
 
 public class LonelinessController implements Listener {
 
     private static Plugin plugin = null;
     private static final Set<UUID> ghostedPlayers = ConcurrentHashMap.newKeySet();
+    private static final long VISIBILITY_UPDATE_DELAY = 1L;
 
     public LonelinessController(Plugin plugin) {
         LonelinessController.plugin = plugin;
     }
 
     public static void updatePlayersVisibility(Player player) {
-
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            // Shows all players when not in a boat
             if (!player.isInsideVehicle()) {
                 showAllOthers(player);
                 return;
             }
 
-            if (TimeTrialController.timeTrials.containsKey(player.getUniqueId())) {
-                hideAllOthers(player);
-                return;
-            }
+            Optional<Driver> maybeDriver = getDriverFromRunningHeat(player);
+            boolean canUseNocol = playerCanUseNocol(player);
+            boolean lonelinessDisabled = !TimingSystemAPI.getTPlayer(player.getUniqueId()).getSettings().isLonely();
 
-            // All non heat related code should be above this line
-            var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
+            // Player is not in a heat and is in a boat
             if (!maybeDriver.isPresent()) {
+                if (canUseNocol && lonelinessDisabled) {
+                    // Show all drivers, activate nocol
+                    showAllOthers(player);
+                    setCollisionMode(player, false);
+                } else {
+                    // Hide all players
+                    hideAllOthers(player);
+                }
                 return;
             }
 
             Driver driver = maybeDriver.get();
             Heat heat = driver.getHeat();
 
-            // Driver is not participating
-            if (driver.getState() == DriverState.DISQUALIFIED || driver.getState() == DriverState.SETUP || driver.getState() == DriverState.FINISHED) {
-                return;
-            }
-
             if (heat.getLonely()) {
-                hideAllOthers(player);
-                return;
-            }
-
-            for (Player p : plugin.getServer().getOnlinePlayers()) {
-                if (p.getUniqueId().equals(player.getUniqueId())) {
-                    continue;
+                // Loneliness heat
+                if (canUseNocol && lonelinessDisabled) {
+                    // Show only heat players, activate nocol
+                    showHeatPlayersOnly(player, heat);
+                    setCollisionMode(player, false);
+                } else {
+                    // Hide all players (loneliness effect)
+                    hideAllOthers(player);
                 }
-
-                // Do not hide players in the same non loneliness heat, unless they are ghosted
-                maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(p.getUniqueId());
-                if (maybeDriver.isPresent() && maybeDriver.get().getHeat().getId() == heat.getId() && !ghostedPlayers.contains(p.getUniqueId()) && !(DeltaGhostingController.isDeltaGhosted(driver, maybeDriver.get()))) {
-                    showPlayerAndCustomBoat(player, p);
-                    continue;
+            } else {
+                // Non-loneliness racing heat
+                if (canUseNocol && lonelinessDisabled) {
+                    // Show only heat players, no nocol
+                    showHeatPlayersOnly(player, heat);
+                    setCollisionMode(player, true);
+                } else {
+                    // Show only heat players, no nocol
+                    showHeatPlayersOnly(player, heat);
+                    setCollisionMode(player, true);
                 }
-
-                hidePlayerAndCustomBoat(player, p);
             }
-        }, 5L);
+        }, VISIBILITY_UPDATE_DELAY);
     }
 
     private static void showPlayerAndCustomBoat(Player player, Player boatOwner) {
-        if (boatOwner.isInsideVehicle() && (boatOwner.getVehicle() instanceof Boat || boatOwner.getVehicle() instanceof ChestBoat)) {
-            if (TimingSystem.configuration.isFrostHexAddOnEnabled() && !boatOwner.getVehicle().getPassengers().isEmpty()) {
+        if (boatOwner.isInsideVehicle()
+                && (boatOwner.getVehicle() instanceof Boat || boatOwner.getVehicle() instanceof ChestBoat)) {
+            if (TimingSystem.configuration.isFrostHexAddOnEnabled()
+                    && !boatOwner.getVehicle().getPassengers().isEmpty()) {
                 for (Entity e : boatOwner.getVehicle().getPassengers()) {
                     if (e instanceof Villager) {
                         player.showEntity(plugin, e);
@@ -98,8 +106,10 @@ public class LonelinessController implements Listener {
     }
 
     private static void hidePlayerAndCustomBoat(Player player, Player boatOwner) {
-        if (boatOwner.isInsideVehicle() && (boatOwner.getVehicle() instanceof Boat || boatOwner.getVehicle() instanceof ChestBoat)) {
-            if (TimingSystem.configuration.isFrostHexAddOnEnabled() && !boatOwner.getVehicle().getPassengers().isEmpty()) {
+        if (boatOwner.isInsideVehicle()
+                && (boatOwner.getVehicle() instanceof Boat || boatOwner.getVehicle() instanceof ChestBoat)) {
+            if (TimingSystem.configuration.isFrostHexAddOnEnabled()
+                    && !boatOwner.getVehicle().getPassengers().isEmpty()) {
                 for (Entity e : boatOwner.getVehicle().getPassengers()) {
                     if (e instanceof Villager) {
                         player.hideEntity(plugin, e);
@@ -112,85 +122,117 @@ public class LonelinessController implements Listener {
     }
 
     private static void showAllOthers(Player player) {
-        for (Player p : plugin.getServer().getOnlinePlayers()) {
-            if (p.getUniqueId().equals(player.getUniqueId())) {
-                continue;
-            }
-            showPlayerAndCustomBoat(player, p);
+        if (playerCanUseNocol(player))
+            setCollisionMode(player, true);
+        for (Player otherPlayer : getOtherOnlinePlayers(player)) {
+            showPlayerAndCustomBoat(player, otherPlayer);
         }
     }
 
     private static void hideAllOthers(Player player) {
-        for (Player p : plugin.getServer().getOnlinePlayers()) {
-            if (p.getUniqueId().equals(player.getUniqueId())) {
-                continue;
-            }
-            hidePlayerAndCustomBoat(player, p);
+        setCollisionMode(player, true); // Ensure nocol is disabled when hiding players
+        for (Player otherPlayer : getOtherOnlinePlayers(player)) {
+            hidePlayerAndCustomBoat(player, otherPlayer);
         }
+    }
+
+    private static void showHeatPlayersOnly(Player player, Heat heat) {
+        setCollisionMode(player, true); // Default to nocol disabled
+        for (Player otherPlayer : getOtherOnlinePlayers(player)) {
+            if (heat.getDrivers().containsKey(otherPlayer.getUniqueId())) {
+                showPlayerAndCustomBoat(player, otherPlayer);
+            } else {
+                hidePlayerAndCustomBoat(player, otherPlayer);
+            }
+        }
+    }
+
+    private static Optional<Driver> getDriverFromRunningHeat(Player player) {
+        return TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
+    }
+
+    private static boolean isDriverNotParticipating(Driver driver) {
+        DriverState state = driver.getState();
+        return state == DriverState.DISQUALIFIED ||
+                state == DriverState.SETUP ||
+                state == DriverState.FINISHED;
+    }
+
+    private static Iterable<? extends Player> getOtherOnlinePlayers(Player excludePlayer) {
+        return plugin.getServer().getOnlinePlayers().stream()
+                .filter(p -> !p.getUniqueId().equals(excludePlayer.getUniqueId()))
+                .toList();
+    }
+
+    private static boolean isPlayerInBoat(Player player) {
+        Entity vehicle = player.getVehicle();
+        return vehicle instanceof Boat || vehicle instanceof ChestBoat;
+    }
+
+    private static void processPlayerVisibilityForOther(Player targetPlayer, Player viewingPlayer) {
+        if (!isPlayerInBoat(viewingPlayer)) {
+            showPlayerAndCustomBoat(viewingPlayer, targetPlayer);
+            return;
+        }
+
+        boolean canUseNocol = playerCanUseNocol(viewingPlayer);
+        boolean lonelinessDisabled = !TimingSystemAPI.getTPlayer(viewingPlayer.getUniqueId()).getSettings().isLonely();
+
+        if (canUseNocol && lonelinessDisabled) {
+            showPlayerAndCustomBoat(viewingPlayer, targetPlayer);
+        } else {
+            hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
+        }
+
+        Optional<Driver> viewingMaybeDriver = getDriverFromRunningHeat(viewingPlayer);
+        if (!viewingMaybeDriver.isPresent()) return;
+
+        Driver viewingDriver = viewingMaybeDriver.get();
+        Heat viewingHeat = viewingDriver.getHeat();
+
+        if (isDriverNotParticipating(viewingDriver)) return;
+
+        Optional<Driver> targetMaybeDriver = getDriverFromRunningHeat(targetPlayer);
+
+        if (!targetMaybeDriver.isPresent()) {
+            hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
+            return;
+        }
+
+        if (targetMaybeDriver.get().getHeat().getId() != viewingHeat.getId()) {
+            hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
+            return;
+        }
+
+        if (ghostedPlayers.contains(targetPlayer.getUniqueId())) {
+            hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
+            return;
+        }
+
+        if (viewingHeat.getLonely()) {
+            if (canUseNocol && lonelinessDisabled) {
+                showPlayerAndCustomBoat(viewingPlayer, targetPlayer);
+            } else {
+                hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
+            }
+            return;
+        }
+
+        showPlayerAndCustomBoat(viewingPlayer, targetPlayer);
     }
 
     public static void updatePlayerVisibility(Player player) {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            for (Player p : plugin.getServer().getOnlinePlayers()) {
-                if (p.getUniqueId().equals(player.getUniqueId())) {
-                    continue;
-                }
-                // if p is not in a boat there is no situation where they should not see player
-                if (!(p.getVehicle() instanceof Boat) && !(p.getVehicle() instanceof ChestBoat)) {
-                    showPlayerAndCustomBoat(p, player);
-                    continue;
-                }
-
-                if (TimeTrialController.timeTrials.containsKey(p.getUniqueId())) {
-                    hidePlayerAndCustomBoat(p, player);
-                    continue;
-                }
-
-                var maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(p.getUniqueId());
-                if (!maybeDriver.isPresent()) {
-                    showPlayerAndCustomBoat(p, player);
-                    continue;
-                }
-
-                Driver d = maybeDriver.get();
-                Heat heat = d.getHeat();
-
-                // Driver is not participating
-                if (d.getState() == DriverState.DISQUALIFIED || d.getState() == DriverState.SETUP || d.getState() == DriverState.FINISHED) {
-                    showPlayerAndCustomBoat(p, player);
-                    continue;
-                }
-
-                maybeDriver = TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
-
-                if (!maybeDriver.isPresent()) {
-                    hidePlayerAndCustomBoat(p, player);
-                    continue;
-                }
-
-                if (maybeDriver.get().getHeat().getId() != heat.getId()) {
-                    hidePlayerAndCustomBoat(p, player);
-                    continue;
-                }
-
-                if (heat.getLonely()) {
-                    hidePlayerAndCustomBoat(p, player);
-                    continue;
-                }
-
-                if (ghostedPlayers.contains(player.getUniqueId())) {
-                    hidePlayerAndCustomBoat(p, player);
-                    continue;
-                }
-
-                showPlayerAndCustomBoat(p, player);
+            for (Player otherPlayer : getOtherOnlinePlayers(player)) {
+                processPlayerVisibilityForOther(player, otherPlayer);
             }
-        }, 5L);
+        }, VISIBILITY_UPDATE_DELAY);
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        TimingSystemAPI.getTPlayer(player.getUniqueId()).getSettings().setLonely(false);
         updatePlayerVisibility(player);
     }
 

@@ -2,11 +2,11 @@ package me.makkuusen.timing.system.tplayer;
 
 import co.aikar.idb.DbRow;
 import lombok.Getter;
+import lombok.Setter;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.EventDatabase;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Boat;
 import java.awt.*;
 import java.util.UUID;
 
@@ -25,6 +25,7 @@ public class Settings {
     private boolean compactScoreboard;
     private boolean sendFinalLaps;
     private String shortName;
+    @Setter
     private boolean lonely;
 
     public Settings(TPlayer tPlayer, DbRow data) {
@@ -39,6 +40,7 @@ public class Settings {
         compactScoreboard = getBoolean(data, "compactScoreboard");
         sendFinalLaps = getBoolean(data, "sendFinalLaps");
         shortName = data.getString("shortName") != null ? data.getString("shortName") : extractShortName(tPlayer.getName());
+        lonely = false;
     }
 
     private String extractShortName(String name) {
@@ -95,6 +97,10 @@ public class Settings {
     public void toggleOverride() {
         override = !override;
         TimingSystem.getDatabase().playerUpdateValue(uuid, "override", override);
+    }
+
+    public void toggleLonely() {
+        lonely = !lonely;
     }
 
     public void toggleVerbose() {
