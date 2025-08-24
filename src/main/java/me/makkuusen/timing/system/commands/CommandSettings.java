@@ -103,9 +103,9 @@ public class CommandSettings extends BaseCommand {
     }
 
     @Subcommand("lonely")
-    @CommandPermission("permissiontimingsystem_settings_lonely")
+    @CommandPermission("%permissiontimingsystem_settings")
     public static void onLonely(Player player) {
-        var tPlayer = TSDatabase.getPlayer(player);
+        TPlayer tPlayer = TSDatabase.getPlayer(player);
         tPlayer.getSettings().toggleLonely();
         updatePlayersVisibility(player);
         if (playerCanUseNocol(player)) {
