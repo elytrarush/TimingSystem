@@ -157,9 +157,13 @@ public class CommandTrack extends BaseCommand {
         Text.send(commandSender, Info.TRACK_OPTIONS, "%options%", track.getTrackOptions().listOfOptions());
         if (track.getBoatUtilsMode().name().equalsIgnoreCase("vanilla")) {
             Integer customModeId = track.getCustomBoatUtilsModeId();
-            CustomBoatUtilsMode bume = TimingSystem.getTrackDatabase().getCustomBoatUtilsModeFromId(customModeId);
-            if (bume != null) {
-                Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", "CUSTOM (" + bume.getName().toUpperCase() + ")");
+            if (customModeId != null) {
+                CustomBoatUtilsMode bume = TimingSystem.getTrackDatabase().getCustomBoatUtilsModeFromId(customModeId);
+                if (bume != null) {
+                    Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", "CUSTOM (" + bume.getName().toUpperCase() + ")");
+                } else {
+                    Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", "VANILLA");
+                }
             } else {
                 Text.send(commandSender, Info.TRACK_BOATUTILS_MODE, "%mode%", "VANILLA");
             }
