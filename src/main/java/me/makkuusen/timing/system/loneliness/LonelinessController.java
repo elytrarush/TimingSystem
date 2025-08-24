@@ -175,17 +175,22 @@ public class LonelinessController implements Listener {
             return;
         }
 
-        hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
+        boolean canUseNocol = playerCanUseNocol(viewingPlayer);
+        boolean lonelinessDisabled = !TimingSystemAPI.getTPlayer(viewingPlayer.getUniqueId()).getSettings().isLonely();
+
+        if (canUseNocol && lonelinessDisabled) {
+            showPlayerAndCustomBoat(viewingPlayer, targetPlayer);
+        } else {
+            hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
+        }
 
         Optional<Driver> viewingMaybeDriver = getDriverFromRunningHeat(viewingPlayer);
-        if (!viewingMaybeDriver.isPresent())
-            return;
+        if (!viewingMaybeDriver.isPresent()) return;
 
         Driver viewingDriver = viewingMaybeDriver.get();
         Heat viewingHeat = viewingDriver.getHeat();
 
-        if (isDriverNotParticipating(viewingDriver))
-            return;
+        if (isDriverNotParticipating(viewingDriver)) return;
 
         Optional<Driver> targetMaybeDriver = getDriverFromRunningHeat(targetPlayer);
 
@@ -199,13 +204,17 @@ public class LonelinessController implements Listener {
             return;
         }
 
-        if (viewingHeat.getLonely()) {
+        if (ghostedPlayers.contains(targetPlayer.getUniqueId())) {
             hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
             return;
         }
 
-        if (ghostedPlayers.contains(targetPlayer.getUniqueId())) {
-            hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
+        if (viewingHeat.getLonely()) {
+            if (canUseNocol && lonelinessDisabled) {
+                showPlayerAndCustomBoat(viewingPlayer, targetPlayer);
+            } else {
+                hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
+            }
             return;
         }
 
