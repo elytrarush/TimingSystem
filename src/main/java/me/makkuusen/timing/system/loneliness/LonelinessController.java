@@ -223,6 +223,7 @@ public class LonelinessController implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        TimingSystemAPI.getTPlayer(player.getUniqueId()).getSettings().setLonely(false);
         updatePlayerVisibility(player);
     }
 

@@ -2,6 +2,7 @@ package me.makkuusen.timing.system.tplayer;
 
 import co.aikar.idb.DbRow;
 import lombok.Getter;
+import lombok.Setter;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.EventDatabase;
 import net.kyori.adventure.text.format.TextColor;
@@ -24,6 +25,7 @@ public class Settings {
     private boolean compactScoreboard;
     private boolean sendFinalLaps;
     private String shortName;
+    @Setter
     private boolean lonely;
 
     public Settings(TPlayer tPlayer, DbRow data) {
