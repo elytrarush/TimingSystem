@@ -4,8 +4,10 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.boatutils.CustomBoatUtilsMode;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.boatutils.NonDefaultSetting;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
+import me.makkuusen.timing.system.theme.messages.Info;
 import me.makkuusen.timing.system.theme.messages.Success;
 import org.bukkit.entity.Player;
 
@@ -272,22 +274,40 @@ public class CommandBoatUtilsModeEdit extends BaseCommand {
             return;
         }
 
-        player.sendMessage("-----------------------------------------------------");
-        player.sendMessage("Editing BoatUtils Mode: " + mode.getName());
-        player.sendMessage("-----------------------------------------------------");
+        Text.send(player, Info.BUME_INFO_DIVIDER);
+        Text.send(player, Info.BUME_INFO_TITLE, "%mode%", mode.getName());
+        Text.send(player, Info.BUME_INFO_DIVIDER);
 
-        Map<String, List<String>> nonDefaultSettings = mode.getNonDefaultSettings();
+        Map<String, List<NonDefaultSetting>> nonDefaultSettings = mode.getNonDefaultSettings();
 
         if (nonDefaultSettings.isEmpty()) {
-            player.sendMessage("All settings are at vanilla default values.");
+            Text.send(player, Info.BUME_ALL_SETTINGS_DEFAULT);
         } else {
-            player.sendMessage("Customized Settings (non-vanilla):");
+            processSimpleSettings(player, "Numeric Settings", Info.BUME_NUMERIC_SETTINGS_TITLE, nonDefaultSettings);
+            processSimpleSettings(player, "Boolean Toggles", Info.BUME_BOOLEAN_SETTINGS_TITLE, nonDefaultSettings);
+
             nonDefaultSettings.forEach((category, settings) -> {
-                player.sendMessage(category);
-                settings.forEach(player::sendMessage);
+                if (category.equals("Numeric Settings") || category.equals("Boolean Toggles")) {
+                    return;
+                }
+
+                Text.send(player, Info.BUME_PER_BLOCK_SETTING_TITLE, "%setting%", category);
+                settings.forEach(setting -> {
+                    Text.send(player, Info.BUME_PER_BLOCK_SETTING, "%block%", setting.name().split(":")[1], "%value%", setting.currentValue().toString());
+                });
             });
         }
 
-        player.sendMessage("-----------------------------------------------------");
+        Text.send(player, Info.BUME_INFO_DIVIDER);
+    }
+
+     static void processSimpleSettings(Player player, String categoryKey, Info titleKey, Map<String, List<NonDefaultSetting>> allSettings) {
+        List<NonDefaultSetting> settings = allSettings.get(categoryKey);
+        if (settings != null && !settings.isEmpty()) {
+            Text.send(player, titleKey);
+            settings.forEach(setting -> {
+                Text.send(player, Info.BUME_SETTING, "%setting%", setting.name(), "%value%", setting.currentValue().toString());
+            });
+        }
     }
 }
