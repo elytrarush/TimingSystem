@@ -11,6 +11,33 @@ medalsaddon:
    goldPos: 0.1
    silverPos: 0.25
    copperPos: 0.5
+   dynamicDiamondPos:
+      enabled: false
+      0to499:
+         min: 0
+         max: 499
+         A: 1.208
+         p: 0.563
+      500to999:
+         min: 500
+         max: 999
+         A: 1.055
+         p: 0.585
+      1Kto10K:
+         min: 1000
+         max: 9999
+         A: 0.435
+         p: 0.713
+      10Kto100K:
+         min: 10000
+         max: 99999
+         A: 2.751
+         p: 0.513
+      100Kto1M:
+         min: 100000
+         max: 999999
+         A: 4.296
+         p: 0.474
 leaderboards:
    updateticks: 18000
    fastesttime:

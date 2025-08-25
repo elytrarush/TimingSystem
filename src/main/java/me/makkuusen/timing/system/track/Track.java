@@ -72,7 +72,7 @@ public class Track {
         trackOptions = new TrackOptions(id);
         trackLocations = new TrackLocations(id);
         trackTags = new TrackTags(id);
-        trackMedals = new TrackMedals();
+        trackMedals = new TrackMedals(this);
     }
 
     public ItemStack getItem(UUID uuid, boolean isMedal) {
