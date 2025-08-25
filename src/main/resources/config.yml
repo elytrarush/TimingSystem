@@ -13,6 +13,7 @@ medalsaddon:
    copperPos: 0.5
    dynamicDiamondPos:
       enabled: false
+      cap: 0.075
       0to499:
          min: 0
          max: 499
