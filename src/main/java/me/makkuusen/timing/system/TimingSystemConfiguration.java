@@ -2,7 +2,11 @@ package me.makkuusen.timing.system;
 
 import lombok.Getter;
 import me.makkuusen.timing.system.database.*;
+import me.makkuusen.timing.system.track.medals.DynamicPos;
+import org.bukkit.configuration.ConfigurationSection;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Getter
@@ -34,6 +38,8 @@ public class TimingSystemConfiguration {
     private final double goldPos;
     private final double silverPos;
     private final double copperPos;
+    private boolean dynamicDiamondPosEnabled;
+    private final List<DynamicPos> dynamicDiamondPoses = new ArrayList<>();
 
     private final Object databaseType;
 
@@ -71,6 +77,10 @@ public class TimingSystemConfiguration {
         goldPos = plugin.getConfig().getDouble("medalsaddon.goldPos", 0.1);
         silverPos = plugin.getConfig().getDouble("medalsaddon.silverPos", 0.25);
         copperPos = plugin.getConfig().getDouble("medalsaddon.copperPos", 0.50);
+        dynamicDiamondPosEnabled = plugin.getConfig().getBoolean("medalsaddon.dynamicDiamondPos.enabled");
+        if (dynamicDiamondPosEnabled) {
+            loadDynamicDiamondPoses(plugin);
+        }
 
         databaseType = switch (databaseTypeRaw.toLowerCase()) {
             case "sqlite" -> new SQLiteDatabase();
@@ -79,6 +89,32 @@ public class TimingSystemConfiguration {
         };
     }
 
+    private void loadDynamicDiamondPoses(TimingSystem plugin) {
+        ConfigurationSection dynamicDiamondPosSection = plugin.getConfig().getConfigurationSection("medalsaddon.dynamicDiamondPos");
+        if (dynamicDiamondPosSection == null) {
+            plugin.logger.warning("No 'dynamicDiamondPos' section found in config.yml");
+            dynamicDiamondPosEnabled = false;
+            return;
+        }
+        dynamicDiamondPoses.clear();
+        for (String key : dynamicDiamondPosSection.getKeys(false)) {
+            ConfigurationSection section = dynamicDiamondPosSection.getConfigurationSection(key);
+            if (section == null) continue;
+            int min = section.getInt("min", -1);
+            int max = section.getInt("max", -1);
+            double A = section.getDouble("A", -1);
+            double p = section.getDouble("p", -1);
+            if (min == -1 || max == -1 || A == -1 || p == -1) continue;
+            dynamicDiamondPoses.add(new DynamicPos(min, max, A, p));
+            plugin.logger.info("Loaded new DynamicDiamondPos “" + key + "”: [" + min + " – " + max + "]");
+        }
+        if (dynamicDiamondPoses.isEmpty()) {
+            dynamicDiamondPosEnabled = false;
+            plugin.logger.warning("0 DynamicDiamondPoses found in config.yml");
+            return;
+        }
+        dynamicDiamondPoses.sort(Comparator.comparingInt(DynamicPos::getMin));
+    }
 
     public void setScoreboardMaxRows(int rows) {
         scoreboardMaxRows = rows;

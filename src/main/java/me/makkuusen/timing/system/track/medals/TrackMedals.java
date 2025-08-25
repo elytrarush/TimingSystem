@@ -5,6 +5,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.TimeTrials;
+import me.makkuusen.timing.system.track.Track;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -26,12 +27,17 @@ public class TrackMedals {
     private final TrackMedalsData silver;
     private final TrackMedalsData copper;
 
-    public TrackMedals() {
+    public TrackMedals(Track track) {
         isActive = false;
         playersLimit = TimingSystem.configuration.getMedalsPlayersLimit();
         netherite = new TrackMedalsData(TimingSystem.configuration.getNetheritePos(), getPositionText(TimingSystem.configuration.getNetheritePos()));
         emerald = new TrackMedalsData(TimingSystem.configuration.getEmeraldPos(), getPositionText(TimingSystem.configuration.getEmeraldPos()));
-        diamond = new TrackMedalsData(TimingSystem.configuration.getDiamondPos(), getPositionText(TimingSystem.configuration.getDiamondPos()));
+        if (TimingSystem.configuration.isDynamicDiamondPosEnabled()) {
+            double dynamicDiamondPos = getDynamicPos(track.getTimeTrials().getCachedPositions().size(), TimingSystem.configuration.getDiamondPos());
+            diamond = new TrackMedalsData(dynamicDiamondPos, getPositionText(dynamicDiamondPos));
+        } else {
+            diamond = new TrackMedalsData(TimingSystem.configuration.getDiamondPos(), getPositionText(TimingSystem.configuration.getDiamondPos()));
+        }
         gold = new TrackMedalsData(TimingSystem.configuration.getGoldPos(), getPositionText(TimingSystem.configuration.getGoldPos()));
         silver = new TrackMedalsData(TimingSystem.configuration.getSilverPos(), getPositionText(TimingSystem.configuration.getSilverPos()));
         copper = new TrackMedalsData(TimingSystem.configuration.getCopperPos(), getPositionText(TimingSystem.configuration.getCopperPos()));
@@ -43,6 +49,11 @@ public class TrackMedals {
             int totalPositions = timeTrials.getCachedPositions().size();
             if (totalPositions < playersLimit) { isActive = false; return; }
             isActive = true;
+            if (TimingSystem.configuration.isDynamicDiamondPosEnabled()) {
+                double dynamicDiamondPos = getDynamicPos(timeTrials.getCachedPositions().size(), TimingSystem.configuration.getDiamondPos());
+                diamond.setPos(dynamicDiamondPos);
+                diamond.setText(getPositionText(dynamicDiamondPos));
+            }
             netherite.setTime(timeTrials.getBestFinish(timeTrials.getCachedPositions().get(getPosition(netherite.getPos(), totalPositions))).getTime());
             emerald.setTime(timeTrials.getBestFinish(timeTrials.getCachedPositions().get(getPosition(emerald.getPos(), totalPositions))).getTime());
             diamond.setTime(timeTrials.getBestFinish(timeTrials.getCachedPositions().get(getPosition(diamond.getPos(), totalPositions))).getTime());
@@ -136,6 +147,22 @@ public class TrackMedals {
         else                                  return Medals.NO_MEDAL;
     }
 
+    private double getDynamicPos(int totalPositions, double defaultValue) {
+        if (!TimingSystem.configuration.getDynamicDiamondPoses().isEmpty()) {
+            for (DynamicPos dynamicPos : TimingSystem.configuration.getDynamicDiamondPoses()) {
+                if (totalPositions >= dynamicPos.getMin() && totalPositions <= dynamicPos.getMax()) {
+                    return dynamicPos.getPos(totalPositions, defaultValue);
+                }
+            }
+            if (totalPositions < TimingSystem.configuration.getDynamicDiamondPoses().getFirst().getMin()) {
+                return TimingSystem.configuration.getDynamicDiamondPoses().getFirst().getPos(totalPositions, defaultValue);
+            } else {
+                return TimingSystem.configuration.getDynamicDiamondPoses().getLast().getPos(totalPositions, defaultValue);
+            }
+        }
+        return TimingSystem.configuration.getDiamondPos();
+    }
+
     private int getPosition(double num, int totalPositions) {
         if (num <= 0) {
             return 0;
@@ -149,6 +176,8 @@ public class TrackMedals {
     private String getPositionText(double num) {
         if (num <= 0) {
             return "(top 1)";
+        } else if (num < 0.1) {
+            return "(top " + ((int)(num * 1000) / 10.0) + "%)";
         } else if (num < 1) {
             return "(top " + (int) (num * 100) + "%)";
         } else {
