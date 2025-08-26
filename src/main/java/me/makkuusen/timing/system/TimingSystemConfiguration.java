@@ -79,7 +79,7 @@ public class TimingSystemConfiguration {
         copperPos = plugin.getConfig().getDouble("medalsaddon.copperPos", 0.50);
         dynamicDiamondPosEnabled = plugin.getConfig().getBoolean("medalsaddon.dynamicDiamondPos.enabled");
         if (dynamicDiamondPosEnabled) {
-            loadDynamicDiamondPoses(plugin);
+            loadDynamicDiamondPoses(plugin, plugin.getConfig().getDouble("medalsaddon.dynamicDiamondPos.cap", 0.075));
         }
 
         databaseType = switch (databaseTypeRaw.toLowerCase()) {
@@ -89,7 +89,7 @@ public class TimingSystemConfiguration {
         };
     }
 
-    private void loadDynamicDiamondPoses(TimingSystem plugin) {
+    private void loadDynamicDiamondPoses(TimingSystem plugin, double cap) {
         ConfigurationSection dynamicDiamondPosSection = plugin.getConfig().getConfigurationSection("medalsaddon.dynamicDiamondPos");
         if (dynamicDiamondPosSection == null) {
             plugin.logger.warning("No 'dynamicDiamondPos' section found in config.yml");
@@ -105,7 +105,7 @@ public class TimingSystemConfiguration {
             double A = section.getDouble("A", -1);
             double p = section.getDouble("p", -1);
             if (min == -1 || max == -1 || A == -1 || p == -1) continue;
-            dynamicDiamondPoses.add(new DynamicPos(min, max, A, p));
+            dynamicDiamondPoses.add(new DynamicPos(min, max, A, p, cap));
             plugin.logger.info("Loaded new DynamicDiamondPos “" + key + "”: [" + min + " – " + max + "]");
         }
         if (dynamicDiamondPoses.isEmpty()) {
