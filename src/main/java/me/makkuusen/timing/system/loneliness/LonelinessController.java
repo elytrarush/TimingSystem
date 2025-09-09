@@ -45,11 +45,12 @@ public class LonelinessController implements Listener {
             }
 
             Optional<Driver> maybeDriver = getDriverFromRunningHeat(player);
+            Heat streakingHeat = getStreakingHeat(player);
             boolean canUseNocol = playerCanUseNocol(player);
             boolean lonelinessDisabled = !TimingSystemAPI.getTPlayer(player.getUniqueId()).getSettings().isLonely();
 
-            // Player is not in a heat and is in a boat
-            if (!maybeDriver.isPresent()) {
+            // Player is not in a heat as driver or streaker and is in a boat
+            if (!maybeDriver.isPresent() && streakingHeat == null) {
                 if (canUseNocol && lonelinessDisabled) {
                     // Show all drivers, activate nocol
                     showAllOthers(player);
@@ -61,8 +62,16 @@ public class LonelinessController implements Listener {
                 return;
             }
 
-            Driver driver = maybeDriver.get();
-            Heat heat = driver.getHeat();
+            Heat heat;
+            boolean isDriver = maybeDriver.isPresent();
+            
+            if (isDriver) {
+                Driver driver = maybeDriver.get();
+                heat = driver.getHeat();
+            } else {
+                // Player is a streaker
+                heat = streakingHeat;
+            }
 
             if (heat.getLonely()) {
                 // Loneliness heat
@@ -71,8 +80,13 @@ public class LonelinessController implements Listener {
                     showHeatPlayersOnly(player, heat);
                     setCollisionMode(player, false);
                 } else {
-                    // Hide all players (loneliness effect)
-                    hideAllOthers(player);
+                    // Hide all players (loneliness effect) - but streakers should still see heat players
+                    if (isDriver) {
+                        hideAllOthers(player);
+                    } else {
+                        // Streakers always see heat players even in lonely mode
+                        showHeatPlayersOnly(player, heat);
+                    }
                 }
             } else {
                 // Non-loneliness racing heat
@@ -139,7 +153,8 @@ public class LonelinessController implements Listener {
     private static void showHeatPlayersOnly(Player player, Heat heat) {
         setCollisionMode(player, true); // Default to nocol disabled
         for (Player otherPlayer : getOtherOnlinePlayers(player)) {
-            if (heat.getDrivers().containsKey(otherPlayer.getUniqueId())) {
+            if (heat.getDrivers().containsKey(otherPlayer.getUniqueId()) || 
+                heat.getStreakers().containsKey(otherPlayer.getUniqueId())) {
                 showPlayerAndCustomBoat(player, otherPlayer);
             } else {
                 hidePlayerAndCustomBoat(player, otherPlayer);
@@ -149,6 +164,16 @@ public class LonelinessController implements Listener {
 
     private static Optional<Driver> getDriverFromRunningHeat(Player player) {
         return TimingSystemAPI.getDriverFromRunningHeat(player.getUniqueId());
+    }
+
+    private static Heat getStreakingHeat(Player player) {
+        // Check all running heats to see if player is a streaker
+        for (Heat heat : TimingSystemAPI.getRunningHeats()) {
+            if (heat.getStreakers().containsKey(player.getUniqueId())) {
+                return heat;
+            }
+        }
+        return null;
     }
 
     private static boolean isDriverNotParticipating(Driver driver) {
@@ -185,21 +210,33 @@ public class LonelinessController implements Listener {
         }
 
         Optional<Driver> viewingMaybeDriver = getDriverFromRunningHeat(viewingPlayer);
-        if (!viewingMaybeDriver.isPresent()) return;
+        Heat viewingStreakingHeat = getStreakingHeat(viewingPlayer);
+        
+        if (!viewingMaybeDriver.isPresent() && viewingStreakingHeat == null) return;
 
-        Driver viewingDriver = viewingMaybeDriver.get();
-        Heat viewingHeat = viewingDriver.getHeat();
-
-        if (isDriverNotParticipating(viewingDriver)) return;
+        Heat viewingHeat;
+        boolean viewingIsDriver = viewingMaybeDriver.isPresent();
+        
+        if (viewingIsDriver) {
+            Driver viewingDriver = viewingMaybeDriver.get();
+            viewingHeat = viewingDriver.getHeat();
+            if (isDriverNotParticipating(viewingDriver)) return;
+        } else {
+            // Viewing player is a streaker
+            viewingHeat = viewingStreakingHeat;
+        }
 
         Optional<Driver> targetMaybeDriver = getDriverFromRunningHeat(targetPlayer);
+        boolean targetIsStreaker = viewingHeat.getStreakers().containsKey(targetPlayer.getUniqueId());
 
-        if (!targetMaybeDriver.isPresent()) {
+        // If target is neither a driver nor a streaker in the viewing player's heat, hide them
+        if (!targetMaybeDriver.isPresent() && !targetIsStreaker) {
             hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
             return;
         }
 
-        if (targetMaybeDriver.get().getHeat().getId() != viewingHeat.getId()) {
+        // If target is a driver but in a different heat, hide them
+        if (targetMaybeDriver.isPresent() && targetMaybeDriver.get().getHeat().getId() != viewingHeat.getId()) {
             hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
             return;
         }
@@ -213,7 +250,14 @@ public class LonelinessController implements Listener {
             if (canUseNocol && lonelinessDisabled) {
                 showPlayerAndCustomBoat(viewingPlayer, targetPlayer);
             } else {
-                hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
+                // In lonely mode, streakers should still see heat players
+                if (!viewingIsDriver) {
+                    // Viewing player is a streaker - always show heat players
+                    showPlayerAndCustomBoat(viewingPlayer, targetPlayer);
+                } else {
+                    // Viewing player is a driver - hide in lonely mode
+                    hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
+                }
             }
             return;
         }
