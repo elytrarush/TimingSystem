@@ -125,6 +125,7 @@ warning:
   confirm_command: "&wType &o/%command%&r&w to execute this command."
   ghosting_target_on: "&wYou are now ghosted."
   ghosting_target_off: "&wYou are no longer ghosted."
+  no_streakers: "&wNo streakers in this heat."
 
 success:
   saved: "&sValue has been saved."
@@ -288,6 +289,8 @@ info:
   bume_boolean_settings_title: "&2Boolean Toggles:"
   bume_setting: "&1- %setting%: &2%value%"
   bume_all_settings_default: "&2All settings are at vanilla default values"
+  streaker_message_indiv: "&1• &2%name%"
+  streaker_message_title: "&1--- Streakers for &2%heatname% &1---"
 hover:
   click_to_add: "Click to add"
   click_to_delete: "Click to delete"

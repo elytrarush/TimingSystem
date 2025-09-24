@@ -5,6 +5,8 @@ import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ReadyCheckManager;
 import me.makkuusen.timing.system.participant.Streaker;
+import me.makkuusen.timing.system.theme.messages.*;
+import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.database.TSDatabase;
@@ -21,13 +23,6 @@ import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
-import me.makkuusen.timing.system.theme.messages.Broadcast;
-import me.makkuusen.timing.system.theme.messages.Error;
-import me.makkuusen.timing.system.theme.messages.Hover;
-import me.makkuusen.timing.system.theme.messages.Info;
-import me.makkuusen.timing.system.theme.messages.Success;
-import me.makkuusen.timing.system.theme.messages.TextButton;
-import me.makkuusen.timing.system.theme.messages.Word;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -438,7 +433,7 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("add streaker")
     @CommandCompletion("@heat @players")
-    @CommandPermission("%permissionheat_add_driver")
+    @CommandPermission("%permissionheat_add_streaker")
     public static void onHeatAddStreaker(Player sender, Heat heat, String playerName) {
         TPlayer tPlayer = TSDatabase.getPlayer(playerName);
         if (tPlayer == null) {
@@ -496,7 +491,7 @@ public class CommandHeat extends BaseCommand {
 
     @Subcommand("delete streaker")
     @CommandCompletion("@heat @players")
-    @CommandPermission("%permissionheat_removedriver")
+    @CommandPermission("%permissionheat_removestreaker")
     public static void onHeatRemoveStreaker(Player sender, Heat heat, String playerName) {
         TPlayer tPlayer = TSDatabase.getPlayer(playerName);
         if (tPlayer == null) {
@@ -606,12 +601,12 @@ public class CommandHeat extends BaseCommand {
     @CommandCompletion("@heat")
     @CommandPermission("%permissionheat_info")
     public static void onHeatStreakers(Player sender, Heat heat) {
-        sender.sendMessage("§1--- Streakers for §2" + heat.getName() + " §1---");
+        Text.send(sender, Info.STREAKER_MESSAGE_TITLE, "%heatname%", heat.getName());
         if (heat.getStreakers().isEmpty()) {
-            sender.sendMessage("§7No streakers in this heat.");
+            Text.send(sender, Warning.NO_STREAKERS);
         } else {
             for (Streaker streaker : heat.getStreakers().values()) {
-                sender.sendMessage("§2• §f" + streaker.getTPlayer().getName());
+                Text.send(sender, Info.STREAKER_MESSAGE_INDIV, "%name%", streaker.getTPlayer().getName());
             }
         }
     }
