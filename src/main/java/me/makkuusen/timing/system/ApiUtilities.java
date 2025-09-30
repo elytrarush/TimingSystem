@@ -709,7 +709,7 @@ public class ApiUtilities {
         } else if (track.isElytraTrack()) {
             chain.sync(() -> {
                 ItemStack chest = player.getInventory().getChestplate();
-                if (chest == null || chest.getType() == Material.AIR) {
+                if (chest.isEmpty()) {
                     giveElytra(player);
                 } else if (chest.getItemMeta().hasCustomModelData() && chest.getType() == Material.ELYTRA && chest.getItemMeta().getCustomModelData() == 747) {
                     giveElytra(player);
