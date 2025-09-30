@@ -210,6 +210,30 @@ public class CommandTrackEdit extends BaseCommand {
         player.sendMessage(response);
     }
 
+    @Subcommand("checkpoint rockets")
+    @CommandCompletion("<index> <amount>")
+    @CommandPermission("%permissiontrackedit_region")
+    public static void onCheckpointRockets(Player player, int index, int amount) {
+        var track = TrackEditor.getPlayerTrackSelection(player.getUniqueId());
+        if (track == null) {
+            Text.send(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+            return;
+        }
+        if (index <= 0) {
+            Text.send(player, Error.NO_ZERO_INDEX);
+            return;
+        }
+        var checkpoints = track.getTrackRegions().getCheckpoints(index);
+        if (checkpoints.isEmpty()) {
+            Text.send(player, Error.NOTHING_TO_REMOVE);
+            return;
+        }
+        for (TrackRegion cp : checkpoints) {
+            cp.setRocketReward(amount);
+        }
+        Text.send(player, Success.SAVED);
+    }
+
     @Subcommand("item")
     @CommandCompletion("@track")
     @CommandPermission("%permissiontrackedit_item")

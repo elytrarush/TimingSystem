@@ -133,6 +133,9 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         if (previousVersion < 9) {
             Version9.updateMySQL();
         }
+        if (previousVersion < 10) {
+            Version10.updateMySQL();
+        }
     }
 
 
@@ -227,6 +230,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       `minP` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
                       `maxP` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
                       `spawn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                                            `rocketReward` int(11) NOT NULL DEFAULT 0,
                       `isRemoved` tinyint(1) NOT NULL,
                       PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");

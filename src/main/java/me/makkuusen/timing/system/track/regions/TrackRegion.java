@@ -25,6 +25,8 @@ public abstract class TrackRegion {
     private Location spawnLocation;
     private Location minP;
     private Location maxP;
+    @Getter
+    private int rocketReward = 0;
 
     public TrackRegion(DbRow data) {
         id = data.getInt("id");
@@ -34,6 +36,11 @@ public abstract class TrackRegion {
         spawnLocation = ApiUtilities.stringToLocation(data.getString("spawn"));
         minP = ApiUtilities.stringToLocation(data.getString("minP"));
         maxP = ApiUtilities.stringToLocation(data.getString("maxP"));
+        try {
+            rocketReward = data.getInt("rocketReward");
+        } catch (Exception ignored) {
+            rocketReward = 0;
+        }
     }
 
     public TrackRegion(long id, long trackId, int regionIndex, RegionType regionType, Location spawnLocation, Location minP, Location maxP) {
@@ -70,6 +77,12 @@ public abstract class TrackRegion {
     public void setSpawn(Location spawn) {
         this.spawnLocation = spawn;
         TimingSystem.getTrackDatabase().trackRegionSet(id, "spawn", ApiUtilities.locationToString(spawn));
+    }
+
+    public void setRocketReward(int amount) {
+        if (amount < 0) amount = 0;
+        this.rocketReward = amount;
+        TimingSystem.getTrackDatabase().trackRegionSet(id, "rocketReward", amount);
     }
 
     abstract boolean hasEqualBounds(TrackRegion other);

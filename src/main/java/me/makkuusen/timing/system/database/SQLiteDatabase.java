@@ -94,6 +94,9 @@ public class SQLiteDatabase extends MySQLDatabase {
         if (previousVersion < 9) {
             Version9.updateSQLite();
         }
+        if (previousVersion < 10) {
+            Version10.updateSQLite();
+        }
     }
 
 
@@ -182,6 +185,7 @@ public class SQLiteDatabase extends MySQLDatabase {
                           `minP` TEXT DEFAULT NULL,
                           `maxP` TEXT DEFAULT NULL,
                           `spawn` TEXT NOT NULL,
+                          `rocketReward` INTEGER NOT NULL DEFAULT 0,
                           `isRemoved` INTEGER NOT NULL
                         );""");
 

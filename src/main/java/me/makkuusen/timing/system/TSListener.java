@@ -43,6 +43,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.time.Instant;
 import java.util.*;
@@ -123,6 +124,7 @@ public class TSListener implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
         TimeTrialController.playerLeavingMap(e.getEntity().getUniqueId());
+        clearTemporaryRockets(e.getEntity());
     }
 
     @EventHandler
@@ -143,6 +145,7 @@ public class TSListener implements Listener {
             if (ApiUtilities.hasBoatUtilsEffects(event.getPlayer())) {
                 ApiUtilities.removeBoatUtilsEffects(event.getPlayer());
             }
+            clearTemporaryRockets(event.getPlayer());
         }
     }
 
@@ -150,6 +153,7 @@ public class TSListener implements Listener {
     public void onPlayerLeave(PlayerQuitEvent e) {
         TimeTrialController.playerLeavingMap(e.getPlayer().getUniqueId());
         BoatUtilsManager.clearPlayerModes(e.getPlayer().getUniqueId());
+        clearTemporaryRockets(e.getPlayer());
 
         if (TimeTrialController.timeTrialSessions.containsKey(e.getPlayer().getUniqueId()) && e.getReason() != PlayerQuitEvent.QuitReason.TIMED_OUT) {
             var ttSession = TimeTrialController.timeTrialSessions.get(e.getPlayer().getUniqueId());
@@ -427,8 +431,11 @@ public class TSListener implements Listener {
                 ApiUtilities.removeBoatUtilsEffects(player);
                 timeTrial.playerResetMap();
             }
-
         }
+        if (!player.isGliding()) {
+            clearTemporaryRockets(player);
+        }
+             
     }
 
     @EventHandler
@@ -536,6 +543,7 @@ public class TSListener implements Listener {
                 if (r.contains(player.getLocation())) {
                     if (timeTrial.getLatestCheckpoint() != 0) {
                         timeTrial.playerRestartMap();
+                        clearTemporaryRockets(player);
                         return;
                     }
                 }
@@ -545,6 +553,7 @@ public class TSListener implements Listener {
                 if (r.contains(player.getLocation())) {
                     if (timeTrial.getLatestCheckpoint() != 0) {
                         timeTrial.playerEndedMap();
+                        clearTemporaryRockets(player);
                         return;
                     }
                 }
@@ -564,6 +573,7 @@ public class TSListener implements Listener {
                     }
                     ApiUtilities.teleportPlayerAndSpawnBoat(player, track, maybeRegion.get().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
                 }
+                clearTemporaryRockets(player);
                 return;
             }
         }
@@ -615,9 +625,33 @@ public class TSListener implements Listener {
         for (TrackRegion checkpoint : track.getTrackRegions().getCheckpoints(nextCheckpoint)) {
             if (checkpoint.contains(player.getLocation())){
                 timeTrial.playerPassingNextCheckpoint();
+                if (checkpoint.getRocketReward() > 0) {
+                    giveTemporaryRockets(player, checkpoint.getRocketReward());
+                }
             }
         }
     }
+
+    private static void giveTemporaryRockets(Player player, int amount) {
+        if (amount <= 0) return;
+        var inv = player.getInventory();
+        var rockets = new ItemStack(Material.FIREWORK_ROCKET, amount);
+        inv.addItem(rockets);
+    }
+
+    private static void clearTemporaryRockets(Player player) {
+        // Remove up to count fireworks from inventory
+        var inv = player.getInventory();
+        
+        for (ItemStack item : inv.getContents()) {
+            if (item == null) continue;
+            if (item.getType() == Material.FIREWORK_ROCKET) {
+                item.setAmount(0);
+            }
+        }
+    }
+
+    
 
     private static void handleHeat(Driver driver, Player player) {
         Heat heat = driver.getHeat();
@@ -718,6 +752,7 @@ public class TSListener implements Listener {
                     TrackRegion region;
                     region = maybeRegion.orElseGet(() -> track.getTrackRegions().getStart().get());
                     performInHeatReset(driver);
+                    clearTemporaryRockets(player);
                     return;
                 }
             }
@@ -749,6 +784,11 @@ public class TSListener implements Listener {
                 }
 
                 new DriverPassCheckpointEvent(driver, lap, maybeCheckpoint.get(), TimingSystem.currentTime).callEvent();
+                // Grant rockets on checkpoint if configured
+                var rr = maybeCheckpoint.get().getRocketReward();
+                if (rr > 0) {
+                    giveTemporaryRockets(player, rr);
+                }
             } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() > lap.getNextCheckpoint()) {
                 if (!track.getTrackOptions().hasOption(TrackOption.NO_RESET_ON_FUTURE_CHECKPOINT)) {
                     performInHeatReset(driver);
