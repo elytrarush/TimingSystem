@@ -57,7 +57,7 @@ public abstract class TrackPageGui extends BaseGui {
             this.filter = new TrackFilter();
         }
         this.trackSort = tPlayer.getTrackSort() == null ? TrackSort.WEIGHT : tPlayer.getTrackSort();
-        this.trackType = tPlayer.getTrackType() == null ? Track.TrackType.BOAT : tPlayer.getTrackType();
+        this.trackType = Track.TrackType.ELYTRA;
         this.isMedal = tPlayer.isMedal();
         update();
     }
@@ -182,20 +182,20 @@ public abstract class TrackPageGui extends BaseGui {
         ItemStack previous = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName(Text.get(tPlayer, Gui.PREVIOUS_PAGE)).build();
         ItemStack next = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setName(Text.get(tPlayer, Gui.NEXT_PAGE)).build();
 
-        Material trackMaterial = Material.OAK_BOAT;
-        if (trackType == Track.TrackType.ELYTRA){
-            trackMaterial = Material.ELYTRA;
+        Material trackMaterial = Material.ELYTRA;
+        if (trackType == Track.TrackType.BOAT){
+            trackMaterial = Material.OAK_BOAT;
         } else if (trackType == Track.TrackType.PARKOUR){
             trackMaterial = Material.BIG_DRIPLEAF;
         }
-        ItemStack current = new ItemBuilder(trackMaterial).setName(Text.get(tPlayer, Gui.CHANGE_TRACK_TYPE)).build();
+        ItemStack current = new ItemBuilder(trackMaterial).setName("").build();
 
         if (page > 0) {
             setItem(getPageButton(previous, page - 1), slot - 1);
         }
 
         current.setAmount(page + 1);
-        setItem(getTrackTypeButton(current), slot);
+        // setItem(getTrackTypeButton(current), slot);
         setItem(getPageButton(current, page), slot);
 
         if (page < maxPage) {
