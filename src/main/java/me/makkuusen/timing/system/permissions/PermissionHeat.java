@@ -24,7 +24,9 @@ public enum PermissionHeat implements Permissions {
     REMOVEDRIVER,
     QUIT,
     SORT_TT,
-    SORT_RANDOM;
+    SORT_RANDOM,
+    ADD_STREAKER,
+    REMOVESTREAKER;
 
     @Override
     public String getNode() {

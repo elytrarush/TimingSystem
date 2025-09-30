@@ -9,6 +9,7 @@ import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.events.HeatFinishEvent;
 import me.makkuusen.timing.system.api.events.driver.DriverPlacedOnGrid;
 import me.makkuusen.timing.system.database.EventDatabase;
+import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.event.Event;
 import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.event.EventResults;
@@ -17,11 +18,13 @@ import me.makkuusen.timing.system.loneliness.LonelinessController;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.participant.Participant;
+import me.makkuusen.timing.system.participant.Streaker;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.track.locations.TrackLocation;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -46,6 +49,7 @@ public class Heat {
     private Instant endTime;
     private HeatState heatState;
     private HashMap<UUID, Driver> drivers = new HashMap<>();
+    private HashMap<UUID, Streaker> streakers = new HashMap<>();
     private GridManager gridManager;
     private List<Driver> startPositions = new ArrayList<>();
     private List<Driver> livePositions = new ArrayList<>();
@@ -387,8 +391,64 @@ public class Heat {
         return true;
     }
 
+    public void addStreaker(UUID uuid) {
+        streakers.put(uuid, new Streaker(TSDatabase.getPlayer(uuid)));
+        if (!event.getSpectators().containsKey(uuid)) {
+            event.addSpectator(uuid);
+        }
+        Player streaker = Bukkit.getPlayer(uuid);
+        if (streaker != null) {
+            LonelinessController.updatePlayersVisibility(streaker);
+            LonelinessController.updatePlayerVisibility(streaker);
+        }
+        updateAllParticipantVisibility();
+    }
+
+    public boolean removeStreaker(UUID uuid) {
+        if (streakers.containsKey(uuid)) {
+            streakers.remove(uuid);
+            Player streaker = Bukkit.getPlayer(uuid);
+            if (streaker != null) {
+                LonelinessController.updatePlayersVisibility(streaker);
+                if (!LonelinessController.unghost(uuid)) {
+                    LonelinessController.updatePlayerVisibility(streaker);
+                }
+            } else {
+                LonelinessController.unghost(uuid);
+            }
+            updateAllParticipantVisibility();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isStreaking(UUID uuid) {
+        return streakers.containsKey(uuid);
+    }
+
+    public HashMap<UUID, Streaker> getStreakers() {
+        return streakers;
+    }
+
+    private void updateAllParticipantVisibility() {
+        for (Driver driver : drivers.values()) {
+            if (driver.getTPlayer().getPlayer() != null) {
+                LonelinessController.updatePlayersVisibility(driver.getTPlayer().getPlayer());
+                LonelinessController.updatePlayerVisibility(driver.getTPlayer().getPlayer());
+            }
+        }
+        for (Streaker streaker : streakers.values()) {
+            if (streaker.getTPlayer().getPlayer() != null) {
+                LonelinessController.updatePlayersVisibility(streaker.getTPlayer().getPlayer());
+                LonelinessController.updatePlayerVisibility(streaker.getTPlayer().getPlayer());
+            }
+        }
+    }
+
     public List<Participant> getParticipants() {
-        return new ArrayList<>(getEvent().getSpectators().values());
+        List<Participant> participants = new ArrayList<>(getEvent().getSpectators().values());
+        participants.addAll(streakers.values());
+        return participants;
     }
 
     public void updateScoreboard() {

@@ -6,6 +6,7 @@ import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.Spectator;
+import me.makkuusen.timing.system.participant.Streaker;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
@@ -39,6 +40,15 @@ public class SpectatorScoreboard {
                 updateScoreBoard(spec);
             }
         }
+        
+        for (Streaker streaker : heat.getStreakers().values()) {
+            Driver driver = heat.getDrivers().get(streaker.getTPlayer().getUniqueId());
+            if (driver == null) {
+                updateScoreBoard(streaker);
+            } else if (driver.isDisqualified()) {
+                updateScoreBoard(streaker);
+            }
+        }
     }
 
     private void updateScoreBoard(Spectator spec) {
@@ -48,6 +58,16 @@ public class SpectatorScoreboard {
             lines = normalScoreboard(spec.getTPlayer());
             setTitle(spec.getTPlayer());
             spec.getTPlayer().setScoreBoardLines(lines);
+        }
+    }
+
+    private void updateScoreBoard(Streaker streaker) {
+        if (streaker.getTPlayer().getPlayer() != null) {
+            streaker.getTPlayer().initScoreboard();
+            List<Component> lines;
+            lines = normalScoreboard(streaker.getTPlayer());
+            setTitle(streaker.getTPlayer());
+            streaker.getTPlayer().setScoreBoardLines(lines);
         }
     }
 
@@ -68,6 +88,9 @@ public class SpectatorScoreboard {
     public void removeScoreboards() {
         for (Spectator spec : heat.getEvent().getSpectators().values()) {
             spec.getTPlayer().clearScoreboard();
+        }
+        for (Streaker streaker : heat.getStreakers().values()) {
+            streaker.getTPlayer().clearScoreboard();
         }
     }
 

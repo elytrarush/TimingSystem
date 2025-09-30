@@ -777,7 +777,7 @@ public class ApiUtilities {
                 Text.send(player, Error.TRACK_IS_CLOSED);
                 return;
             }
-            TimingSystemAPI.teleportPlayerAndSpawnBoat(player, track, track.getSpawnLocation());
+            tt.playerResetMap();
             return;
         }
 

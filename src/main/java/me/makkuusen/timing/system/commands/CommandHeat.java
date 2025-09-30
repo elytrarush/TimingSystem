@@ -4,6 +4,9 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.ReadyCheckManager;
+import me.makkuusen.timing.system.participant.Streaker;
+import me.makkuusen.timing.system.theme.messages.*;
+import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.database.EventDatabase;
 import me.makkuusen.timing.system.database.TSDatabase;
@@ -20,13 +23,6 @@ import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.round.Round;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
-import me.makkuusen.timing.system.theme.messages.Broadcast;
-import me.makkuusen.timing.system.theme.messages.Error;
-import me.makkuusen.timing.system.theme.messages.Hover;
-import me.makkuusen.timing.system.theme.messages.Info;
-import me.makkuusen.timing.system.theme.messages.Success;
-import me.makkuusen.timing.system.theme.messages.TextButton;
-import me.makkuusen.timing.system.theme.messages.Word;
 import me.makkuusen.timing.system.timetrial.TimeTrialFinish;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -435,6 +431,25 @@ public class CommandHeat extends BaseCommand {
         Text.send(player, Success.HEAT_REVERSED_GRID, "%percent%", String.valueOf(percentage));
     }
 
+    @Subcommand("add streaker")
+    @CommandCompletion("@heat @players")
+    @CommandPermission("%permissionheat_add_streaker")
+    public static void onHeatAddStreaker(Player sender, Heat heat, String playerName) {
+        TPlayer tPlayer = TSDatabase.getPlayer(playerName);
+        if (tPlayer == null) {
+            Text.send(sender, Error.PLAYER_NOT_FOUND);
+            return;
+        }
+
+        if (heat.isStreaking(tPlayer.getUniqueId())) {
+            Text.send(sender, Error.PLAYER_ALREADY_IN_ROUND);
+            return;
+        }
+
+        heat.addStreaker(tPlayer.getUniqueId());
+        Text.send(sender, Success.ADDED_DRIVER, "%player%", tPlayer.getName());
+    }
+
     @Subcommand("add")
     @CommandCompletion("@heat @players")
     @CommandPermission("%permissionheat_add_driver")
@@ -473,6 +488,24 @@ public class CommandHeat extends BaseCommand {
         Text.send(sender, Error.FAILED_TO_ADD_DRIVER);
     }
 
+
+    @Subcommand("delete streaker")
+    @CommandCompletion("@heat @players")
+    @CommandPermission("%permissionheat_removestreaker")
+    public static void onHeatRemoveStreaker(Player sender, Heat heat, String playerName) {
+        TPlayer tPlayer = TSDatabase.getPlayer(playerName);
+        if (tPlayer == null) {
+            Text.send(sender, Error.PLAYER_NOT_FOUND);
+            return;
+        }
+        if (!heat.isStreaking(tPlayer.getUniqueId())) {
+            Text.send(sender, Error.PLAYER_NOT_FOUND);
+            return;
+        }
+        
+        heat.removeStreaker(tPlayer.getUniqueId());
+        Text.send(sender, Success.DRIVER_REMOVED, "%player%", tPlayer.getName());
+    }
 
     @Subcommand("delete driver")
     @CommandCompletion("@heat @players")
@@ -564,6 +597,19 @@ public class CommandHeat extends BaseCommand {
         Text.send(player, Error.FAILED_TO_ABORT_HEAT);
     }
 
+    @Subcommand("streakers")
+    @CommandCompletion("@heat")
+    @CommandPermission("%permissionheat_info")
+    public static void onHeatStreakers(Player sender, Heat heat) {
+        Text.send(sender, Info.STREAKER_MESSAGE_TITLE, "%heatname%", heat.getName());
+        if (heat.getStreakers().isEmpty()) {
+            Text.send(sender, Warning.NO_STREAKERS);
+        } else {
+            for (Streaker streaker : heat.getStreakers().values()) {
+                Text.send(sender, Info.STREAKER_MESSAGE_INDIV, "%name%", streaker.getTPlayer().getName());
+            }
+        }
+    }
 
     @Subcommand("add alldrivers")
     @CommandCompletion("@heat")
