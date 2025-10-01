@@ -426,11 +426,12 @@ public class TSListener implements Listener {
             } else if (player.getInventory().getBoots() != null && player.getInventory().getBoots().containsEnchantment(Enchantment.SOUL_SPEED) && track.getTrackOptions().hasOption(TrackOption.NO_SOUL_SPEED)) {
                 Text.send(player, Error.NO_SOUL_SPEED);
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
-            } else if (!BoatUtilsManager.isPlayerUsingCorrectMode(player, track)) {
-                Text.send(player, Error.WRONG_BOAT_UTILS_MODE);
-                ApiUtilities.removeBoatUtilsEffects(player);
-                timeTrial.playerResetMap();
-            }
+            } 
+            // else if (!BoatUtilsManager.isPlayerUsingCorrectMode(player, track)) {
+            //     Text.send(player, Error.WRONG_BOAT_UTILS_MODE);
+            //     ApiUtilities.removeBoatUtilsEffects(player);
+            //     timeTrial.playerResetMap();
+            // }
         }
         if (!player.isGliding()) {
             clearTemporaryRockets(player);
