@@ -17,6 +17,7 @@ import me.makkuusen.timing.system.listeners.ReadyCheckListener;
 import me.makkuusen.timing.system.loneliness.LonelinessController;
 import me.makkuusen.timing.system.papi.TimingSystemPlaceholder;
 import me.makkuusen.timing.system.permissions.*;
+import me.makkuusen.timing.system.replay.ReplayIntegration;
 import me.makkuusen.timing.system.theme.TSColor;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
@@ -131,6 +132,8 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandUnghost());
         manager.registerCommand(new CommandBoatUtilsModeEdit());
         taskChainFactory = BukkitTaskChainFactory.create(this);
+
+    ReplayIntegration.getInstance().enable(this);
 
         database = configuration.getDatabaseType();
         eventDatabase = configuration.getDatabaseType();

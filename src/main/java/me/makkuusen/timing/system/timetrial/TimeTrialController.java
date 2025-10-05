@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.timetrial;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.events.TimeTrialAttemptEvent;
+import me.makkuusen.timing.system.replay.ReplayIntegration;
 import me.makkuusen.timing.system.track.Track;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -28,6 +29,7 @@ public class TimeTrialController {
             var eventTimeTrialAttempt = new TimeTrialAttemptEvent(Bukkit.getPlayer(uuid), attempt);
             Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialAttempt);
         }
+        ReplayIntegration.getInstance().abandonAttempt(uuid);
         TimeTrialController.timeTrials.remove(uuid);
         me.makkuusen.timing.system.boatutils.BoatUtilsManager.clearPlayerModes(uuid);
     }
@@ -44,6 +46,7 @@ public class TimeTrialController {
             Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialAttempt);
         }
         ApiUtilities.msgConsole(player.getName() + " has cancelled run on " + TimeTrialController.timeTrials.get(player.getUniqueId()).getTrack().getDisplayName());
+        ReplayIntegration.getInstance().abandonAttempt(player.getUniqueId());
         TimeTrialController.timeTrials.remove(player.getUniqueId());
         me.makkuusen.timing.system.boatutils.BoatUtilsManager.clearPlayerModes(player.getUniqueId());
     }

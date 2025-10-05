@@ -9,6 +9,7 @@ import me.makkuusen.timing.system.api.TimingSystemAPI;
 import me.makkuusen.timing.system.api.events.TimeTrialAttemptEvent;
 import me.makkuusen.timing.system.api.events.TimeTrialFinishEvent;
 import me.makkuusen.timing.system.api.events.TimeTrialStartEvent;
+import me.makkuusen.timing.system.replay.ReplayIntegration;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.Error;
@@ -166,6 +167,7 @@ public class TimeTrial {
             var eventTimeTrialAttempt = new TimeTrialAttemptEvent(tPlayer.getPlayer(), attempt);
             Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialAttempt);
         }
+        ReplayIntegration.getInstance().abandonAttempt(tPlayer.getUniqueId());
         TimeTrialController.timeTrials.remove(tPlayer.getUniqueId());
         ApiUtilities.teleportPlayerAndSpawnBoat(tPlayer.getPlayer(), track, track.getSpawnLocation());
         ApiUtilities.msgConsole(tPlayer.getName() + " has been reset on " + track.getDisplayName());
@@ -195,6 +197,7 @@ public class TimeTrial {
         Bukkit.getServer().getPluginManager().callEvent(eventTimeTrialStart);
 
         TimeTrialController.timeTrials.put(tPlayer.getUniqueId(), this);
+        ReplayIntegration.getInstance().startRecording(player, track);
         ApiUtilities.msgConsole(tPlayer.getName() + " started on " + track.getDisplayName());
     }
 
@@ -202,10 +205,13 @@ public class TimeTrial {
         Instant endTime = TimingSystem.currentTime;
         Player player = tPlayer.getPlayer();
 
-        if (validateFinish(player)) {
+        boolean validFinish = validateFinish(player);
+        if (validFinish) {
             long timeTrialTime = ApiUtilities.getRoundedToTick(getTimeSinceStart(endTime));
             saveAndAnnounceFinish(player, timeTrialTime);
             ApiUtilities.msgConsole(player.getName() + " finished " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrialTime));
+        } else {
+            ReplayIntegration.getInstance().abandonAttempt(player.getUniqueId());
         }
         TimeTrialController.timeTrials.remove(player.getUniqueId());
     }
@@ -214,10 +220,13 @@ public class TimeTrial {
         Instant endTime = TimingSystem.currentTime;
         Player player = tPlayer.getPlayer();
 
-        if (validateFinish(player)){
+        boolean validFinish = validateFinish(player);
+        if (validFinish){
             long timeTrialTime = ApiUtilities.getRoundedToTick(getTimeSinceStart(endTime));
             saveAndAnnounceFinish(player, timeTrialTime);
             ApiUtilities.msgConsole(player.getName() + " finished " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrialTime));
+        } else {
+            ReplayIntegration.getInstance().abandonAttempt(player.getUniqueId());
         }
 
         if (!track.isOpen() && !tPlayer.getSettings().isOverride()) {
@@ -257,6 +266,7 @@ public class TimeTrial {
         this.lagStart = false;
         this.lagEnd = false;
         this.lagStartTime = null;
+        ReplayIntegration.getInstance().startRecording(tPlayer.getPlayer(), track);
     }
 
     private void saveAndAnnounceFinish(Player player, long timeTrialTime) {
@@ -264,6 +274,7 @@ public class TimeTrial {
         Component finishMessage;
         Component medalMessage = null;
         TimeTrialFinish finish;
+        boolean newPersonalBest = false;
         if (bestFinish == null) {
             //First finish
             finish = newBestFinish(player, timeTrialTime, -1);
@@ -273,6 +284,7 @@ public class TimeTrial {
                 Medals prevMedal = track.getTrackMedals().getMedal(0);
                 medalMessage = track.getTrackMedals().getMedalMessage(track.getTimeTrials(), player.hasResourcePack(), prevMedal, timeTrialTime, track.getDisplayName());
             }
+            newPersonalBest = true;
         } else if (timeTrialTime < bestFinish.getTime()) {
 
             // Temporary fix to make TimingSystemTrackMerge integrate a little better.
@@ -283,6 +295,7 @@ public class TimeTrial {
                 finish = newBestFinish(player, timeTrialTime, oldFinish.getTime());
                 finishMessage = Text.get(player, Info.TIME_TRIAL_NEW_RECORD, "%track%", track.getDisplayName(), "%time%", ApiUtilities.formatAsTime(timeTrialTime), "%delta%", ApiUtilities.formatAsPersonalGap(oldFinish.getTime() - timeTrialTime), "%oldPos%", oldPos.toString(), "%pos%", recordTrack.getTimeTrials().getPlayerTopListPosition(tPlayer).toString());
                 finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, oldFinish, finishMessage);
+                newPersonalBest = true;
             } else {
                 //New personal best
                 var oldPos = track.getTimeTrials().getCachedPlayerPosition(tPlayer);
@@ -295,6 +308,7 @@ public class TimeTrial {
                 if (TimingSystem.configuration.isMedalsAddOnEnabled()) {
                     medalMessage = track.getTrackMedals().getMedalMessage(track.getTimeTrials(), player.hasResourcePack(), prevMedal, timeTrialTime, track.getDisplayName());
                 }
+                newPersonalBest = true;
             }
         } else {
             //Finish no improvement
@@ -303,6 +317,8 @@ public class TimeTrial {
             finishMessage = tPlayer.getTheme().getCheckpointHovers(finish, track.getTimeTrials().getBestFinish(tPlayer), finishMessage);
 
         }
+
+        ReplayIntegration.getInstance().completeAttempt(player, track, timeTrialTime, newPersonalBest);
 
         player.sendMessage(finishMessage);
         if (TimingSystem.configuration.isMedalsAddOnEnabled() && medalMessage != null) {
