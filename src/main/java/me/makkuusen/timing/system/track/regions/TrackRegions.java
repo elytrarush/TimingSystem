@@ -7,6 +7,7 @@ import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.options.CheckpointGlowManager;
 import org.bukkit.Location;
 
 import java.sql.SQLException;
@@ -72,6 +73,7 @@ public class TrackRegions {
             }
             if (isTrackBoundaryChange(region.getRegionType())) {
                 track.setDateChanged();
+                CheckpointGlowManager.invalidateCache(track.getId());
             }
         } else {
             remove(region);
@@ -93,6 +95,7 @@ public class TrackRegions {
             }
             if (isTrackBoundaryChange(regionType)) {
                 track.setDateChanged();
+                CheckpointGlowManager.invalidateCache(track.getId());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -116,6 +119,7 @@ public class TrackRegions {
             }
             if (isTrackBoundaryChange(region.getRegionType())) {
                 track.setDateChanged();
+                CheckpointGlowManager.invalidateCache(track.getId());
             }
             return true;
         }

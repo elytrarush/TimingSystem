@@ -24,6 +24,7 @@ import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.editor.TrackEditor;
+import me.makkuusen.timing.system.track.options.CheckpointGlowManager;
 import me.makkuusen.timing.system.track.options.TrackOption;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
@@ -790,11 +791,13 @@ public class TSListener implements Listener {
                 if (rr > 0) {
                     giveTemporaryRockets(player, rr);
                 }
+                CheckpointGlowManager.updateGlow(player, track, lap.getNextCheckpoint());
             } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() > lap.getNextCheckpoint()) {
                 if (!track.getTrackOptions().hasOption(TrackOption.NO_RESET_ON_FUTURE_CHECKPOINT)) {
                     performInHeatReset(driver);
                     Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
                 }
+                CheckpointGlowManager.updateGlow(player, track, lap.getNextCheckpoint());
             }
         }
     }

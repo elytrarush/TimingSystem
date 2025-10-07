@@ -17,6 +17,7 @@ import me.makkuusen.timing.system.theme.messages.Info;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.medals.Medals;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
+import me.makkuusen.timing.system.track.options.CheckpointGlowManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -56,7 +57,6 @@ public class TimeTrial {
         this.tPlayer = player;
     }
 
-
     public long getBestTime() {
         if (bestFinish == null) {
             return -1;
@@ -72,7 +72,7 @@ public class TimeTrial {
     }
 
     private boolean hasNotPassedAllCheckpoints() {
-        return checkpoints.size() != track.getNumberOfCheckpoints();
+    return checkpoints.size() != track.getNumberOfCheckpoints();
     }
 
     public int getNextCheckpoint() {
@@ -87,7 +87,7 @@ public class TimeTrial {
     }
 
     public int getLatestCheckpoint() {
-        return checkpoints.size();
+    return checkpoints.size();
     }
 
     public long getCheckpointTime(int checkpoint) {
@@ -135,6 +135,7 @@ public class TimeTrial {
     public void playerPassingLagStart() {
         Player player = tPlayer.getPlayer();
         if (tPlayer.getSettings().isVerbose() && (player.isOp() || player.hasPermission("timingsystem.packs.trackadmin"))) {
+        CheckpointGlowManager.updateGlow(player, track, getNextCheckpoint());
             Text.send(player, Info.TIME_TRIAL_LAG_START, "%time%", ApiUtilities.formatAsTime(ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime))));
         }
     }
@@ -145,8 +146,10 @@ public class TimeTrial {
             Text.send(player, Info.TIME_TRIAL_LAG_END, "%time%", ApiUtilities.formatAsTime(ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime))));
         }
     }
+        
 
     public void playerPassingNextCheckpoint() {
+        CheckpointGlowManager.updateGlow(tPlayer.getPlayer(), track, getNextCheckpoint());
         passNextCheckpoint(TimingSystem.currentTime);
         long timeSinceStart = ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime));
         if (tPlayer.getSettings().isVerbose()) {

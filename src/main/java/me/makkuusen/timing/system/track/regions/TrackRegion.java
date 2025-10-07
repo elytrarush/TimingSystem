@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.track.options.CheckpointGlowManager;
 import org.bukkit.Location;
 
 @Getter
@@ -67,22 +68,26 @@ public abstract class TrackRegion {
     public void setMinP(Location minP) {
         this.minP = minP;
         TimingSystem.getTrackDatabase().trackRegionSet(id, "minP", ApiUtilities.locationToString(minP));
+        CheckpointGlowManager.invalidateCache(trackId);
     }
 
     public void setMaxP(Location maxP) {
         this.maxP = maxP;
         TimingSystem.getTrackDatabase().trackRegionSet(id, "maxP", ApiUtilities.locationToString(maxP));
+        CheckpointGlowManager.invalidateCache(trackId);
     }
 
     public void setSpawn(Location spawn) {
         this.spawnLocation = spawn;
         TimingSystem.getTrackDatabase().trackRegionSet(id, "spawn", ApiUtilities.locationToString(spawn));
+        CheckpointGlowManager.invalidateCache(trackId);
     }
 
     public void setRocketReward(int amount) {
         if (amount < 0) amount = 0;
         this.rocketReward = amount;
         TimingSystem.getTrackDatabase().trackRegionSet(id, "rocketReward", amount);
+        CheckpointGlowManager.invalidateCache(trackId);
     }
 
     abstract boolean hasEqualBounds(TrackRegion other);

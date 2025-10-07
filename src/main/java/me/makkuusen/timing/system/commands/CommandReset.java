@@ -14,6 +14,7 @@ import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.locations.TrackLocation;
+import me.makkuusen.timing.system.track.options.CheckpointGlowManager;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -86,15 +87,19 @@ public class CommandReset extends BaseCommand {
                 driver.getState() == DriverState.RUNNING) {
             resetToTrackSpawn(driver);
             driver.setState(DriverState.RESET);
+            refreshCheckpointGlow(driver);
             return;
         }
 
         if (driver.getState() == DriverState.RUNNING) {
             resetToCheckpoint(driver);
+            refreshCheckpointGlow(driver);
         } else if (driver.getState() == DriverState.STARTING) {
             resetToGrid(driver);
+            refreshCheckpointGlow(driver);
         } else if (driver.getState() == DriverState.RESET) {
             resetToTrackSpawn(driver);
+            refreshCheckpointGlow(driver);
         }
     }
 
@@ -119,6 +124,15 @@ public class CommandReset extends BaseCommand {
     private static void resetToTrackSpawn(Driver driver) {
         Location spawnLocation = driver.getHeat().getEvent().getTrack().getSpawnLocation();
         teleportPlayerToLocation(driver, spawnLocation);
+    }
+
+    private static void refreshCheckpointGlow(Driver driver) {
+        var player = driver.getTPlayer().getPlayer();
+        if (player == null) {
+            return;
+        }
+        var track = driver.getHeat().getEvent().getTrack();
+        CheckpointGlowManager.updateGlow(player, track, driver.getCurrentLap() == null ? 1 : driver.getCurrentLap().getNextCheckpoint());
     }
 
     private static Location getStartLineLocation(Driver driver) {

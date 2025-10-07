@@ -5,6 +5,7 @@ import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.events.TimeTrialAttemptEvent;
 import me.makkuusen.timing.system.replay.ReplayIntegration;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.options.CheckpointGlowManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -32,6 +33,7 @@ public class TimeTrialController {
         ReplayIntegration.getInstance().abandonAttempt(uuid);
         TimeTrialController.timeTrials.remove(uuid);
         me.makkuusen.timing.system.boatutils.BoatUtilsManager.clearPlayerModes(uuid);
+        CheckpointGlowManager.clear(uuid);
     }
 
     public static void playerCancelMap(Player player) {
@@ -49,5 +51,6 @@ public class TimeTrialController {
         ReplayIntegration.getInstance().abandonAttempt(player.getUniqueId());
         TimeTrialController.timeTrials.remove(player.getUniqueId());
         me.makkuusen.timing.system.boatutils.BoatUtilsManager.clearPlayerModes(player.getUniqueId());
+        CheckpointGlowManager.clear(player);
     }
 }

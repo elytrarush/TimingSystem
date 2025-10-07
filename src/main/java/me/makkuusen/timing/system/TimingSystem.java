@@ -23,6 +23,7 @@ import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.timetrial.TimeTrialListener;
 import me.makkuusen.timing.system.tplayer.TPlayer;
+import me.makkuusen.timing.system.track.options.CheckpointGlowManager;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
@@ -210,6 +211,7 @@ public class TimingSystem extends JavaPlugin {
     @Override
     public void onDisable() {
         EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(Heat::onShutdown);
+    CheckpointGlowManager.shutdown();
         logger.info("Version " + getPluginMeta().getVersion() + " disabled.");
         scoreboardLibrary.close();
         TSListener.plugin = null;

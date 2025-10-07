@@ -12,6 +12,7 @@ import me.makkuusen.timing.system.heat.DriverScoreboard;
 import me.makkuusen.timing.system.heat.Heat;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.round.QualificationRound;
+import me.makkuusen.timing.system.track.options.CheckpointGlowManager;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
@@ -75,6 +76,7 @@ public class Driver extends Participant implements Comparable<Driver> {
 
         DriverFinishHeatEvent e = new DriverFinishHeatEvent(this);
         e.callEvent();
+        CheckpointGlowManager.clear(getTPlayer().getPlayer());
     }
 
     public void disqualify() {
@@ -83,6 +85,7 @@ public class Driver extends Participant implements Comparable<Driver> {
 
         DriverDisqualifyEvent e = new DriverDisqualifyEvent(this);
         e.callEvent();
+        CheckpointGlowManager.clear(getTPlayer().getPlayer());
     }
 
     public void start() {
@@ -158,6 +161,7 @@ public class Driver extends Participant implements Comparable<Driver> {
         removeScoreboard();
         scoreboard = null;
         setPits(0);
+        CheckpointGlowManager.clear(getTPlayer().getPlayer());
     }
 
     public void removeScoreboard() {
@@ -189,6 +193,10 @@ public class Driver extends Participant implements Comparable<Driver> {
 
     private void newLap() {
         laps.add(new Lap(this, heat.getEvent().getTrack()));
+        var player = getTPlayer().getPlayer();
+        if (player != null) {
+            CheckpointGlowManager.updateGlow(player, heat.getEvent().getTrack(), getCurrentLap().getNextCheckpoint());
+        }
         DriverNewLapEvent e = new DriverNewLapEvent(this, getCurrentLap());
         e.callEvent();
     }
@@ -262,6 +270,7 @@ public class Driver extends Participant implements Comparable<Driver> {
         if (scoreboard != null) {
             scoreboard.removeScoreboard();
         }
+        CheckpointGlowManager.clear(getTPlayer().getPlayer());
     }
 
     public Instant getTimeStamp(int lap, int checkpoint) {
