@@ -58,7 +58,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 9;
+            int databaseVersion = 11;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(?, ?);",
                         databaseVersion,
@@ -135,6 +135,9 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         }
         if (previousVersion < 10) {
             Version10.updateMySQL();
+        }
+        if (previousVersion < 11) {
+            Version11.updateMySQL();
         }
     }
 
@@ -231,6 +234,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       `maxP` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
                       `spawn` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                                             `rocketReward` int(11) NOT NULL DEFAULT 0,
+                                            `highlight` tinyint(1) NOT NULL DEFAULT 0,
                       `isRemoved` tinyint(1) NOT NULL,
                       PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;""");

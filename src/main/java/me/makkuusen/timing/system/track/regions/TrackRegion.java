@@ -27,6 +27,7 @@ public abstract class TrackRegion {
     private Location maxP;
     @Getter
     private int rocketReward = 0;
+    private boolean highlightEnabled = false;
 
     public TrackRegion(DbRow data) {
         id = data.getInt("id");
@@ -40,6 +41,15 @@ public abstract class TrackRegion {
             rocketReward = data.getInt("rocketReward");
         } catch (Exception ignored) {
             rocketReward = 0;
+        }
+
+        Object highlight = data.get("highlight");
+        if (highlight instanceof Boolean bool) {
+            highlightEnabled = bool;
+        } else if (highlight instanceof Number number) {
+            highlightEnabled = number.intValue() != 0;
+        } else if (highlight instanceof String string) {
+            highlightEnabled = string.equalsIgnoreCase("true") || string.equals("1");
         }
     }
 
@@ -85,10 +95,20 @@ public abstract class TrackRegion {
         TimingSystem.getTrackDatabase().trackRegionSet(id, "rocketReward", amount);
     }
 
+    public boolean isHighlightEnabled() {
+        return highlightEnabled;
+    }
+
+    public void setHighlightEnabled(boolean highlightEnabled) {
+        this.highlightEnabled = highlightEnabled;
+        TimingSystem.getTrackDatabase().trackRegionSet(id, "highlight", highlightEnabled ? 1 : 0);
+        RocketAreaHighlighter.refresh(this);
+    }
+
     abstract boolean hasEqualBounds(TrackRegion other);
 
     public enum RegionType {
-        START, END, PIT, CHECKPOINT, RESET, INPIT, LAGSTART, LAGEND
+        START, END, PIT, CHECKPOINT, RESET, INPIT, LAGSTART, LAGEND, ROCKET_AREA
     }
 
     public enum RegionShape {

@@ -24,6 +24,7 @@ public class TrackRegions {
 
     public void add(TrackRegion trackRegion) {
         regions.add(trackRegion);
+        RocketAreaHighlighter.refresh(trackRegion);
     }
 
     public boolean hasRegion(TrackRegion.RegionType regionType) {
@@ -73,6 +74,7 @@ public class TrackRegions {
             if (isTrackBoundaryChange(region.getRegionType())) {
                 track.setDateChanged();
             }
+            RocketAreaHighlighter.refresh(region);
         } else {
             remove(region);
             return create(region.getRegionType(), region.getRegionIndex(), selection, location);
@@ -103,6 +105,7 @@ public class TrackRegions {
 
     public boolean remove(TrackRegion region) {
         if (regions.contains(region)) {
+            RocketAreaHighlighter.remove(region);
             var regionId = region.getId();
             TrackDatabase.removeTrackRegion(region);
             regions.remove(region);

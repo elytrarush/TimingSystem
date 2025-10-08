@@ -47,6 +47,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
 
 import static me.makkuusen.timing.system.commands.CommandReset.performInHeatReset;
 import static me.makkuusen.timing.system.loneliness.DeltaGhostingController.checkDeltas;
@@ -618,6 +619,8 @@ public class TSListener implements Listener {
             }
         }
 
+        handleRocketAreaRewards(player, track, region -> timeTrial.tryClaimRocketArea(region));
+
         // Check for next checkpoint in current map
         int nextCheckpoint = timeTrial.getNextCheckpoint();
         if (nextCheckpoint == timeTrial.getLatestCheckpoint()) {
@@ -648,6 +651,28 @@ public class TSListener implements Listener {
             if (item == null) continue;
             if (item.getType() == Material.FIREWORK_ROCKET) {
                 item.setAmount(0);
+            }
+        }
+    }
+
+    private static void handleRocketAreaRewards(Player player, Track track, Function<TrackRegion, Boolean> claimStrategy) {
+        if (track == null) {
+            return;
+        }
+        var rocketAreas = track.getTrackRegions().getRegions(TrackRegion.RegionType.ROCKET_AREA);
+        if (rocketAreas.isEmpty()) {
+            return;
+        }
+        var location = player.getLocation();
+        for (TrackRegion rocketArea : rocketAreas) {
+            if (rocketArea.getRocketReward() <= 0) {
+                continue;
+            }
+            if (!rocketArea.contains(location)) {
+                continue;
+            }
+            if (Boolean.TRUE.equals(claimStrategy.apply(rocketArea))) {
+                giveTemporaryRockets(player, rocketArea.getRocketReward());
             }
         }
     }
@@ -691,7 +716,6 @@ public class TSListener implements Listener {
                     return;
                 } else if (driver.getCurrentLap() != null && driver.getCurrentLap().getLatestCheckpoint() != 0) {
                     if (!driver.getCurrentLap().hasPassedAllCheckpoints()) {
-                        int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
                         performInHeatReset(driver);
                         Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
 
@@ -712,7 +736,6 @@ public class TSListener implements Listener {
                 if (r.contains(player.getLocation())) {
                     if (driver.getCurrentLap() != null) {
                         if (!(driver.getCurrentLap().hasPassedAllCheckpoints())) {
-                            int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
                             performInHeatReset(driver);
                             Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
                             return;
@@ -733,6 +756,8 @@ public class TSListener implements Listener {
                 return;
             }
 
+            handleRocketAreaRewards(player, track, region -> lap.tryClaimRocketArea(region));
+
             if (driver.getHeat().getRound() instanceof FinalRound) {
                 // Check for pitstop
                 for (var r : track.getTrackRegions().getRegions(TrackRegion.RegionType.PIT)) {
@@ -748,10 +773,6 @@ public class TSListener implements Listener {
             // Check for reset
             for (TrackRegion r : track.getTrackRegions().getRegions(TrackRegion.RegionType.RESET)) {
                 if (r.contains(player.getLocation())) {
-                    var maybeRegion = track.getTrackRegions().getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
-
-                    TrackRegion region;
-                    region = maybeRegion.orElseGet(() -> track.getTrackRegions().getStart().get());
                     performInHeatReset(driver);
                     clearTemporaryRockets(player);
                     return;

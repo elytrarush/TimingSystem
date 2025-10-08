@@ -234,6 +234,50 @@ public class CommandTrackEdit extends BaseCommand {
         Text.send(player, Success.SAVED);
     }
 
+    @Subcommand("rocketarea rockets")
+    @CommandCompletion("<index> <amount>")
+    @CommandPermission("%permissiontrackedit_region")
+    public static void onRocketAreaRockets(Player player, int index, int amount) {
+        var track = TrackEditor.getPlayerTrackSelection(player.getUniqueId());
+        if (track == null) {
+            Text.send(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+            return;
+        }
+        if (index <= 0) {
+            Text.send(player, Error.NO_ZERO_INDEX);
+            return;
+        }
+        var maybeRegion = track.getTrackRegions().getRegion(TrackRegion.RegionType.ROCKET_AREA, index);
+        if (maybeRegion.isEmpty()) {
+            Text.send(player, Error.NOTHING_TO_REMOVE);
+            return;
+        }
+        maybeRegion.get().setRocketReward(amount);
+        Text.send(player, Success.SAVED);
+    }
+
+    @Subcommand("rocketarea highlight")
+    @CommandCompletion("<index> true|false")
+    @CommandPermission("%permissiontrackedit_region")
+    public static void onRocketAreaHighlight(Player player, int index, boolean enabled) {
+        var track = TrackEditor.getPlayerTrackSelection(player.getUniqueId());
+        if (track == null) {
+            Text.send(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+            return;
+        }
+        if (index <= 0) {
+            Text.send(player, Error.NO_ZERO_INDEX);
+            return;
+        }
+        var maybeRegion = track.getTrackRegions().getRegion(TrackRegion.RegionType.ROCKET_AREA, index);
+        if (maybeRegion.isEmpty()) {
+            Text.send(player, Error.NOTHING_TO_REMOVE);
+            return;
+        }
+        maybeRegion.get().setHighlightEnabled(enabled);
+        Text.send(player, Success.SAVED);
+    }
+
     @Subcommand("item")
     @CommandCompletion("@track")
     @CommandPermission("%permissiontrackedit_item")

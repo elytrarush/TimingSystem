@@ -28,8 +28,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class TimeTrial {
 
@@ -46,6 +48,7 @@ public class TimeTrial {
     private boolean lagEnd = false;
     @Getter
     private TimeTrialFinish bestFinish;
+    private final Set<Integer> rocketAreasClaimed = new HashSet<>();
 
 
     public TimeTrial(Track track, TPlayer player) {
@@ -267,6 +270,7 @@ public class TimeTrial {
         this.lagEnd = false;
         this.lagStartTime = null;
         ReplayIntegration.getInstance().startRecording(tPlayer.getPlayer(), track);
+        rocketAreasClaimed.clear();
     }
 
     private void saveAndAnnounceFinish(Player player, long timeTrialTime) {
@@ -383,5 +387,12 @@ public class TimeTrial {
             }
         }
         return Component.empty();
+    }
+
+    public boolean tryClaimRocketArea(TrackRegion region) {
+        if (region == null || region.getRocketReward() <= 0) {
+            return false;
+        }
+        return rocketAreasClaimed.add(region.getId());
     }
 }

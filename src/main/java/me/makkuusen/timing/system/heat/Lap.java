@@ -10,11 +10,14 @@ import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.track.Track;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -27,6 +30,7 @@ public class Lap implements Comparable<Lap> {
     private Instant lapStart;
     private boolean pitted;
     private ArrayList<Instant> checkpoints = new ArrayList<>();
+    private final Set<Integer> rocketAreasClaimed = new HashSet<>();
 
     public Lap(Driver driver, Track track) {
         this.heatId = driver.getHeat().getId();
@@ -78,6 +82,13 @@ public class Lap implements Comparable<Lap> {
             return lapStart;
         }
         return checkpoints.get(checkpoint - 1);
+    }
+
+    public boolean tryClaimRocketArea(TrackRegion region) {
+        if (region == null || region.getRocketReward() <= 0) {
+            return false;
+        }
+        return rocketAreasClaimed.add(region.getId());
     }
 
     @Override
