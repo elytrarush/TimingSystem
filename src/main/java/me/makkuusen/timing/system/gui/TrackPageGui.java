@@ -235,12 +235,8 @@ public abstract class TrackPageGui extends BaseGui {
         //Filter TrackType
         var trackStream = tempTracks.stream().filter(Track::isWeightAboveZero).filter(track -> track.isTrackType(trackType));
 
-        //Filter Tags
-        if (filter.isAnyMatch()) {
-            tempTracks = trackStream.filter(track -> track.getTrackTags().hasAnyTag(filter)).collect(Collectors.toList());
-        } else {
-            tempTracks = trackStream.filter(track -> track.getTrackTags().hasAllTags(filter)).collect(Collectors.toList());
-        }
+        //Filter Tags - use OR semantics (match any selected tag)
+        tempTracks = trackStream.filter(track -> track.getTrackTags().hasAnyTag(filter)).collect(Collectors.toList());
 
         maxPage = tempTracks.size() / TRACKS_PER_PAGE;
         if (tempTracks.size() % TRACKS_PER_PAGE == 0 && !tempTracks.isEmpty()) {
