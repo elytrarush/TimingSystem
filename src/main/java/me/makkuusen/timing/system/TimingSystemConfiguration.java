@@ -41,6 +41,11 @@ public class TimingSystemConfiguration {
     private boolean dynamicDiamondPosEnabled;
     private final List<DynamicPos> dynamicDiamondPoses = new ArrayList<>();
 
+    // Discord integration
+    private final boolean discordEnabled;
+    private final String discordWebhookUrl;
+    private final String discordRecordMessage;
+
     private final Object databaseType;
 
     TimingSystemConfiguration(TimingSystem plugin) {
@@ -81,6 +86,11 @@ public class TimingSystemConfiguration {
         if (dynamicDiamondPosEnabled) {
             loadDynamicDiamondPoses(plugin, plugin.getConfig().getDouble("medalsaddon.dynamicDiamondPos.cap", 0.075));
         }
+
+        // Discord integration
+        discordEnabled = plugin.getConfig().getBoolean("discord.enabled", false);
+        discordWebhookUrl = plugin.getConfig().getString("discord.webhookUrl", "");
+        discordRecordMessage = plugin.getConfig().getString("discord.message", ":trophy: New record on {track}! {player} — {time} (−{delta})");
 
         databaseType = switch (databaseTypeRaw.toLowerCase()) {
             case "sqlite" -> new SQLiteDatabase();

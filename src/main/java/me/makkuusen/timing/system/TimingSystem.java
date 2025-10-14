@@ -18,6 +18,7 @@ import me.makkuusen.timing.system.loneliness.LonelinessController;
 import me.makkuusen.timing.system.papi.TimingSystemPlaceholder;
 import me.makkuusen.timing.system.permissions.*;
 import me.makkuusen.timing.system.replay.ReplayIntegration;
+import me.makkuusen.timing.system.network.discord.DiscordNotifier;
 import me.makkuusen.timing.system.theme.TSColor;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
@@ -70,7 +71,7 @@ public class TimingSystem extends JavaPlugin {
 
         plugin = this;
         logger = getLogger();
-        configuration = new TimingSystemConfiguration(this);
+    configuration = new TimingSystemConfiguration(this);
         TSListener.plugin = this;
         Text.plugin = this;
         languageManager = new LanguageManager(this, "en_us");
@@ -133,7 +134,9 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandBoatUtilsModeEdit());
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
-    ReplayIntegration.getInstance().enable(this);
+        // Initialize optional subsystems
+        DiscordNotifier.enable(this);
+        ReplayIntegration.getInstance().enable(this);
 
         database = configuration.getDatabaseType();
         eventDatabase = configuration.getDatabaseType();
@@ -209,6 +212,7 @@ public class TimingSystem extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        DiscordNotifier.disable();
         EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(Heat::onShutdown);
         logger.info("Version " + getPluginMeta().getVersion() + " disabled.");
         scoreboardLibrary.close();

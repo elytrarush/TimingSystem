@@ -17,6 +17,7 @@ import me.makkuusen.timing.system.theme.messages.Info;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.medals.Medals;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
+import me.makkuusen.timing.system.network.discord.DiscordNotifier;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -275,6 +276,12 @@ public class TimeTrial {
         Component medalMessage = null;
         TimeTrialFinish finish;
         boolean newPersonalBest = false;
+        // Capture track top time before potentially inserting a new best for this player
+        Long beforeTopTime = null;
+        try {
+            var beforeTop = track.getTimeTrials().getTopList(1);
+            if (!beforeTop.isEmpty()) beforeTopTime = beforeTop.get(0).getTime();
+        } catch (Exception ignored) {}
         if (bestFinish == null) {
             //First finish
             finish = newBestFinish(player, timeTrialTime, -1);
@@ -319,6 +326,19 @@ public class TimeTrial {
         }
 
         ReplayIntegration.getInstance().completeAttempt(player, track, timeTrialTime, newPersonalBest);
+
+        // If this finish resulted in a new global track record, post to Discord
+        try {
+            var afterTop = track.getTimeTrials().getTopList(1);
+            if (!afterTop.isEmpty()) {
+                var top = afterTop.get(0);
+                boolean isNewRecord = (beforeTopTime == null) || (top.getTime() < beforeTopTime);
+                if (isNewRecord && top.getTime() == timeTrialTime) {
+                    String delta = beforeTopTime == null ? null : ApiUtilities.formatAsPersonalGap(beforeTopTime - timeTrialTime);
+                    DiscordNotifier.sendNewRecord(track.getDisplayName(), player.getName(), ApiUtilities.formatAsTime(timeTrialTime), delta);
+                }
+            }
+        } catch (Exception ignored) {}
 
         player.sendMessage(finishMessage);
         if (TimingSystem.configuration.isMedalsAddOnEnabled() && medalMessage != null) {
