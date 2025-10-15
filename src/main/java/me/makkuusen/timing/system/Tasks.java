@@ -13,6 +13,7 @@ import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.ActionBar;
+import me.makkuusen.timing.system.timetrial.LeaderboardHud;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
@@ -61,8 +62,13 @@ public class Tasks {
                 if (TimeTrialController.timeTrials.containsKey(p.getUniqueId())) {
                     timeTrialTimer(p);
                 } else {
-                    // Ensure HUD sidebar is hidden when leaving time trial
-                    me.makkuusen.timing.system.timetrial.LeaderboardHud.hide(p.getUniqueId());
+                    // When not in a time trial, always render overview HUD
+                    var tPlayer = TSDatabase.getPlayer(p);
+                    if (tPlayer != null) {
+                        LeaderboardHud.renderOverview(tPlayer);
+                    } else {
+                        LeaderboardHud.hide(p.getUniqueId());
+                    }
                     // Always hide our boss bar when not in a time trial or when alternative HUD is disabled
                     BossBarHud.hide(p);
                     var maybeDriver = EventDatabase.getDriverFromRunningHeat(p.getUniqueId());
@@ -219,9 +225,9 @@ public class Tasks {
 
         // Render optional leaderboard HUD as sidebar when enabled; otherwise hide it
         if (tPlayer.getSettings().isLeaderboardHud()) {
-            me.makkuusen.timing.system.timetrial.LeaderboardHud.render(tPlayer, timeTrial);
+            LeaderboardHud.render(tPlayer, timeTrial);
         } else {
-            me.makkuusen.timing.system.timetrial.LeaderboardHud.hide(player.getUniqueId());
+            LeaderboardHud.hide(player.getUniqueId());
         }
     }
 
