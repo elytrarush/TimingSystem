@@ -325,6 +325,8 @@ broadcast:
   click_to_reserve: "&b--> Click to sign up as reserve for &l%event%&r&b <--"
   click_to_join_race: "&b--> Click to join a race on &l%track%&r&b (%laps% laps) <--"
   click_to_spectate_event: "&a--> Click to spectate &l%event%&r&a <--"
+  new_track_record: "&b%player% set a new record on &l%track%&r&b: &l%time%"
+  new_track_record_delta: "&b%player% set a new record on &l%track%&r&b: &l%time% &r&b(&a-%delta%&b)"
   player_signed_event: "&b%player% signed up."
   player_reserve_event: "&b%player% signed as reserve."
   event_player_pit: "&2%player% &1completed pit: &2&l%pit%"

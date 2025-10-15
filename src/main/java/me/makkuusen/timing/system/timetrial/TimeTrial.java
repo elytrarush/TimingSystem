@@ -12,6 +12,7 @@ import me.makkuusen.timing.system.api.events.TimeTrialStartEvent;
 import me.makkuusen.timing.system.replay.ReplayIntegration;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
+import me.makkuusen.timing.system.theme.messages.Broadcast;
 import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Info;
 import me.makkuusen.timing.system.track.Track;
@@ -327,7 +328,7 @@ public class TimeTrial {
 
         ReplayIntegration.getInstance().completeAttempt(player, track, timeTrialTime, newPersonalBest);
 
-        // If this finish resulted in a new global track record, post to Discord
+        // If this finish resulted in a new global track record, announce to server and post to Discord
         try {
             var afterTop = track.getTimeTrials().getTopList(1);
             if (!afterTop.isEmpty()) {
@@ -335,6 +336,23 @@ public class TimeTrial {
                 boolean isNewRecord = (beforeTopTime == null) || (top.getTime() < beforeTopTime);
                 if (isNewRecord && top.getTime() == timeTrialTime) {
                     String delta = beforeTopTime == null ? null : ApiUtilities.formatAsPersonalGap(beforeTopTime - timeTrialTime);
+                    // Broadcast to all online players using i18n
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        if (delta == null) {
+                            p.sendMessage(Text.get(p, Broadcast.NEW_TRACK_RECORD,
+                                "%track%", track.getDisplayName(),
+                                "%player%", player.getName(),
+                                "%time%", ApiUtilities.formatAsTime(timeTrialTime)
+                            ));
+                        } else {
+                            p.sendMessage(Text.get(p, Broadcast.NEW_TRACK_RECORD_DELTA,
+                                "%track%", track.getDisplayName(),
+                                "%player%", player.getName(),
+                                "%time%", ApiUtilities.formatAsTime(timeTrialTime),
+                                "%delta%", delta
+                            ));
+                        }
+                    }
                     DiscordNotifier.sendNewRecord(track.getDisplayName(), player.getName(), ApiUtilities.formatAsTime(timeTrialTime), delta);
                 }
             }
