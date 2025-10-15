@@ -67,9 +67,16 @@ public class LeaderboardHud {
             // Player position
             .addDynamicLine(() -> {
                 int pos = track.getTimeTrials().getPlayerTopListPosition(tPlayer);
-                return pos > 0
-                    ? Component.text("Position: ").color(theme.getSecondary()).append(Component.text("#" + pos).color(theme.getSecondary()).decorate(TextDecoration.BOLD))
-                    : Component.text("Position: (-)").color(theme.getSecondary());
+                int totalPositions = track.getTimeTrials().getTopList().size();
+                if (totalPositions > 0) {
+                    return pos > 0
+                        ? Component.text("Position: ").color(theme.getSecondary())
+                            .append(Component.text(pos + "/" + totalPositions).color(theme.getSecondary()).decorate(TextDecoration.BOLD))
+                        : Component.text("Position: ").color(theme.getSecondary())
+                            .append(Component.text("(-/" + totalPositions + ")").color(theme.getSecondary()));
+                } else {
+                    return Component.text("Position: (-)").color(theme.getSecondary());
+                }
             })
             // Spacer
             .addBlankLine()
@@ -219,9 +226,16 @@ public class LeaderboardHud {
                 })
                 .addDynamicLine(() -> {
                     int pos = finalTrack.getTimeTrials().getPlayerTopListPosition(tPlayer);
-                    return pos > 0
-                        ? Component.text("Position: ").color(theme.getSecondary()).append(Component.text("#" + pos).color(theme.getSecondary()).decorate(TextDecoration.BOLD))
-                        : Component.text("Position: (-)").color(theme.getSecondary());
+                    int totalPositions = finalTrack.getTimeTrials().getTopList().size();
+                    if (totalPositions > 0) {
+                        return pos > 0
+                            ? Component.text("Position: ").color(theme.getSecondary())
+                                .append(Component.text(pos + "/" + totalPositions).color(theme.getSecondary()).decorate(TextDecoration.BOLD))
+                            : Component.text("Position: ").color(theme.getSecondary())
+                                .append(Component.text("(-/" + totalPositions + ")").color(theme.getSecondary()));
+                    } else {
+                        return Component.text("Position: (-)").color(theme.getSecondary());
+                    }
                 })
                 // Spacer and header for PB/WR checkpoint table
                 .addBlankLine()
