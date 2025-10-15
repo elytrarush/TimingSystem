@@ -61,6 +61,8 @@ public class Tasks {
                 if (TimeTrialController.timeTrials.containsKey(p.getUniqueId())) {
                     timeTrialTimer(p);
                 } else {
+                    // Ensure HUD sidebar is hidden when leaving time trial
+                    me.makkuusen.timing.system.timetrial.LeaderboardHud.hide(p.getUniqueId());
                     // Always hide our boss bar when not in a time trial or when alternative HUD is disabled
                     BossBarHud.hide(p);
                     var maybeDriver = EventDatabase.getDriverFromRunningHeat(p.getUniqueId());
@@ -213,6 +215,13 @@ public class Tasks {
             // Show timer in boss bar, and speed on the action bar
             BossBarHud.showTimer(player, mapTime, timeTrial.getBestTime(), theme, delta);
             sendSpeedOnActionBar(player);
+        }
+
+        // Render optional leaderboard HUD as sidebar when enabled; otherwise hide it
+        if (tPlayer.getSettings().isLeaderboardHud()) {
+            me.makkuusen.timing.system.timetrial.LeaderboardHud.render(tPlayer, timeTrial);
+        } else {
+            me.makkuusen.timing.system.timetrial.LeaderboardHud.hide(player.getUniqueId());
         }
     }
 

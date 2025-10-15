@@ -87,6 +87,28 @@ public class SettingsGui extends BaseGui {
         return button;
     }
 
+    public static GuiButton getLeaderboardHudButton(TPlayer tPlayer) {
+        var button = new GuiButton(new ItemBuilder(Material.WRITABLE_BOOK).setName(Text.get(tPlayer, Gui.TOGGLE_LEADERBOARD_HUD)).build());
+        button.setAction(() -> {
+            tPlayer.getSettings().toggleLeaderboardHud();
+            PlaySound.buttonClick(tPlayer);
+            new SettingsGui(tPlayer).show(tPlayer.getPlayer());
+        });
+        return button;
+    }
+
+    public static GuiButton getLeaderboardCompareButton(TPlayer tPlayer) {
+        var button = new GuiButton(new ItemBuilder(Material.COMPASS).setName(Text.get(tPlayer, Gui.TOGGLE_LEADERBOARD_COMPARE)).build());
+        button.setAction(() -> {
+            if (tPlayer.getSettings().isLeaderboardHud()) {
+                tPlayer.getSettings().toggleLeaderboardCompareRecord();
+                PlaySound.buttonClick(tPlayer);
+            }
+            new SettingsGui(tPlayer).show(tPlayer.getPlayer());
+        });
+        return button;
+    }
+
     private void setButtons(TPlayer tPlayer) {
         Player player = tPlayer.getPlayer();
         if (player != null && (player.isOp() || player.hasPermission("timingsystem.packs.trackadmin"))) {
@@ -104,6 +126,11 @@ public class SettingsGui extends BaseGui {
         setItem(getHeatLapsButton(tPlayer), 13);
         setItem(tPlayer.getSettings().isAlternativeHud() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 5);
         setItem(getAlternativeHudButton(tPlayer), 14);
-        setItem(getColorMenuButton(tPlayer), 15);
+    // Leaderboard HUD toggle and compare mode
+    setItem(tPlayer.getSettings().isLeaderboardHud() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 6);
+    setItem(getLeaderboardHudButton(tPlayer), 16);
+    setItem((tPlayer.getSettings().isLeaderboardHud() && tPlayer.getSettings().isLeaderboardCompareRecord()) ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 7);
+    setItem(getLeaderboardCompareButton(tPlayer), 17);
+    setItem(getColorMenuButton(tPlayer), 15);
     }
 }

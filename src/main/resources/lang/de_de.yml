@@ -15,354 +15,356 @@ Description: >
     %example% = Placeholder, do not touch.
 
 error:
-  generic: '&eEtwas ist schiefgelaufen.'
-  not_now: '&eSie können das gerade nicht tun.'
-  can_not: '&eDas können Sie nicht tun.'
-  only_players: '&eNur Spieler können diesen Befehl ausführen!'
-  world_not_loaded: '&eWelt ist nicht geladen.'
-  syntax: '&eFalsche Syntax.'
-  number_format: '&eWert konnte nicht geparst werden. Ist es eine Zahl?'
-  time_format: '&eSie müssen die Zeit korrekt formatieren, z.B. 2s [s=Sekunden, m=Minuten]'
-  color_format: '&eFarbe konnte nicht geparst werden. Ist es ein gültiger Hex-Code?'
-  length_exceeded: '&eName darf %length% Zeichen nicht überschreiten.'
-  name_format: '&eName darf nur Buchstaben, Leerzeichen oder Zahlen enthalten.'
-  selection: '&eIhre WorldEdit-Auswahl konnte nicht verwendet werden.'
-  no_zero_index: '&eIndex darf nicht 0 sein.'
-  nothing_to_remove: '&eNichts zu entfernen.'
-  nothing_to_restore: '&eNichts wiederherzustellen.'
-  player_not_found: '&eSpieler nicht gefunden.'
-  tracks_not_found: '&eKeine Strecken gefunden.'
-  regions_not_found: '&eKeine Regionen gefunden.'
-  page_not_found: '&eSeite nicht gefunden.'
-  item_not_found: '&eSie müssen ein Item in der Hand halten.'
-  tag_not_found: '&eTag nicht gefunden.'
-  round_not_found: '&eRunde nicht gefunden.'
-  heat_not_found: '&eHeat nicht gefunden.'
-  event_not_found: '&eEvent nicht gefunden.'
-  track_not_found_for_event: '&eStrecke für dieses Event nicht gefunden. /event set track <name>'
-  track_not_found_for_edit: '&eKeine Strecke ausgewählt. /trackedit select <name>'
-  race_not_found: '&eRennen nicht gefunden. Erstellen Sie eines mit /race create'
-  track_is_closed: '&eStrecke ist geschlossen.'
-  track_exists: '&eStrecke existiert bereits.'
-  round_not_finished: '&eRunde ist noch nicht abgeschlossen.'
-  qualification_not_supported: '&eQualifikation wird von dieser Strecke nicht unterstützt.'
-  event_already_started: '&eEvent hat bereits begonnen.'
-  heat_already_started: '&eHeat hat bereits begonnen.'
-  no_event_selected: '&eSie haben kein Event ausgewählt, /event select <name>'
-  already_signed: '&eSie sind bereits für %event% angemeldet.'
-  already_signed_race: '&eSie sind bereits für das Rennen angemeldet.'
-  player_already_in_round: '&eSpieler ist bereits in dieser Runde.'
-  failed_to_add_driver: '&eFahrer konnte nicht hinzugefügt werden.'
-  failed_to_teleport: '&eTeleportation fehlgeschlagen.'
-  failed_to_remove: '&eEntfernen fehlgeschlagen.'
-  failed_to_remove_tag: '&eTag konnte nicht entfernt werden.'
-  failed_to_remove_option: '&eOption konnte nicht entfernt werden.'
-  failed_to_remove_round: '&eRunde konnte nicht entfernt werden.'
-  failed_to_remove_heat: '&eHeat konnte nicht entfernt werden.'
-  failed_to_remove_drivers: '&eFahrer konnten nicht entfernt werden.'
-  failed_to_remove_event: '&eEvent konnte nicht entfernt werden, läuft ein Heat?'
-  failed_to_remove_driver: '&eFahrer konnte nicht entfernt werden.'
-  failed_to_disqualify_driver: '&eFahrer konnte nicht disqualifiziert werden.'
-  failed_to_add_tag: '&eTag konnte nicht hinzugefügt werden.'
-  failed_to_add_option: '&eOption konnte nicht hinzugefügt werden.'
-  failed_to_create_tag: '&eTag konnte nicht erstellt werden.'
-  failed_to_create_round: '&eRunde konnte nicht erstellt werden.'
-  failed_to_create_heat: '&eHeat konnte nicht erstellt werden.'
-  failed_to_create_event: '&eEvent konnte nicht erstellt werden.'
-  failed_to_finish_round: '&eRunde konnte nicht beendet werden.'
-  failed_to_finish_heat: '&eHeat konnte nicht beendet werden.'
-  failed_to_finish_event: '&eEvent konnte nicht beendet werden.'
-  failed_to_start_event: '&eEvent konnte nicht gestartet werden. Setup ist nicht abgeschlossen.'
-  failed_to_start_heat: '&eHeat konnte nicht gestartet werden.'
-  failed_to_load_heat: '&eHeat konnte nicht geladen werden.'
-  failed_to_reset_heat: '&eHeat konnte nicht zurückgesetzt werden.'
-  failed_to_abort_heat: '&eHeat konnte nicht abgebrochen werden.'
-  race_exists: '&eRennen existiert bereits.'
-  race_full: '&eRennen ist bereits voll.'
-  heat_full: '&eHeat ist bereits voll.'
-  add_driver_future_round: '&eSie können keine Fahrer zu einer zukünftigen Runde hinzufügen. Beenden Sie zuerst die aktuelle Runde.'
-  sort_drivers_future_round: '&eSie können Fahrer in einer zukünftigen Runde nicht sortieren. Beenden Sie zuerst die aktuelle Runde.'
-  invalid_track_type: '&eUngültiger Streckentyp.'
-  invalid_track_name: '&eUngültiger Streckenname.'
-  invalid_track_mode: '&eUngültiger Streckenmodus.'
-  invalid_name: '&eUngültiger Name.'
-  invalid_shortname: '&eUngültiger Name. Stellen Sie sicher, dass er 3-4 Zeichen lang und alphanumerisch ist.'
-  left_boat: '&eSie haben Ihr Boot verlassen und Ihr Zeitfahren wurde abgebrochen.'
-  race_in_progress: '&eEs findet derzeit ein Rennen auf %track% statt.'
-  no_hooking_others: '&eSie dürfen andere nicht angeln.'
-  no_fishing_others: '&eSie dürfen andere nicht fischen.'
-  no_elytra: '&eSie dürfen auf dieser Strecke keine Elytra tragen.'
-  stopped_flying: '&eSie haben aufgehört zu fliegen und Ihr Zeitfahren wurde beendet.'
-  no_potion_effects: '&eSie dürfen auf dieser Strecke keine Trankeffekte haben.'
-  no_riptide: '&eSie dürfen auf dieser Strecke nicht Riptide verwenden.'
-  no_soul_speed: '&eSie dürfen auf Ihren Stiefeln keine Seelengeschwindigkeit haben.'
-  no_creative: '&eSie dürfen nicht im Kreativmodus sein.'
-  no_game_mode_change: '&eIhr Zeitfahren wurde aufgrund eines Wechsels des Spielmodus abgebrochen.'
-  wrong_boat_utils_mode: '&eSie hatten nicht den richtigen BoatUtils-Modus aktiviert.'
-  lag_detected: '&eTimingSystem hat eine Verzögerung erkannt und Ihr Zeitfahren wurde leider ungültig.'
-  missed_checkpoints: '&eZeit ist ungültig, nicht alle Checkpoints wurden passiert!'
-  permission_denied: '&eBerechtigung verweigert!'
-  boat_utils_needed_for_race: '&eSie müssen das OpenBoatUtils-Mod installiert haben, um an diesem Rennen teilzunehmen. Download unter: https://modrinth.com/mod/openboatutils'
-  no_hex_color_in_ts_color: '&eSie können keine Hex-Farbcodes in /timingsystem color verwenden. Verwenden Sie stattdessen /timingsystem hexcolor.'
+  generic: "&eEtwas ist schiefgelaufen."
+  not_now: "&eSie können das gerade nicht tun."
+  can_not: "&eDas können Sie nicht tun."
+  only_players: "&eNur Spieler können diesen Befehl ausführen!"
+  world_not_loaded: "&eWelt ist nicht geladen."
+  syntax: "&eFalsche Syntax."
+  number_format: "&eWert konnte nicht geparst werden. Ist es eine Zahl?"
+  time_format: "&eSie müssen die Zeit korrekt formatieren, z.B. 2s [s=Sekunden, m=Minuten]"
+  color_format: "&eFarbe konnte nicht geparst werden. Ist es ein gültiger Hex-Code?"
+  length_exceeded: "&eName darf %length% Zeichen nicht überschreiten."
+  name_format: "&eName darf nur Buchstaben, Leerzeichen oder Zahlen enthalten."
+  selection: "&eIhre WorldEdit-Auswahl konnte nicht verwendet werden."
+  no_zero_index: "&eIndex darf nicht 0 sein."
+  nothing_to_remove: "&eNichts zu entfernen."
+  nothing_to_restore: "&eNichts wiederherzustellen."
+  player_not_found: "&eSpieler nicht gefunden."
+  tracks_not_found: "&eKeine Strecken gefunden."
+  regions_not_found: "&eKeine Regionen gefunden."
+  page_not_found: "&eSeite nicht gefunden."
+  item_not_found: "&eSie müssen ein Item in der Hand halten."
+  tag_not_found: "&eTag nicht gefunden."
+  round_not_found: "&eRunde nicht gefunden."
+  heat_not_found: "&eHeat nicht gefunden."
+  event_not_found: "&eEvent nicht gefunden."
+  track_not_found_for_event: "&eStrecke für dieses Event nicht gefunden. /event set track <name>"
+  track_not_found_for_edit: "&eKeine Strecke ausgewählt. /trackedit select <name>"
+  race_not_found: "&eRennen nicht gefunden. Erstellen Sie eines mit /race create"
+  track_is_closed: "&eStrecke ist geschlossen."
+  track_exists: "&eStrecke existiert bereits."
+  round_not_finished: "&eRunde ist noch nicht abgeschlossen."
+  qualification_not_supported: "&eQualifikation wird von dieser Strecke nicht unterstützt."
+  event_already_started: "&eEvent hat bereits begonnen."
+  heat_already_started: "&eHeat hat bereits begonnen."
+  no_event_selected: "&eSie haben kein Event ausgewählt, /event select <name>"
+  already_signed: "&eSie sind bereits für %event% angemeldet."
+  already_signed_race: "&eSie sind bereits für das Rennen angemeldet."
+  player_already_in_round: "&eSpieler ist bereits in dieser Runde."
+  failed_to_add_driver: "&eFahrer konnte nicht hinzugefügt werden."
+  failed_to_teleport: "&eTeleportation fehlgeschlagen."
+  failed_to_remove: "&eEntfernen fehlgeschlagen."
+  failed_to_remove_tag: "&eTag konnte nicht entfernt werden."
+  failed_to_remove_option: "&eOption konnte nicht entfernt werden."
+  failed_to_remove_round: "&eRunde konnte nicht entfernt werden."
+  failed_to_remove_heat: "&eHeat konnte nicht entfernt werden."
+  failed_to_remove_drivers: "&eFahrer konnten nicht entfernt werden."
+  failed_to_remove_event: "&eEvent konnte nicht entfernt werden, läuft ein Heat?"
+  failed_to_remove_driver: "&eFahrer konnte nicht entfernt werden."
+  failed_to_disqualify_driver: "&eFahrer konnte nicht disqualifiziert werden."
+  failed_to_add_tag: "&eTag konnte nicht hinzugefügt werden."
+  failed_to_add_option: "&eOption konnte nicht hinzugefügt werden."
+  failed_to_create_tag: "&eTag konnte nicht erstellt werden."
+  failed_to_create_round: "&eRunde konnte nicht erstellt werden."
+  failed_to_create_heat: "&eHeat konnte nicht erstellt werden."
+  failed_to_create_event: "&eEvent konnte nicht erstellt werden."
+  failed_to_finish_round: "&eRunde konnte nicht beendet werden."
+  failed_to_finish_heat: "&eHeat konnte nicht beendet werden."
+  failed_to_finish_event: "&eEvent konnte nicht beendet werden."
+  failed_to_start_event: "&eEvent konnte nicht gestartet werden. Setup ist nicht abgeschlossen."
+  failed_to_start_heat: "&eHeat konnte nicht gestartet werden."
+  failed_to_load_heat: "&eHeat konnte nicht geladen werden."
+  failed_to_reset_heat: "&eHeat konnte nicht zurückgesetzt werden."
+  failed_to_abort_heat: "&eHeat konnte nicht abgebrochen werden."
+  race_exists: "&eRennen existiert bereits."
+  race_full: "&eRennen ist bereits voll."
+  heat_full: "&eHeat ist bereits voll."
+  add_driver_future_round: "&eSie können keine Fahrer zu einer zukünftigen Runde hinzufügen. Beenden Sie zuerst die aktuelle Runde."
+  sort_drivers_future_round: "&eSie können Fahrer in einer zukünftigen Runde nicht sortieren. Beenden Sie zuerst die aktuelle Runde."
+  invalid_track_type: "&eUngültiger Streckentyp."
+  invalid_track_name: "&eUngültiger Streckenname."
+  invalid_track_mode: "&eUngültiger Streckenmodus."
+  invalid_name: "&eUngültiger Name."
+  invalid_shortname: "&eUngültiger Name. Stellen Sie sicher, dass er 3-4 Zeichen lang und alphanumerisch ist."
+  left_boat: "&eSie haben Ihr Boot verlassen und Ihr Zeitfahren wurde abgebrochen."
+  race_in_progress: "&eEs findet derzeit ein Rennen auf %track% statt."
+  no_hooking_others: "&eSie dürfen andere nicht angeln."
+  no_fishing_others: "&eSie dürfen andere nicht fischen."
+  no_elytra: "&eSie dürfen auf dieser Strecke keine Elytra tragen."
+  stopped_flying: "&eSie haben aufgehört zu fliegen und Ihr Zeitfahren wurde beendet."
+  no_potion_effects: "&eSie dürfen auf dieser Strecke keine Trankeffekte haben."
+  no_riptide: "&eSie dürfen auf dieser Strecke nicht Riptide verwenden."
+  no_soul_speed: "&eSie dürfen auf Ihren Stiefeln keine Seelengeschwindigkeit haben."
+  no_creative: "&eSie dürfen nicht im Kreativmodus sein."
+  no_game_mode_change: "&eIhr Zeitfahren wurde aufgrund eines Wechsels des Spielmodus abgebrochen."
+  wrong_boat_utils_mode: "&eSie hatten nicht den richtigen BoatUtils-Modus aktiviert."
+  lag_detected: "&eTimingSystem hat eine Verzögerung erkannt und Ihr Zeitfahren wurde leider ungültig."
+  missed_checkpoints: "&eZeit ist ungültig, nicht alle Checkpoints wurden passiert!"
+  permission_denied: "&eBerechtigung verweigert!"
+  boat_utils_needed_for_race: "&eSie müssen das OpenBoatUtils-Mod installiert haben, um an diesem Rennen teilzunehmen. Download unter: https://modrinth.com/mod/openboatutils"
+  no_hex_color_in_ts_color: "&eSie können keine Hex-Farbcodes in /timingsystem color verwenden. Verwenden Sie stattdessen /timingsystem hexcolor."
 
 warning:
   dangerous_command: "&wDieser Befehl ist gefährlich. Geben Sie '%command%' ein, um ihn trotzdem zu verwenden."
-  drivers_left_out: '&wAusgeschlossene Fahrer: '
-  no_longer_spectating: '&wSie sind nicht mehr Zuschauer bei %event%.'
-  no_longer_signed: '&wSie sind nicht mehr für %event% angemeldet.'
-  no_longer_reserve: '&wSie sind nicht mehr als Reserve für %event% angemeldet.'
-  player_no_longer_signed: '&w%player% ist nicht mehr für %event% angemeldet.'
-  player_no_longer_reserve: '&w%player% ist nicht mehr als Reserve für %event% angemeldet.'
-  track_requires_boat_utils: '&wDies erfordert die Verwendung des OpenBoatUtils-Fabric-Mods.'
-  track_requires_newer_boat_utils: '&wDies erfordert eine neuere Version des OpenBoatUtils-Fabric-Mods.'
-  confirm_command: '&wGeben Sie &o/%command%&r&w ein, um diesen Befehl auszuführen.'
-  ghosting_target_on: '&wSie sind jetzt unsichtbar.'
-  ghosting_target_off: '&wSie sind nicht mehr unsichtbar.'
+  drivers_left_out: "&wAusgeschlossene Fahrer: "
+  no_longer_spectating: "&wSie sind nicht mehr Zuschauer bei %event%."
+  no_longer_signed: "&wSie sind nicht mehr für %event% angemeldet."
+  no_longer_reserve: "&wSie sind nicht mehr als Reserve für %event% angemeldet."
+  player_no_longer_signed: "&w%player% ist nicht mehr für %event% angemeldet."
+  player_no_longer_reserve: "&w%player% ist nicht mehr als Reserve für %event% angemeldet."
+  track_requires_boat_utils: "&wDies erfordert die Verwendung des OpenBoatUtils-Fabric-Mods."
+  track_requires_newer_boat_utils: "&wDies erfordert eine neuere Version des OpenBoatUtils-Fabric-Mods."
+  confirm_command: "&wGeben Sie &o/%command%&r&w ein, um diesen Befehl auszuführen."
+  ghosting_target_on: "&wSie sind jetzt unsichtbar."
+  ghosting_target_off: "&wSie sind nicht mehr unsichtbar."
 
 success:
-  saved: '&sWert wurde gespeichert.'
-  created: '&sIhr Objekt wurde erstellt.'
-  created_tag: '&sTag %tag% wurde erstellt.'
-  created_track: '&sStrecke %track% wurde erstellt.'
-  created_round: '&sRunde %round% wurde erstellt.'
-  created_heat: '&sHeat für %round% erstellt.'
-  created_event: '&sEvent %event% wurde erstellt.'
-  added_tag: '&sTag %tag% wurde hinzugefügt.'
-  added_option: '&sOption %option% wurde hinzugefügt.'
-  adding_drivers: '&sFahrer werden zu %heat% hinzugefügt.'
-  added_driver: '&sFahrer hinzugefügt.'
-  added_all_drivers: '&sAlle online Spieler wurden hinzugefügt.'
-  updated_toggleable_values: '&1%value% wurden aktualisiert: '
-  removed: '&sIhr Objekt wurde entfernt.'
-  removed_best_finish: '&sBeste Zeit für %player% auf %track% entfernt.'
-  removed_all_finishes: '&sAlle Zeiten wurden entfernt.'
-  removed_tag: '&sTag wurde entfernt.'
-  removed_option: '&sOption wurde entfernt.'
-  removed_locations: '&sAlle %type% Orte wurden entfernt.'
-  removed_regions: '&sAlle %type% Regionen wurden entfernt.'
-  removed_track: '&s%track% wurde entfernt.'
-  removed_round: '&s%round% wurde entfernt.'
-  removed_heat: '&s%heat% wurde entfernt.'
-  removed_event: '&s%event% wurde entfernt.'
-  removed_drivers: '&sFahrer wurden entfernt.'
-  restored_locations: '&sOrte wurden wiederhergestellt.'
-  restored_regions: '&sRegionen wurden wiederhergestellt.'
-  time_trial_cancelled: '&sZeitfahren wurde abgebrochen.'
-  track_now_open: '&sStrecke ist jetzt offen.'
-  track_now_closed: '&sStrecke ist jetzt &egeschlossen&s.'
-  track_timetrial_enabled: '&sZeitfahren ist jetzt aktiviert.'
-  track_timetrial_disabled: '&sZeitfahren ist jetzt &edeaktiviert&s.'
-  track_moved: '&sStrecke wurde von %from% nach %to% verschoben.'
-  track_options_cleared: '&sAlle Optionen wurden gelöscht.'
-  track_options_new: '&sOptionen sind jetzt: %options%.'
-  teleport_to_track: '&1Teleportiert zu &2%track%.'
-  session_ended: '&sIhre Sitzung wurde beendet.'
-  session_started: '&sSitzung auf %track% gestartet.'
-  viewing_started: '&sAnsehen und Auswahl von %track% gestartet.'
-  viewing_ended: '&sAnsehen beendet.'
-  checkpoints_announcements_on: '&sCheckpoint-Ankündigungen sind jetzt aktiv.'
-  checkpoints_announcements_off: '&sCheckpoint-Ankündigungen sind jetzt deaktiviert.'
-  lonely_on: '&sEinsamer Modus ist jetzt aktiv.'
-  lonely_off: '&sEinsamer Modus ist jetzt deaktiviert.'
-  ghosting_on: '&sSpieler unsichtbar.'
-  ghosting_off: '&sSpieler nicht mehr unsichtbar.'
-  sound_on: '&sTon auf eingeschaltet.'
-  sound_off: '&sTon auf &eausgeschaltet&s.'
-  compact_scoreboard_on: '&sKompakte Anzeigetafel auf eingeschaltet.'
-  compact_scoreboard_off: '&sKompakte Anzeigetafel auf &eausgeschaltet&s.'
-  override_on: '&sÜberschreiben auf eingeschaltet.'
-  override_off: '&sÜberschreiben auf &eausgeschaltet&s.'
-  color_updated: 'Ihre Farbe wurde aktualisiert.'
-  round_finished: '&sRunde wurde beendet.'
-  event_finished: '&sEvent wurde beendet.'
-  race_finished: '&sRennen wurde beendet.'
-  heat_finished: '&sHeat wurde beendet.'
-  event_selected: '&sEvent ausgewählt.'
-  track_selected: '&sStrecke ausgewählt: &2%track%.'
-  no_track_selected: '&sKeine Strecke ausgewählt.'
-  event_started: '&sEvent gestartet.'
-  heat_countdown_started: '&sCountdown gestartet.'
-  heat_loaded: '&sHeat geladen.'
-  heat_reset: '&sHeat zurückgesetzt.'
-  heat_reversed_grid: '&sDie ersten %percent%% des Gitters wurden umgekehrt.'
-  heat_aborted: '&sSie haben den Heat abgebrochen.'
-  heat_sorted_by_time: '&sDer Heat wurde nach schnellsten Zeiten sortiert.'
-  heat_sorted_by_random: '&sDer Heat wurde zufällig sortiert.'
-  signs_now_open: '&sAnmeldungen sind jetzt offen.'
-  signs_now_closed: '&sAnmeldungen sind jetzt &egeschlossen&s.'
-  spectating: '&sSie sind jetzt Zuschauer bei %event%.'
-  signed: '&sSie sind jetzt für %event% angemeldet.'
-  reserve: '&sSie sind jetzt als Reserve für %event% angemeldet.'
-  signed_race: '&sSie sind jetzt für das Rennen angemeldet.'
-  player_signed: '&s%player% ist jetzt für %event% angemeldet.'
-  player_reserve: '&s%player% ist jetzt als Reserve für %event% angemeldet.'
-  driver_new_start_position: '&s%driver% startet jetzt von %pos%.'
-  driver_disqualified: '&sFahrer wurde disqualifiziert.'
-  driver_removed: '&sFahrer wurde entfernt.'
+  saved: "&sWert wurde gespeichert."
+  created: "&sIhr Objekt wurde erstellt."
+  created_tag: "&sTag %tag% wurde erstellt."
+  created_track: "&sStrecke %track% wurde erstellt."
+  created_round: "&sRunde %round% wurde erstellt."
+  created_heat: "&sHeat für %round% erstellt."
+  created_event: "&sEvent %event% wurde erstellt."
+  added_option: "&sOption %option% wurde hinzugefügt."
+  adding_drivers: "&sFahrer werden zu %heat% hinzugefügt."
+  added_driver: "&sFahrer hinzugefügt."
+  added_all_drivers: "&sAlle online Spieler wurden hinzugefügt."
+  updated_toggleable_values: "&1%value% wurden aktualisiert: "
+  removed: "&sIhr Objekt wurde entfernt."
+  removed_best_finish: "&sBeste Zeit für %player% auf %track% entfernt."
+  removed_all_finishes: "&sAlle Zeiten wurden entfernt."
+  removed_tag: "&sTag wurde entfernt."
+  removed_option: "&sOption wurde entfernt."
+  removed_locations: "&sAlle %type% Orte wurden entfernt."
+  removed_regions: "&sAlle %type% Regionen wurden entfernt."
+  removed_track: "&s%track% wurde entfernt."
+  removed_round: "&s%round% wurde entfernt."
+  removed_heat: "&s%heat% wurde entfernt."
+  removed_event: "&s%event% wurde entfernt."
+  removed_drivers: "&sFahrer wurden entfernt."
+  restored_locations: "&sOrte wurden wiederhergestellt."
+  restored_regions: "&sRegionen wurden wiederhergestellt."
+  time_trial_cancelled: "&sZeitfahren wurde abgebrochen."
+  track_now_open: "&sStrecke ist jetzt offen."
+  track_now_closed: "&sStrecke ist jetzt &egeschlossen&s."
+  track_timetrial_enabled: "&sZeitfahren ist jetzt aktiviert."
+  track_timetrial_disabled: "&sZeitfahren ist jetzt &edeaktiviert&s."
+  track_moved: "&sStrecke wurde von %from% nach %to% verschoben."
+  track_options_cleared: "&sAlle Optionen wurden gelöscht."
+  track_options_new: "&sOptionen sind jetzt: %options%."
+  teleport_to_track: "&1Teleportiert zu &2%track%."
+  session_ended: "&sIhre Sitzung wurde beendet."
+  session_started: "&sSitzung auf %track% gestartet."
+  viewing_started: "&sAnsehen und Auswahl von %track% gestartet."
+  viewing_ended: "&sAnsehen beendet."
+  checkpoints_announcements_on: "&sCheckpoint-Ankündigungen sind jetzt aktiv."
+  checkpoints_announcements_off: "&sCheckpoint-Ankündigungen sind jetzt deaktiviert."
+  lonely_on: "&sEinsamer Modus ist jetzt aktiv."
+  lonely_off: "&sEinsamer Modus ist jetzt deaktiviert."
+  ghosting_on: "&sSpieler unsichtbar."
+  ghosting_off: "&sSpieler nicht mehr unsichtbar."
+  sound_on: "&sTon auf eingeschaltet."
+  sound_off: "&sTon auf &eausgeschaltet&s."
+  compact_scoreboard_on: "&sKompakte Anzeigetafel auf eingeschaltet."
+  compact_scoreboard_off: "&sKompakte Anzeigetafel auf &eausgeschaltet&s."
+  override_on: "&sÜberschreiben auf eingeschaltet."
+  override_off: "&sÜberschreiben auf &eausgeschaltet&s."
+  color_updated: "Ihre Farbe wurde aktualisiert."
+  round_finished: "&sRunde wurde beendet."
+  event_finished: "&sEvent wurde beendet."
+  race_finished: "&sRennen wurde beendet."
+  heat_finished: "&sHeat wurde beendet."
+  event_selected: "&sEvent ausgewählt."
+  track_selected: "&sStrecke ausgewählt: &2%track%."
+  no_track_selected: "&sKeine Strecke ausgewählt."
+  event_started: "&sEvent gestartet."
+  heat_countdown_started: "&sCountdown gestartet."
+  heat_loaded: "&sHeat geladen."
+  heat_reset: "&sHeat zurückgesetzt."
+  heat_reversed_grid: "&sDie ersten %percent%% des Gitters wurden umgekehrt."
+  heat_aborted: "&sSie haben den Heat abgebrochen."
+  heat_sorted_by_time: "&sDer Heat wurde nach schnellsten Zeiten sortiert."
+  heat_sorted_by_random: "&sDer Heat wurde zufällig sortiert."
+  signs_now_open: "&sAnmeldungen sind jetzt offen."
+  signs_now_closed: "&sAnmeldungen sind jetzt &egeschlossen&s."
+  spectating: "&sSie sind jetzt Zuschauer bei %event%."
+  signed: "&sSie sind jetzt für %event% angemeldet."
+  reserve: "&sSie sind jetzt als Reserve für %event% angemeldet."
+  signed_race: "&sSie sind jetzt für das Rennen angemeldet."
+  player_signed: "&s%player% ist jetzt für %event% angemeldet."
+  player_reserve: "&s%player% ist jetzt als Reserve für %event% angemeldet."
+  driver_new_start_position: "&s%driver% startet jetzt von %pos%."
+  driver_disqualified: "&sFahrer wurde disqualifiziert."
+  driver_removed: "&sFahrer wurde entfernt."
 
 info:
-  page_current_of_max: '&1Seite &l&2%current% &r&1von &l&2%max%'
-  track_title: '&1--- &2Strecke: %name% (%id%) &1---'
-  track_times_title: '&1--- Zeiten für &2%track% &1---'
-  player_best_times_title: '&1--- &2%player% &1beste Zeiten auf &2%track% &1---'
-  player_recent_times_title: '&1--- &2%player% &1neueste Zeiten &1---'
-  player_stats_title: '&1--- &2%player%&1 Statistiken auf &2%track% &1---'
-  regions_title: '&1--- Regionen für &2%track% &1---'
-  locations_title: '&1--- Orte für &2%track% &1---'
-  ranked_title: '&1--- Rangliste ---'
-  rounds_title: '&1--- Runden für &2%event% &1---'
-  heats_title: '&1--- Heats für &2%event% &1---'
-  round_result_title: '&1--- Rundenresultat für Runde &2%round% &1---'
-  heat_result_title: '&1--- Heat-Ergebnis für Heat &2%heat% &1---'
-  player_heat_result_title: '&1--- Ergebnis für &2%player% &1in &2%heat% &1---'
-  player_heat_result_position: '&1Position: &2%pos%'
-  player_heat_result_start_position: '&1Startposition: &2%pos%'
-  player_heat_result_fastest_lap: '&1Schnellste Runde: &2%time%'
-  event_info_track: '&1Strecke: '
-  event_info_signs: '&1Anmeldungen: '
-  event_info_signed_drivers: '&1Angemeldete Fahrer: '
-  event_info_rounds: '&1Runden: &2%total%'
-  event_info_round_final: '&1  Runde %index% - Finale: '
-  event_info_round_qualification: '&1  Runde %index% - Qualifikation: '
-  heat_info_start_delay: '&1Startverzögerung: '
-  heat_info_time_limit: '&1Zeitlimit: '
-  heat_info_laps: '&1Runden: '
-  heat_info_pits: '&1Boxenstopps: '
-  heat_info_max_drivers: '&1Max Fahrer: '
-  heat_info_drivers: '&1Fahrer: '
-  heat_info_fastest_lap: '&1Schnellste Runde: &2%time% &1von &2%player%'
-  round_info_heats: '&1Heats:'
-  signs_title: '&1--- Anmeldungen für &2%event% &1---'
-  reserves_title: '&1--- Reserven für &2%event% &1---'
-  active_events_title: '&1--- Aktive Events gerade jetzt &1---'
-  track_type: '&1Typ:&2 %type%'
-  track_open: '&1Offen: &2Ja'
-  track_closed: '&1Offen: &2Nein'
-  track_date_created: '&1Erstellt:&2 %date%&1, Eigentümer &2%owner%'
-  track_options: '&1Optionen: &2%options%'
-  track_mode: '&1Modus: &2%mode%'
-  track_timetrial: '&1Zeitfahren: &2%timetrial%'
-  track_boatutils_mode: '&1BoatUtils-Modus: &2%mode%'
-  track_checkpoints: '&1Checkpoints:&2 %size%'
-  track_grids: '&1Startaufstellungen:&2 %size%'
-  track_qualification_grids: '&1Qualifikations-Startaufstellungen:&2 %size%'
-  track_reset_regions: '&1Zurücksetzungsregionen:&2 %size%'
-  track_spawn_location: '&1Spawn:&2 %location%'
-  track_weight: '&1Gewicht:&2 %size%'
-  track_tags: '&1Tags: '
-  track_contributors: '&1Mitwirkende: '
-  player_stats_best_lap: '&1Beste Zeit: &2%time%'
-  player_stats_position: '&1Position: &2%pos%'
-  player_stats_finishes: '&1Abschlüsse: &2%size%'
-  player_stats_attempts: '&1Versuche: &2%size%'
-  player_stats_time_spent: '&1Zeitaufwand: &2%size%'
-  updating_leaderboards: '&1Ranglisten werden aktualisiert.'
-  time_trial_first_finish: '&cPersönlicher Rekord!&a Sie haben &c%track%&a in &c%time% &a(&c%pos%&a) abgeschlossen.'
-  time_trial_new_record: '&cPersönlicher Rekord!&a Sie haben &c%track%&a in &c%time% &s-%delta% &a(&c%oldPos%&a->&c%pos%&a) abgeschlossen.'
-  time_trial_finish: '&1Sie haben &2%track%&1 in &2%time% &e+%delta% abgeschlossen.'
-  time_trial_checkpoint: '&1Checkpoint %checkpoint% > &2%time%'
-  time_trial_lag_start: '&1Lagstart > &2%time%'
-  time_trial_lag_end: '&1Lagende > &2%time%'
+  page_current_of_max: "&1Seite &l&2%current% &r&1von &l&2%max%"
+  track_title: "&1--- &2Strecke: %name% (%id%) &1---"
+  track_times_title: "&1--- Zeiten für &2%track% &1---"
+  player_best_times_title: "&1--- &2%player% &1beste Zeiten auf &2%track% &1---"
+  player_recent_times_title: "&1--- &2%player% &1neueste Zeiten &1---"
+  player_stats_title: "&1--- &2%player%&1 Statistiken auf &2%track% &1---"
+  regions_title: "&1--- Regionen für &2%track% &1---"
+  locations_title: "&1--- Orte für &2%track% &1---"
+  ranked_title: "&1--- Rangliste ---"
+  rounds_title: "&1--- Runden für &2%event% &1---"
+  heats_title: "&1--- Heats für &2%event% &1---"
+  round_result_title: "&1--- Rundenresultat für Runde &2%round% &1---"
+  heat_result_title: "&1--- Heat-Ergebnis für Heat &2%heat% &1---"
+  player_heat_result_title: "&1--- Ergebnis für &2%player% &1in &2%heat% &1---"
+  player_heat_result_position: "&1Position: &2%pos%"
+  player_heat_result_start_position: "&1Startposition: &2%pos%"
+  player_heat_result_fastest_lap: "&1Schnellste Runde: &2%time%"
+  event_info_track: "&1Strecke: "
+  event_info_signs: "&1Anmeldungen: "
+  event_info_signed_drivers: "&1Angemeldete Fahrer: "
+  event_info_rounds: "&1Runden: &2%total%"
+  event_info_round_final: "&1  Runde %index% - Finale: "
+  event_info_round_qualification: "&1  Runde %index% - Qualifikation: "
+  heat_info_start_delay: "&1Startverzögerung: "
+  heat_info_time_limit: "&1Zeitlimit: "
+  heat_info_laps: "&1Runden: "
+  heat_info_pits: "&1Boxenstopps: "
+  heat_info_max_drivers: "&1Max Fahrer: "
+  heat_info_drivers: "&1Fahrer: "
+  heat_info_fastest_lap: "&1Schnellste Runde: &2%time% &1von &2%player%"
+  round_info_heats: "&1Heats:"
+  signs_title: "&1--- Anmeldungen für &2%event% &1---"
+  reserves_title: "&1--- Reserven für &2%event% &1---"
+  active_events_title: "&1--- Aktive Events gerade jetzt &1---"
+  track_type: "&1Typ:&2 %type%"
+  track_open: "&1Offen: &2Ja"
+  track_closed: "&1Offen: &2Nein"
+  track_date_created: "&1Erstellt:&2 %date%&1, Eigentümer &2%owner%"
+  track_options: "&1Optionen: &2%options%"
+  track_mode: "&1Modus: &2%mode%"
+  track_timetrial: "&1Zeitfahren: &2%timetrial%"
+  track_boatutils_mode: "&1BoatUtils-Modus: &2%mode%"
+  track_checkpoints: "&1Checkpoints:&2 %size%"
+  track_grids: "&1Startaufstellungen:&2 %size%"
+  track_qualification_grids: "&1Qualifikations-Startaufstellungen:&2 %size%"
+  track_reset_regions: "&1Zurücksetzungsregionen:&2 %size%"
+  track_spawn_location: "&1Spawn:&2 %location%"
+  track_weight: "&1Gewicht:&2 %size%"
+  track_tags: "&1Tags: "
+  track_contributors: "&1Mitwirkende: "
+  player_stats_best_lap: "&1Beste Zeit: &2%time%"
+  player_stats_position: "&1Position: &2%pos%"
+  player_stats_finishes: "&1Abschlüsse: &2%size%"
+  player_stats_attempts: "&1Versuche: &2%size%"
+  player_stats_time_spent: "&1Zeitaufwand: &2%size%"
+  updating_leaderboards: "&1Ranglisten werden aktualisiert."
+  time_trial_first_finish: "&cPersönlicher Rekord!&a Sie haben &c%track%&a in &c%time% &a(&c%pos%&a) abgeschlossen."
+  time_trial_new_record: "&cPersönlicher Rekord!&a Sie haben &c%track%&a in &c%time% &s-%delta% &a(&c%oldPos%&a->&c%pos%&a) abgeschlossen."
+  time_trial_finish: "&1Sie haben &2%track%&1 in &2%time% &e+%delta% abgeschlossen."
+  time_trial_checkpoint: "&1Checkpoint %checkpoint% > &2%time%"
+  time_trial_lag_start: "&1Lagstart > &2%time%"
+  time_trial_lag_end: "&1Lagende > &2%time%"
 
 hover:
-  click_to_add: 'Klicken zum Hinzufügen'
-  click_to_delete: 'Klicken zum Löschen'
-  click_to_view: 'Klicken zum Ansehen'
-  click_to_edit: 'Klicken zum Bearbeiten'
-  click_to_edit_position: 'Klicken zum Bearbeiten der Position'
-  click_to_open: 'Klicken zum Öffnen'
-  click_to_close: 'Klicken zum Schließen'
-  click_to_finish: 'Klicken zum Beenden'
-  click_to_load: 'Klicken zum Laden'
-  click_to_reset: 'Klicken zum Zurücksetzen'
-  click_to_start: 'Klicken zum Starten'
-  click_to_select: 'Klicken zum Auswählen'
+  click_to_add: "Klicken zum Hinzufügen"
+  click_to_delete: "Klicken zum Löschen"
+  click_to_view: "Klicken zum Ansehen"
+  click_to_edit: "Klicken zum Bearbeiten"
+  click_to_edit_position: "Klicken zum Bearbeiten der Position"
+  click_to_open: "Klicken zum Öffnen"
+  click_to_close: "Klicken zum Schließen"
+  click_to_finish: "Klicken zum Beenden"
+  click_to_load: "Klicken zum Laden"
+  click_to_reset: "Klicken zum Zurücksetzen"
+  click_to_start: "Klicken zum Starten"
+  click_to_select: "Klicken zum Auswählen"
 
 word:
-  open: 'Offen'
-  closed: 'Geschlossen'
-  finish: 'Beenden'
-  load: 'Laden'
-  reset: 'Zurücksetzen'
-  start: 'Starten'
+  open: "Offen"
+  closed: "Geschlossen"
+  finish: "Beenden"
+  load: "Laden"
+  reset: "Zurücksetzen"
+  start: "Starten"
 
 text_button:
-  add_heat: 'Heat hinzufügen'
-  add_round: 'Runde hinzufügen'
-  view_event: 'Event ansehen'
+  add_heat: "Heat hinzufügen"
+  add_round: "Runde hinzufügen"
+  view_event: "Event ansehen"
 
 broadcast:
-  click_to_sign: '&b--> Klicken, um sich für &l%event%&r&b anzumelden <--'
-  click_to_reserve: '&b--> Klicken, um sich als Reserve für &l%event%&r&b anzumelden <--'
-  click_to_join_race: '&b--> Klicken, um einem Rennen auf &l%track%&r&b (%laps% Runden) beizutreten <--'
-  click_to_spectate_event: '&a--> Klicken, um &l%event%&r&a zuzuschauen <--'
-  player_signed_event: '&b%player% hat sich angemeldet.'
-  player_reserve_event: '&b%player% hat sich als Reserve angemeldet.'
-  event_player_pit: '&2%player% &1hat Boxenstopp abgeschlossen: &2&l%pit%'
-  event_player_finish: '&2%player% &1hat &2&lP%position%&r&1 in &2%time% beendet.'
-  event_player_finish_basic: '&2%player% &1hat beendet.'
-  event_player_finished_lap: '&1Sie haben die Runde in: &2%time% beendet.'
-  event_player_finished_lap_announce: '&2%player% &1hat Runde &2%lap% &1in: &2%time% beendet.'
-  event_player_fastest_lap: '&2%player% &1neue schnellste Runde von &2%time%'
-  event_player_finished_qualification_lap: '&1%player% > &2%time%'
-  event_results: '&1Endergebnisse für &2%event%'
-  event_results_qualification: '&1Qualifikationsergebnisse für &2%event%'
-  heat_results: '&1Ergebnisse für &2%heat%'
-  heat_result_row: '&1%pos%. &2%player%&1 - &2%laps% &1Runden in &2%time%'
-  heat_reset: '&eHeat zurückgesetzt'
-  heat_finish_title_pos: '&aSie haben P%pos% beendet'
-  heat_finish_title: '&aSie haben beendet'
+  click_to_sign: "&b--> Klicken, um sich für &l%event%&r&b anzumelden <--"
+  click_to_reserve: "&b--> Klicken, um sich als Reserve für &l%event%&r&b anzumelden <--"
+  click_to_join_race: "&b--> Klicken, um einem Rennen auf &l%track%&r&b (%laps% Runden) beizutreten <--"
+  click_to_spectate_event: "&a--> Klicken, um &l%event%&r&a zuzuschauen <--"
+  player_signed_event: "&b%player% hat sich angemeldet."
+  player_reserve_event: "&b%player% hat sich als Reserve angemeldet."
+  event_player_pit: "&2%player% &1hat Boxenstopp abgeschlossen: &2&l%pit%"
+  event_player_finish: "&2%player% &1hat &2&lP%position%&r&1 in &2%time% beendet."
+  event_player_finish_basic: "&2%player% &1hat beendet."
+  event_player_finished_lap: "&1Sie haben die Runde in: &2%time% beendet."
+  event_player_finished_lap_announce: "&2%player% &1hat Runde &2%lap% &1in: &2%time% beendet."
+  event_player_fastest_lap: "&2%player% &1neue schnellste Runde von &2%time%"
+  event_player_finished_qualification_lap: "&1%player% > &2%time%"
+  event_results: "&1Endergebnisse für &2%event%"
+  event_results_qualification: "&1Qualifikationsergebnisse für &2%event%"
+  heat_results: "&1Ergebnisse für &2%heat%"
+  heat_result_row: "&1%pos%. &2%player%&1 - &2%laps% &1Runden in &2%time%"
+  heat_reset: "&eHeat zurückgesetzt"
+  heat_finish_title_pos: "&aSie haben P%pos% beendet"
+  heat_finish_title: "&aSie haben beendet"
 
 actionbar:
-  race: '&1Runde: &2&l%laps%&1/&2&l%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2&l%totalPits%&r&1 Boxenstopps'
-  race_spectator: '&2&l%name% > &1Runde: &2&l%laps%&1/&2&l%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2&l%totalPits%&r&1 Boxenstopps'
+  race: "&1Runde: &2&l%laps%&1/&2&l%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2&l%totalPits%&r&1 Boxenstopps"
+  race_spectator: "&2&l%name% > &1Runde: &2&l%laps%&1/&2&l%totalLaps%&r&1 |&2&l P%pos%&r&1 |&2&l %pits%&1/&2&l%totalPits%&r&1 Boxenstopps"
 
 gui:
-  settings_title: '&tEinstellungen'
-  tracks_title: '&tStrecken'
-  medals_title: '&tMedaillen'
-  filter_title: '&tFilter'
-  ranked_title: '&tRangliste'
-  best_time: '&1Ihre beste Zeit: &2%time%'
-  position: '&1Position: &2%pos%'
-  total_finishes: '&1Gesamtzahl Abschlüsse: &2%total%'
-  total_attempts: '&1Gesamtzahl Versuche: &2%total%'
-  time_spent: '&1Zeitaufwand: &2%time%'
-  created_by: '&1Erstellt von: &2%player%'
-  contributors: '&1Mitwirkende: &2%contributors%'
-  created_at: '&1Erstellt am: &2%time%'
-  weight: '&1Gewicht: &2%weight%'
-  tags: '&1Tags: '
-  grids: '&1Startaufstellungen: &2%grids%'
-  sorted_by_default: '&1Sortiert nach: &2Standard'
-  sorted_by_position: '&1Sortiert nach: &2Position'
-  sorted_by_popularity: '&1Sortiert nach: &2Beliebtheit'
-  sorted_by_time_spent: '&1Sortiert nach: &2Ihr Zeitaufwand'
-  sorted_by_recently_added: '&1Sortiert nach: &2Kürzlich hinzugefügt'
-  filter_by_none: '&1Filtern nach: &2Keiner'
-  filter_by: '&1Filtern nach:'
-  previous_page: '&1Vorherige Seite'
-  next_page: '&1Nächste Seite'
-  change_track_type: '&1Streckentyp ändern'
-  change_boat_type: '&1Bootstyp ändern'
-  change_team_color: '&1Teamfarbe ändern'
-  boat_tracks: '&1Bootsstrecken'
-  elytra_tracks: '&1Elytra-Strecken'
-  parkour_tracks: '&1Parkour-Strecken'
-  toggle_sound: '&1Umschalten: &2Ton'
-  toggle_verbose: '&1Umschalten: &2Ausführlich'
-  toggle_time_trial: '&1Umschalten: &2Zeitfahren'
-  toggle_override: '&1Umschalten: &2Überschreiben'
-  toggle_medals: '&1Umschalten: &2Medaillen'
-  toggle_final_laps: '&1Umschalten: &2Alle finalen Rundenzeiten senden'
-  toggle_compact_scoreboard: '&1Umschalten: &2Kompakte Anzeigetafel'
-  color: 'Farbe'
-  true: '&1Ein'
-  false: '&1Aus'
-  return: '&1Zurück'
-  reset: '&eGUI zurücksetzen'
+  settings_title: "&tEinstellungen"
+  tracks_title: "&tStrecken"
+  medals_title: "&tMedaillen"
+  filter_title: "&tFilter"
+  ranked_title: "&tRangliste"
+  best_time: "&1Ihre beste Zeit: &2%time%"
+  position: "&1Position: &2%pos%"
+  total_finishes: "&1Gesamtzahl Abschlüsse: &2%total%"
+  total_attempts: "&1Gesamtzahl Versuche: &2%total%"
+  time_spent: "&1Zeitaufwand: &2%time%"
+  created_by: "&1Erstellt von: &2%player%"
+  contributors: "&1Mitwirkende: &2%contributors%"
+  created_at: "&1Erstellt am: &2%time%"
+  weight: "&1Gewicht: &2%weight%"
+  tags: "&1Tags: "
+  grids: "&1Startaufstellungen: &2%grids%"
+  sorted_by_default: "&1Sortiert nach: &2Standard"
+  sorted_by_position: "&1Sortiert nach: &2Position"
+  sorted_by_popularity: "&1Sortiert nach: &2Beliebtheit"
+  sorted_by_time_spent: "&1Sortiert nach: &2Ihr Zeitaufwand"
+  sorted_by_recently_added: "&1Sortiert nach: &2Kürzlich hinzugefügt"
+  filter_by_none: "&1Filtern nach: &2Keiner"
+  filter_by: "&1Filtern nach:"
+  previous_page: "&1Vorherige Seite"
+  next_page: "&1Nächste Seite"
+  change_track_type: "&1Streckentyp ändern"
+  change_boat_type: "&1Bootstyp ändern"
+  change_team_color: "&1Teamfarbe ändern"
+  boat_tracks: "&1Bootsstrecken"
+  elytra_tracks: "&1Elytra-Strecken"
+  parkour_tracks: "&1Parkour-Strecken"
+  toggle_sound: "&1Umschalten: &2Ton"
+  toggle_verbose: "&1Umschalten: &2Ausführlich"
+  toggle_time_trial: "&1Umschalten: &2Zeitfahren"
+  toggle_override: "&1Umschalten: &2Überschreiben"
+  toggle_medals: "&1Umschalten: &2Medaillen"
+  toggle_alternative_hud: "&1Umschalten: &2Alternatives HUD"
+  toggle_leaderboard_hud: "&1Umschalten: &2Leaderboard HUD"
+  toggle_leaderboard_compare: "&1Umschalten: &2Vergleich mit WR"
+  toggle_final_laps: "&1Umschalten: &2Alle finalen Rundenzeiten senden"
+  toggle_compact_scoreboard: "&1Umschalten: &2Kompakte Anzeigetafel"
+  color: "Farbe"
+  true: "&1Ein"
+  false: "&1Aus"
+  return: "&1Zurück"
+  reset: "&eGUI zurücksetzen"
 
 scoreboard:
-  finishes: 'Abschlüsse: '
-  average_time: 'Durchschnittszeit: '
-  best_time: 'Beste Zeit: '
+  finishes: "Abschlüsse: "
+  average_time: "Durchschnittszeit: "
+  best_time: "Beste Zeit: "

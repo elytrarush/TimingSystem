@@ -24,7 +24,6 @@ import me.makkuusen.timing.system.track.regions.TrackRegion;
 import me.makkuusen.timing.system.track.tags.TrackTag;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Location;
-import org.bukkit.entity.Boat;
 import org.bukkit.inventory.ItemStack;
 
 import java.sql.SQLException;
@@ -58,7 +57,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 11;
+            int databaseVersion = 12;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(?, ?);",
                         databaseVersion,
@@ -139,6 +138,9 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         if (previousVersion < 11) {
             Version11.updateMySQL();
         }
+        if (previousVersion < 12) {
+            Version12.updateMySQL();
+        }
     }
 
 
@@ -157,6 +159,8 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       `chestBoat` tinyint(1) NOT NULL DEFAULT '0',
                       `compactScoreboard` tinyint(1) NOT NULL DEFAULT '0',
                       `alternativeHud` tinyint(1) NOT NULL DEFAULT '0',
+                      `leaderboardHud` tinyint(1) NOT NULL DEFAULT '1',
+                      `leaderboardCompareRecord` tinyint(1) NOT NULL DEFAULT '0',
                       `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#9D9D97',
                       `toggleSound` tinyint(1) DEFAULT 1 NOT NULL,
                       `sendFinalLaps` tinyint(1) NOT NULL DEFAULT '0',
@@ -394,10 +398,10 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
     @Override
     public TPlayer createPlayer(UUID uuid, String name) {
         try {
-            DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `boat`) VALUES(?, ?, ?);",
+        DB.executeUpdate("INSERT INTO `ts_players` (`uuid`, `name`, `boat`) VALUES(?, ?, ?);",
                     uuid.toString(),
                     name,
-                    Boat.Type.BIRCH.name()
+            "BIRCH"
             );
             var dbRow = DB.getFirstRow("SELECT * FROM `ts_players` WHERE `uuid` = ?;",
                     uuid.toString()

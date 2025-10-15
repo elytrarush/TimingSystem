@@ -20,7 +20,7 @@ import static me.makkuusen.timing.system.TimingSystem.getPlugin;
 public class SQLiteDatabase extends MySQLDatabase {
     @Override
     public boolean initialize() {
-        DatabaseOptions options = DatabaseOptions.builder().poolName(getPlugin().getDescription().getName() + " DB").logger(getPlugin().getLogger()).sqlite(new File(getPlugin().getDataFolder(), "ts.db").getPath()).build();
+  DatabaseOptions options = DatabaseOptions.builder().poolName(getPlugin().getName() + " DB").logger(getPlugin().getLogger()).sqlite(new File(getPlugin().getDataFolder(), "ts.db").getPath()).build();
         PooledDatabaseOptions poolOptions = PooledDatabaseOptions.builder().options(options).build();
         BukkitDB.createHikariDatabase(TimingSystem.getPlugin(), poolOptions);
         return createTables();
@@ -31,7 +31,7 @@ public class SQLiteDatabase extends MySQLDatabase {
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 11;
+            int databaseVersion = 12;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(?, ?);",
                         databaseVersion,
@@ -100,6 +100,9 @@ public class SQLiteDatabase extends MySQLDatabase {
     if (previousVersion < 11) {
       Version11.updateSQLite();
     }
+    if (previousVersion < 12) {
+      Version12.updateSQLite();
+    }
     }
 
 
@@ -116,6 +119,8 @@ public class SQLiteDatabase extends MySQLDatabase {
                         `chestBoat` INTEGER NOT NULL DEFAULT 0,
                         `compactScoreboard` INTEGER NOT NULL DEFAULT 0,
                         `alternativeHud` INTEGER NOT NULL DEFAULT 0,
+                        `leaderboardHud` INTEGER NOT NULL DEFAULT 1,
+                        `leaderboardCompareRecord` INTEGER NOT NULL DEFAULT 0,
                         `override` INTEGER NOT NULL DEFAULT 0,
                         `verbose` INTEGER NOT NULL DEFAULT 0,
                         `timetrial` INTEGER NOT NULL DEFAULT 1,

@@ -24,6 +24,8 @@ public class Settings {
     private boolean override;
     private boolean compactScoreboard;
     private boolean alternativeHud;
+    private boolean leaderboardHud;
+    private boolean leaderboardCompareRecord;
     private boolean sendFinalLaps;
     private String shortName;
     @Setter
@@ -40,6 +42,8 @@ public class Settings {
         color = data.getString("color");
         compactScoreboard = getBoolean(data, "compactScoreboard");
         alternativeHud = getBoolean(data, "alternativeHud");
+        leaderboardHud = getBoolean(data, "leaderboardHud");
+        leaderboardCompareRecord = getBoolean(data, "leaderboardCompareRecord");
         sendFinalLaps = getBoolean(data, "sendFinalLaps");
         shortName = data.getString("shortName") != null ? data.getString("shortName") : extractShortName(tPlayer.getName());
         lonely = false;
@@ -132,6 +136,24 @@ public class Settings {
     public void toggleAlternativeHud() {
         this.alternativeHud = !alternativeHud;
         TimingSystem.getDatabase().playerUpdateValue(uuid, "alternativeHud", alternativeHud);
+    }
+
+    public boolean isLeaderboardHud() {
+        return leaderboardHud;
+    }
+
+    public void toggleLeaderboardHud() {
+        this.leaderboardHud = !leaderboardHud;
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "leaderboardHud", leaderboardHud);
+    }
+
+    public boolean isLeaderboardCompareRecord() {
+        return leaderboardCompareRecord;
+    }
+
+    public void toggleLeaderboardCompareRecord() {
+        this.leaderboardCompareRecord = !leaderboardCompareRecord;
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "leaderboardCompareRecord", leaderboardCompareRecord);
     }
 
     public void toggleSendFinalLaps() {

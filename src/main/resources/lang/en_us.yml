@@ -384,6 +384,8 @@ gui:
   toggle_override: "&1Toggle: &2Override"
   toggle_medals: "&1Toggle medals"
   toggle_alternative_hud: "&1Toggle: &2Alternative HUD"
+  toggle_leaderboard_hud: "&1Toggle: &2Leaderboard HUD"
+  toggle_leaderboard_compare: "&1Toggle: &2Compare to WR"
   toggle_final_laps: "&1Toggle: &2Send All Final Lap Times"
   toggle_compact_scoreboard: "&1Toggle: &2Compact Scoreboard"
   color: "Color"

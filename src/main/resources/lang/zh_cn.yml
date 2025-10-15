@@ -103,7 +103,7 @@ error:
   permission_denied: "&e权限拒绝。"
 
 warning:
-  dangerous_command: "&w该命令有危险，输入\"%command%\"来继续使用。"
+  dangerous_command: '&w该命令有危险，输入"%command%"来继续使用。'
   drivers_left_out: "&w被漏过的车手："
   no_longer_spectating: "&w你不再观看%event%。"
   no_longer_signed: "&w您不再报名参加%event%。"
@@ -343,6 +343,9 @@ gui:
   toggle_verbose: "&1开关：&2详细"
   toggle_time_trial: "&1开关：&2计时"
   toggle_override: "&1开关：&2覆盖"
+  toggle_alternative_hud: "&1开关：&2替代HUD"
+  toggle_leaderboard_hud: "&1开关：&2排行榜HUD"
+  toggle_leaderboard_compare: "&1开关：&2与纪录比较"
   toggle_medals: "&1切换奖牌"
   toggle_final_laps: "&1开关：&2发送所有正赛圈速"
   color: "颜色"
