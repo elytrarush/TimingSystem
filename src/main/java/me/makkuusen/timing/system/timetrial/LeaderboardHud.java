@@ -86,7 +86,7 @@ public class LeaderboardHud {
                 String ref = compareRecord ? "WR" : "PB";
 
                 // Build header with alignment matching rows: "CP <spaces>: <REF> | CUR"
-                Component cpHeader = Component.text("CP " + repeat(' ', cpDigits) + ": ").color(theme.getSecondary());
+                Component cpHeader = Component.text("CP  " + repeat(' ', cpDigits) + ": ").color(theme.getSecondary());
                 // compute column width based on max formatted split length for the reference finish (PB/WR)
                 TimeTrialFinish compareFinishForWidth;
                 var topForWidth = track.getTimeTrials().getTopList(1);
@@ -95,7 +95,7 @@ public class LeaderboardHud {
 
                 String refLabelPadded = padRight(ref, refColWidth);
                 Component refHeader = Component.text(refLabelPadded).color(theme.getSecondary());
-                Component sep = Component.text(" | ").color(theme.getSecondary());
+                Component sep = Component.text("  | ").color(theme.getSecondary());
                 Component curHeader = Component.text("CUR").color(theme.getSecondary());
                 return cpHeader.append(refHeader).append(sep).append(curHeader);
             });
@@ -240,12 +240,12 @@ public class LeaderboardHud {
                 // Spacer and header for PB/WR checkpoint table
                 .addBlankLine()
                 .addDynamicLine(() -> {
-                    Component cpHeader = Component.text("CP " + repeat(' ', cpDigits2) + ": ").color(theme.getSecondary());
+                    Component cpHeader = Component.text("CP  " + repeat(' ', cpDigits2) + ": ").color(theme.getSecondary());
                     // compute PB column width to align header and rows
                     TimeTrialFinish pbFinishForWidth = finalTrack.getTimeTrials().getBestFinish(tPlayer);
                     int pbColWidth = Math.max("PB".length(), getMaxFormattedSplitLength(pbFinishForWidth, totalCheckpoints2));
                     Component pbHeader = Component.text(padRight("PB", pbColWidth)).color(theme.getSuccess());
-                    Component sep = Component.text(" | ").color(theme.getSecondary());
+                    Component sep = Component.text("  | ").color(theme.getSecondary());
                     Component wrHeader = Component.text("WR").color(theme.getSecondary());
                     return cpHeader.append(pbHeader).append(sep).append(wrHeader);
                 });
