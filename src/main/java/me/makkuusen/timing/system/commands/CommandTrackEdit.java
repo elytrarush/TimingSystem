@@ -4,6 +4,7 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.*;
 import me.makkuusen.timing.system.boatutils.BoatUtilsMode;
+import me.makkuusen.timing.system.network.discord.DiscordNotifier;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.messages.Message;
 import me.makkuusen.timing.system.theme.messages.Success;
@@ -273,5 +274,18 @@ public class CommandTrackEdit extends BaseCommand {
     public static void onContributor(Player player, String players) {
         var response = TrackEditor.handleContributor(player, players);
         player.sendMessage(response);
+    }
+
+    @Subcommand("discord test")
+    @CommandPermission("%permissiontrackedit_owner")
+    public static void onDiscordTest(Player player) {
+        if (!DiscordNotifier.isEnabled()) {
+            player.sendMessage(Component.text("Discord notifications are disabled or not configured."));
+            return;
+        }
+
+        // Send a test message using the configured template with placeholder values
+        DiscordNotifier.sendNewRecord("Test Track", player.getName(), "00:12.345", "0.123");
+        player.sendMessage(Component.text("Sent a test Discord webhook message."));
     }
 }
