@@ -32,33 +32,43 @@ public class LeaderboardHud {
     private static final TextColor SHIMMER_BASE = TextColor.color(0xFFCC00); // #ffcc00
     private static final TextColor SHIMMER_HIGHLIGHT = TextColor.color(0xFF7300); // #ff7300
 
+    // Medal colors for lobby leaderboard
+    private static final TextColor GOLD = TextColor.color(0xFFD700);
+    private static final TextColor SILVER = TextColor.color(0xC0C0C0);
+    private static final TextColor BRONZE = TextColor.color(0xCD7F32);
+
     public static void render(TPlayer tPlayer, TimeTrial timeTrial) {
         Player player = tPlayer.getPlayer();
         if (player == null) return;
         var theme = tPlayer.getTheme();
         Track track = timeTrial.getTrack();
+        int totalCheckpoints = track.getNumberOfCheckpoints();
+        int cpDigits = Math.max(1, String.valueOf(totalCheckpoints).length());
 
         // Build Component Sidebar (title + lines) using the component builder API
         SidebarComponent titleComponent = SidebarComponent.dynamicLine(() -> shimmerTitle("elytrarush.com"));
 
         SidebarComponent.Builder linesBuilder = SidebarComponent.builder()
             // Current map
-            .addStaticLine(Component.text(track.getDisplayName()).color(theme.getSecondary()))
+            .addStaticLine(
+                Component.text("current track: ").color(theme.getSecondary())
+                    .append(Component.text(track.getDisplayName()).color(theme.getSecondary()).decorate(TextDecoration.BOLD))
+            )
             // PB and WR
             .addDynamicLine(() -> {
                 long pb = timeTrial.getBestTime();
                 var top = track.getTimeTrials().getTopList(1);
                 long wr = top.isEmpty() ? -1 : top.get(0).getTime();
                 return Component.text("PB: ").color(theme.getSecondary())
-                    .append(Component.text(pb == -1 ? "(-)" : ApiUtilities.formatAsTime(pb)).color(theme.getSuccess()))
-                    .append(Component.text(" WR: ").color(theme.getSecondary()))
-                    .append(Component.text(wr == -1 ? "(-)" : ApiUtilities.formatAsTime(wr)).color(theme.getPrimary()));
+                    .append(Component.text(pb == -1 ? "(-)" : ApiUtilities.formatAsTime(pb)).color(theme.getSuccess()).decorate(TextDecoration.BOLD))
+                    .append(Component.text("  WR: ").color(theme.getSecondary()))
+                    .append(Component.text(wr == -1 ? "(-)" : ApiUtilities.formatAsTime(wr)).color(theme.getSecondary()).decorate(TextDecoration.BOLD));
             })
             // Player position
             .addDynamicLine(() -> {
                 int pos = track.getTimeTrials().getPlayerTopListPosition(tPlayer);
                 return pos > 0
-                    ? Component.text("Position: ").color(theme.getSecondary()).append(Component.text("#" + pos).color(theme.getPrimary()))
+                    ? Component.text("Position: ").color(theme.getSecondary()).append(Component.text("#" + pos).color(theme.getSecondary()).decorate(TextDecoration.BOLD))
                     : Component.text("Position: (-)").color(theme.getSecondary());
             })
             // Spacer
@@ -67,11 +77,17 @@ public class LeaderboardHud {
             .addDynamicLine(() -> {
                 boolean compareRecord = tPlayer.getSettings().isLeaderboardCompareRecord();
                 String ref = compareRecord ? "WR" : "PB";
-                return Component.text("CP  | " + ref + " | CUR").color(theme.getSecondary());
+
+                // Build header with alignment matching rows: "CP <spaces>: <REF> | CUR"
+                Component cpHeader = Component.text("CP " + repeat(' ', cpDigits) + ": ").color(theme.getSecondary()).decorate(TextDecoration.BOLD);
+                Component refHeader = Component.text(ref).color(compareRecord ? theme.getSecondary() : theme.getSuccess()).decorate(TextDecoration.BOLD);
+                Component sep = Component.text(" | ").color(theme.getSecondary());
+                Component curHeader = Component.text("CUR").color(theme.getSecondary()).decorate(TextDecoration.BOLD);
+                return cpHeader.append(refHeader).append(sep).append(curHeader);
             });
 
         //  Checkpoint list (best vs current)
-        int total = track.getNumberOfCheckpoints();
+        int total = totalCheckpoints;
         for (int i = 1; i <= total; i++) {
             final int cpIndex = i;
             linesBuilder.addDynamicLine(() -> {
@@ -101,8 +117,9 @@ public class LeaderboardHud {
                     currentComp = currentComp.color(theme.getSecondary());
                 }
 
-                return Component.text("CP " + cpIndex + ": ").color(theme.getSecondary())
-                    .append(Component.text(compareSplit == null ? "-" : ApiUtilities.formatAsTime(compareSplit)).color(theme.getPrimary()))
+                String cpLabel = "CP " + padLeft(Integer.toString(cpIndex), cpDigits) + ": ";
+                return Component.text(cpLabel).color(theme.getSecondary())
+                    .append(Component.text(compareSplit == null ? "-" : ApiUtilities.formatAsTime(compareSplit)).color(theme.getSecondary()))
                     .append(Component.text(" | ").color(theme.getSecondary()))
                     .append(currentComp);
             });
@@ -152,48 +169,59 @@ public class LeaderboardHud {
 
         if (player.getLocation().getWorld().getName().equals("lobby")) {
             // Lobby summary: completed maps and placement counts
-            linesBuilder.addStaticLine(Component.text("Lobby").color(theme.getSecondary()));
+            linesBuilder.addStaticLine(Component.text("Lobby").color(theme.getSecondary()).decorate(TextDecoration.BOLD));
 
             PlayerStats stats = getPlayerStatsCached(tPlayer);
 
             linesBuilder
                 .addDynamicLine(() -> Component.text("Completed: ").color(theme.getSecondary())
-                    .append(Component.text(stats.completed + "/" + stats.totalMaps).color(theme.getPrimary())))
+                    .append(Component.text(stats.completed + "/" + stats.totalMaps).color(theme.getSecondary())))
                 .addDynamicLine(() -> Component.text("1st: ").color(theme.getSecondary())
-                    .append(Component.text(stats.firsts).color(theme.getPrimary())))
+                    .append(Component.text(stats.firsts).color(GOLD).decorate(TextDecoration.BOLD)))
                 .addDynamicLine(() -> Component.text("2nd: ").color(theme.getSecondary())
-                    .append(Component.text(stats.seconds).color(theme.getPrimary())))
+                    .append(Component.text(stats.seconds).color(SILVER).decorate(TextDecoration.BOLD)))
                 .addDynamicLine(() -> Component.text("3rd: ").color(theme.getSecondary())
-                    .append(Component.text(stats.thirds).color(theme.getPrimary())))
+                    .append(Component.text(stats.thirds).color(BRONZE).decorate(TextDecoration.BOLD)))
                 .addDynamicLine(() -> Component.text("Top 10: ").color(theme.getSecondary())
-                    .append(Component.text(stats.top10).color(theme.getPrimary())));
+                    .append(Component.text(stats.top10).color(theme.getSecondary())));
         } else {
             // Track summary: name, PB, WR, Position
             Track finalTrack = track;
+            int totalCheckpoints2 = finalTrack.getNumberOfCheckpoints();
+            int cpDigits2 = Math.max(1, String.valueOf(totalCheckpoints2).length());
             linesBuilder
-                .addStaticLine(Component.text(finalTrack.getDisplayName()).color(theme.getSecondary()))
+                .addStaticLine(
+                    Component.text("Current Track: ").color(theme.getSecondary())
+                        .append(Component.text(finalTrack.getDisplayName()).color(theme.getSecondary()).decorate(TextDecoration.BOLD))
+                )
                 .addDynamicLine(() -> {
                     long pb = Optional.ofNullable(finalTrack.getTimeTrials().getBestFinish(tPlayer))
                         .map(TimeTrialFinish::getTime).orElse(-1L);
                     var top = finalTrack.getTimeTrials().getTopList(1);
                     long wr = top.isEmpty() ? -1 : top.get(0).getTime();
                     return Component.text("PB: ").color(theme.getSecondary())
-                        .append(Component.text(pb == -1 ? "(-)" : ApiUtilities.formatAsTime(pb)).color(theme.getSuccess()))
-                        .append(Component.text(" WR: ").color(theme.getSecondary()))
-                        .append(Component.text(wr == -1 ? "(-)" : ApiUtilities.formatAsTime(wr)).color(theme.getPrimary()));
+                        .append(Component.text(pb == -1 ? "(-)" : ApiUtilities.formatAsTime(pb)).color(theme.getSuccess()).decorate(TextDecoration.BOLD))
+                        .append(Component.text("  WR: ").color(theme.getSecondary()))
+                        .append(Component.text(wr == -1 ? "(-)" : ApiUtilities.formatAsTime(wr)).color(theme.getSecondary()).decorate(TextDecoration.BOLD));
                 })
                 .addDynamicLine(() -> {
                     int pos = finalTrack.getTimeTrials().getPlayerTopListPosition(tPlayer);
                     return pos > 0
-                        ? Component.text("Position: ").color(theme.getSecondary()).append(Component.text("#" + pos).color(theme.getPrimary()))
+                        ? Component.text("Position: ").color(theme.getSecondary()).append(Component.text("#" + pos).color(theme.getSecondary()).decorate(TextDecoration.BOLD))
                         : Component.text("Position: (-)").color(theme.getSecondary());
                 })
                 // Spacer and header for PB/WR checkpoint table
                 .addBlankLine()
-                .addStaticLine(Component.text("CP  | PB | WR").color(theme.getSecondary()));
+                .addDynamicLine(() -> {
+                    Component cpHeader = Component.text("CP " + repeat(' ', cpDigits2) + ": ").color(theme.getSecondary()).decorate(TextDecoration.BOLD);
+                    Component pbHeader = Component.text("PB").color(theme.getSuccess()).decorate(TextDecoration.BOLD);
+                    Component sep = Component.text(" | ").color(theme.getSecondary());
+                    Component wrHeader = Component.text("WR").color(theme.getSecondary()).decorate(TextDecoration.BOLD);
+                    return cpHeader.append(pbHeader).append(sep).append(wrHeader);
+                });
 
             // PB/WR checkpoint splits
-            int total = finalTrack.getNumberOfCheckpoints();
+            int total = totalCheckpoints2;
             for (int i = 1; i <= total; i++) {
                 final int cpIndex = i;
                 linesBuilder.addDynamicLine(() -> {
@@ -204,10 +232,11 @@ public class LeaderboardHud {
                     Long pbSplit = (pbFinish != null && pbFinish.hasCheckpointTimes()) ? pbFinish.getCheckpointTime(cpIndex) : null;
                     Long wrSplit = (wrFinish != null && wrFinish.hasCheckpointTimes()) ? wrFinish.getCheckpointTime(cpIndex) : null;
 
-                    return Component.text("CP " + cpIndex + ": ").color(theme.getSecondary())
+                    String cpLabel = "CP " + padLeft(Integer.toString(cpIndex), cpDigits2) + ": ";
+                    return Component.text(cpLabel).color(theme.getSecondary())
                         .append(Component.text(pbSplit == null ? "-" : ApiUtilities.formatAsTime(pbSplit)).color(theme.getSuccess()))
                         .append(Component.text(" | ").color(theme.getSecondary()))
-                        .append(Component.text(wrSplit == null ? "-" : ApiUtilities.formatAsTime(wrSplit)).color(theme.getPrimary()));
+                        .append(Component.text(wrSplit == null ? "-" : ApiUtilities.formatAsTime(wrSplit)).color(theme.getSecondary()));
                 });
             }
         }
@@ -311,5 +340,18 @@ public class LeaderboardHud {
         int g = (int) Math.round(a.green() + (b.green() - a.green()) * t);
         int bl = (int) Math.round(a.blue() + (b.blue() - a.blue()) * t);
         return TextColor.color(r, g, bl);
+    }
+
+    private static String padLeft(String s, int width) {
+        if (s == null) s = "";
+        if (s.length() >= width) return s;
+        return " ".repeat(width - s.length()) + s;
+    }
+
+    private static String repeat(char c, int n) {
+        if (n <= 0) return "";
+        char[] arr = new char[n];
+        Arrays.fill(arr, c);
+        return new String(arr);
     }
 }
