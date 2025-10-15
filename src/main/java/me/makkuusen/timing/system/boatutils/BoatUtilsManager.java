@@ -87,9 +87,9 @@ public class BoatUtilsManager {
             e.printStackTrace();
         }
         player.sendPluginMessage(TimingSystem.getPlugin(), "openboatutils:settings", b.toByteArray());
-        if (tPlayer.getSettings().isVerbose() && !(playerBoatUtilsMode.get(player.getUniqueId()) != null && playerBoatUtilsMode.get(player.getUniqueId()) == mode)) {
-            player.sendMessage(Component.text("BU Mode: " + mode.name(), tPlayer.getTheme().getPrimary()));
-        }
+        // if (tPlayer.getSettings().isVerbose() && !(playerBoatUtilsMode.get(player.getUniqueId()) != null && playerBoatUtilsMode.get(player.getUniqueId()) == mode)) {
+        //     player.sendMessage(Component.text("BU Mode: " + mode.name(), tPlayer.getTheme().getPrimary()));
+        // }
         playerBoatUtilsMode.put(player.getUniqueId(), mode);
         new BoatUtilsAppliedEvent(player, mode, track).callEvent();
     }
