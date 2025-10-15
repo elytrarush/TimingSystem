@@ -51,7 +51,7 @@ public class LeaderboardHud {
         SidebarComponent.Builder linesBuilder = SidebarComponent.builder()
             // Current map
             .addStaticLine(
-                Component.text("current track: ").color(theme.getSecondary())
+                Component.text("Track: ").color(theme.getSecondary())
                     .append(Component.text(track.getDisplayName()).color(theme.getSecondary()).decorate(TextDecoration.BOLD))
             )
             // PB and WR
@@ -79,10 +79,17 @@ public class LeaderboardHud {
                 String ref = compareRecord ? "WR" : "PB";
 
                 // Build header with alignment matching rows: "CP <spaces>: <REF> | CUR"
-                Component cpHeader = Component.text("CP " + repeat(' ', cpDigits) + ": ").color(theme.getSecondary()).decorate(TextDecoration.BOLD);
-                Component refHeader = Component.text(ref).color(compareRecord ? theme.getSecondary() : theme.getSuccess()).decorate(TextDecoration.BOLD);
+                Component cpHeader = Component.text("CP " + repeat(' ', cpDigits) + ": ").color(theme.getSecondary());
+                // compute column width based on max formatted split length for the reference finish (PB/WR)
+                TimeTrialFinish compareFinishForWidth;
+                var topForWidth = track.getTimeTrials().getTopList(1);
+                compareFinishForWidth = compareRecord ? (topForWidth.isEmpty() ? null : topForWidth.get(0)) : timeTrial.getBestFinish();
+                int refColWidth = Math.max(ref.length(), getMaxFormattedSplitLength(compareFinishForWidth, totalCheckpoints));
+
+                String refLabelPadded = padRight(ref, refColWidth);
+                Component refHeader = Component.text(refLabelPadded).color(theme.getSecondary());
                 Component sep = Component.text(" | ").color(theme.getSecondary());
-                Component curHeader = Component.text("CUR").color(theme.getSecondary()).decorate(TextDecoration.BOLD);
+                Component curHeader = Component.text("CUR").color(theme.getSecondary());
                 return cpHeader.append(refHeader).append(sep).append(curHeader);
             });
 
@@ -117,9 +124,15 @@ public class LeaderboardHud {
                     currentComp = currentComp.color(theme.getSecondary());
                 }
 
+                // compute column width to align the separator with header
+                int refColWidth = Math.max((compareRecord ? "WR" : "PB").length(), getMaxFormattedSplitLength(compareFinish, total));
+
+                String compareStr = (compareSplit == null ? "-" : ApiUtilities.formatAsTime(compareSplit));
+                String compareStrPadded = padRight(compareStr, refColWidth);
+
                 String cpLabel = "CP " + padLeft(Integer.toString(cpIndex), cpDigits) + ": ";
                 return Component.text(cpLabel).color(theme.getSecondary())
-                    .append(Component.text(compareSplit == null ? "-" : ApiUtilities.formatAsTime(compareSplit)).color(theme.getSecondary()))
+                    .append(Component.text(compareStrPadded).color(theme.getSecondary()))
                     .append(Component.text(" | ").color(theme.getSecondary()))
                     .append(currentComp);
             });
@@ -213,10 +226,13 @@ public class LeaderboardHud {
                 // Spacer and header for PB/WR checkpoint table
                 .addBlankLine()
                 .addDynamicLine(() -> {
-                    Component cpHeader = Component.text("CP " + repeat(' ', cpDigits2) + ": ").color(theme.getSecondary()).decorate(TextDecoration.BOLD);
-                    Component pbHeader = Component.text("PB").color(theme.getSuccess()).decorate(TextDecoration.BOLD);
+                    Component cpHeader = Component.text("CP " + repeat(' ', cpDigits2) + ": ").color(theme.getSecondary());
+                    // compute PB column width to align header and rows
+                    TimeTrialFinish pbFinishForWidth = finalTrack.getTimeTrials().getBestFinish(tPlayer);
+                    int pbColWidth = Math.max("PB".length(), getMaxFormattedSplitLength(pbFinishForWidth, totalCheckpoints2));
+                    Component pbHeader = Component.text(padRight("PB", pbColWidth)).color(theme.getSuccess());
                     Component sep = Component.text(" | ").color(theme.getSecondary());
-                    Component wrHeader = Component.text("WR").color(theme.getSecondary()).decorate(TextDecoration.BOLD);
+                    Component wrHeader = Component.text("WR").color(theme.getSecondary());
                     return cpHeader.append(pbHeader).append(sep).append(wrHeader);
                 });
 
@@ -232,9 +248,16 @@ public class LeaderboardHud {
                     Long pbSplit = (pbFinish != null && pbFinish.hasCheckpointTimes()) ? pbFinish.getCheckpointTime(cpIndex) : null;
                     Long wrSplit = (wrFinish != null && wrFinish.hasCheckpointTimes()) ? wrFinish.getCheckpointTime(cpIndex) : null;
 
+                    // compute PB column width to align separator with header
+                    TimeTrialFinish pbFinishForWidth2 = finalTrack.getTimeTrials().getBestFinish(tPlayer);
+                    int pbColWidth2 = Math.max("PB".length(), getMaxFormattedSplitLength(pbFinishForWidth2, total));
+
+                    String pbStr = (pbSplit == null ? "-" : ApiUtilities.formatAsTime(pbSplit));
+                    String pbStrPadded = padRight(pbStr, pbColWidth2);
+
                     String cpLabel = "CP " + padLeft(Integer.toString(cpIndex), cpDigits2) + ": ";
                     return Component.text(cpLabel).color(theme.getSecondary())
-                        .append(Component.text(pbSplit == null ? "-" : ApiUtilities.formatAsTime(pbSplit)).color(theme.getSuccess()))
+                        .append(Component.text(pbStrPadded).color(theme.getSuccess()))
                         .append(Component.text(" | ").color(theme.getSecondary()))
                         .append(Component.text(wrSplit == null ? "-" : ApiUtilities.formatAsTime(wrSplit)).color(theme.getSecondary()));
                 });
@@ -353,5 +376,25 @@ public class LeaderboardHud {
         char[] arr = new char[n];
         Arrays.fill(arr, c);
         return new String(arr);
+    }
+
+    private static String padRight(String s, int width) {
+        if (s == null) s = "";
+        if (s.length() >= width) return s;
+        return s + " ".repeat(width - s.length());
+    }
+
+    private static int getMaxFormattedSplitLength(TimeTrialFinish finish, int totalCheckpoints) {
+        int maxLen = 1; // at least length of "-"
+        if (finish != null && finish.hasCheckpointTimes()) {
+            for (int i = 1; i <= totalCheckpoints; i++) {
+                Long split = finish.getCheckpointTime(i);
+                String s = (split == null) ? "-" : ApiUtilities.formatAsTime(split);
+                if (s.length() > maxLen) {
+                    maxLen = s.length();
+                }
+            }
+        }
+        return maxLen;
     }
 }
