@@ -58,7 +58,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 9;
+            int databaseVersion = 11;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(?, ?);",
                         databaseVersion,
@@ -136,6 +136,9 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         if (previousVersion < 10) {
             Version10.updateMySQL();
         }
+        if (previousVersion < 11) {
+            Version11.updateMySQL();
+        }
     }
 
 
@@ -153,6 +156,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       `override` tinyint(1) NOT NULL DEFAULT '0',
                       `chestBoat` tinyint(1) NOT NULL DEFAULT '0',
                       `compactScoreboard` tinyint(1) NOT NULL DEFAULT '0',
+                      `alternativeHud` tinyint(1) NOT NULL DEFAULT '0',
                       `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#9D9D97',
                       `toggleSound` tinyint(1) DEFAULT 1 NOT NULL,
                       `sendFinalLaps` tinyint(1) NOT NULL DEFAULT '0',

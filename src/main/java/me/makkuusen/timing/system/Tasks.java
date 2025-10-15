@@ -7,6 +7,7 @@ import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.heat.QualifyHeat;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
+import me.makkuusen.timing.system.heat.BossBarHud;
 import me.makkuusen.timing.system.round.FinalRound;
 import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Text;
@@ -56,9 +57,12 @@ public class Tasks {
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 elytraProtectionCountdown(p);
+                // Player settings fetched lazily where needed in downstream methods
                 if (TimeTrialController.timeTrials.containsKey(p.getUniqueId())) {
                     timeTrialTimer(p);
                 } else {
+                    // Always hide our boss bar when not in a time trial or when alternative HUD is disabled
+                    BossBarHud.hide(p);
                     var maybeDriver = EventDatabase.getDriverFromRunningHeat(p.getUniqueId());
                     if (maybeDriver.isPresent()) {
                         displayDriverTimer(p, maybeDriver.get());
@@ -109,12 +113,18 @@ public class Tasks {
     }
 
     private static void displaySpectatorTimer(Player player) {
+        var tPlayer = TSDatabase.getPlayer(player);
+        boolean altHud = tPlayer != null && tPlayer.getSettings().isAlternativeHud();
         var mightBeDriver = EventDatabase.getClosestDriverForSpectator(player);
         if (mightBeDriver.isPresent()) {
             var driver = mightBeDriver.get();
             if (driver.getHeat().getRound() instanceof FinalRound) {
                 if (!driver.isFinished()) {
-                    player.sendActionBar(Text.get(player, ActionBar.RACE_SPECTATOR, "%name%", driver.getTPlayer().getName(), "%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
+                    if (!altHud) {
+                        player.sendActionBar(Text.get(player, ActionBar.RACE_SPECTATOR, "%name%", driver.getTPlayer().getName(), "%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
+                    } else {
+                        sendSpeedOnActionBar(player);
+                    }
 
                 }
             } else if (driver.getHeat().getRound() instanceof QualificationRound) {
@@ -122,25 +132,46 @@ public class Tasks {
                     long lapTime = Duration.between(driver.getCurrentLap().getLapStart(), TimingSystem.currentTime).toMillis();
                     long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                     String delta = QualifyHeat.getBestLapCheckpointDelta(driver, driver.getCurrentLap().getLatestCheckpoint());
-                    player.sendActionBar(Text.getActionBar(player, "&2" + driver.getTPlayer().getName() + " > " + (timeLeft < 0 ? ("&e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)): "&w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)) + "&r&1 |&2&l P" + driver.getPosition() + "&r&1 | &2" + ApiUtilities.formatAsTime(lapTime) + delta));
+                    if (!altHud) {
+                        player.sendActionBar(Text.getActionBar(player, "&2" + driver.getTPlayer().getName() + " > " + (timeLeft < 0 ? ("&e-" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft * -1)): "&w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft)) + "&r&1 |&2&l P" + driver.getPosition() + "&r&1 | &2" + ApiUtilities.formatAsTime(lapTime) + delta));
+                    } else {
+                        sendSpeedOnActionBar(player);
+                    }
                 } else if (driver.getState() == DriverState.LOADED || driver.getState() == DriverState.STARTING) {
                     long timeLeft = driver.getHeat().getTimeLimit();
                     if (driver.getStartTime() != null) {
                         timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
                     }
-                    player.sendActionBar(Text.getActionBar(player, "&2" + driver.getTPlayer().getName() + " &1> " + "&w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft) + "&r&1 |&2&l P" + driver.getPosition() + "&r&1 | &200.000"));
+                    if (!altHud) {
+                        player.sendActionBar(Text.getActionBar(player, "&2" + driver.getTPlayer().getName() + " &1> " + "&w" + ApiUtilities.formatAsHeatTimeCountDown(timeLeft) + "&r&1 |&2&l P" + driver.getPosition() + "&r&1 | &200.000"));
+                    } else {
+                        sendSpeedOnActionBar(player);
+                    }
                 }
             }
         }
     }
 
     private static void displayDriverTimer(Player player, Driver driver) {
+        var tPlayer = TSDatabase.getPlayer(player);
+        boolean altHud = tPlayer != null && tPlayer.getSettings().isAlternativeHud();
         if (driver.getHeat().getRound() instanceof FinalRound) {
             if (!driver.isFinished()) {
-                player.sendActionBar(Text.get(player, ActionBar.RACE,"%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
+                if (!altHud) {
+                    player.sendActionBar(Text.get(player, ActionBar.RACE,"%laps%", String.valueOf(driver.getLaps().size()), "%totalLaps%", String.valueOf(driver.getHeat().getTotalLaps()), "%pos%", String.valueOf(driver.getPosition()), "%pits%", String.valueOf(driver.getPits()), "%totalPits%", String.valueOf(driver.getHeat().getTotalPits())));
+                } else {
+                    sendSpeedOnActionBar(player);
+                }
             }
         } else if (driver.getHeat().getRound() instanceof QualificationRound) {
-            sendQualificationDriverActionBar(player, driver);
+            if (!altHud) {
+                sendQualificationDriverActionBar(player, driver);
+            } else {
+                // Show remaining time in boss bar during qualification
+                long timeLeft = driver.getHeat().getTimeLimit() - Duration.between(driver.getStartTime(), TimingSystem.currentTime).toMillis();
+                BossBarHud.showCountdown(player, Math.max(timeLeft, 0), driver.getHeat().getTimeLimit(), "Qualifying");
+                sendSpeedOnActionBar(player);
+            }
         }
     }
 
@@ -163,17 +194,25 @@ public class Tasks {
         TimeTrial timeTrial = TimeTrialController.timeTrials.get(player.getUniqueId());
         long mapTime = timeTrial.getCurrentTime();
         Component timer = Component.text(ApiUtilities.formatAsTime(mapTime));
-        Theme theme = TSDatabase.getPlayer(player).getTheme();
+        var tPlayer = TSDatabase.getPlayer(player);
+        Theme theme = tPlayer.getTheme();
+        boolean altHud = tPlayer.getSettings().isAlternativeHud();
 
         int latestCheckpoint = timeTrial.getLatestCheckpoint();
         Component delta = timeTrial.getBestLapDelta(theme, latestCheckpoint);
 
-        if (timeTrial.getBestTime() == -1) {
-            player.sendActionBar(timer.color(theme.getSuccess()));
-        } else if (mapTime < timeTrial.getBestTime()) {
-            player.sendActionBar(timer.color(theme.getWarning()).append(delta));
+        if (!altHud) {
+            if (timeTrial.getBestTime() == -1) {
+                player.sendActionBar(timer.color(theme.getSuccess()));
+            } else if (mapTime < timeTrial.getBestTime()) {
+                player.sendActionBar(timer.color(theme.getWarning()).append(delta));
+            } else {
+                player.sendActionBar(timer.color(theme.getError()).append(delta));
+            }
         } else {
-            player.sendActionBar(timer.color(theme.getError()).append(delta));
+            // Show timer in boss bar, and speed on the action bar
+            BossBarHud.showTimer(player, mapTime, timeTrial.getBestTime(), theme, delta);
+            sendSpeedOnActionBar(player);
         }
     }
 
@@ -182,6 +221,13 @@ public class Tasks {
             String elytraCountdown = String.valueOf(TimeTrialController.elytraProtection.get(player.getUniqueId()) - TimingSystem.currentTime.getEpochSecond());
             player.sendActionBar(Component.text(elytraCountdown).color(TSDatabase.getPlayer(player).getTheme().getWarning()));
         }
+    }
+
+    private static void sendSpeedOnActionBar(Player player) {
+        double mps = player.getVelocity().length();
+        double kmh = mps * 20 * 3.6; // 20 ticks per second
+        String text = String.format("%.1f km/h", kmh);
+        player.sendActionBar(Component.text(text));
     }
 
 

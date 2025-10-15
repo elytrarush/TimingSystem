@@ -23,6 +23,7 @@ public class Settings {
     private boolean timeTrial;
     private boolean override;
     private boolean compactScoreboard;
+    private boolean alternativeHud;
     private boolean sendFinalLaps;
     private String shortName;
     @Setter
@@ -38,6 +39,7 @@ public class Settings {
         timeTrial = getBoolean(data, "timetrial");
         color = data.getString("color");
         compactScoreboard = getBoolean(data, "compactScoreboard");
+        alternativeHud = getBoolean(data, "alternativeHud");
         sendFinalLaps = getBoolean(data, "sendFinalLaps");
         shortName = data.getString("shortName") != null ? data.getString("shortName") : extractShortName(tPlayer.getName());
         lonely = false;
@@ -121,6 +123,15 @@ public class Settings {
     public void toggleCompactScoreboard() {
         this.compactScoreboard = !compactScoreboard;
         TimingSystem.getDatabase().playerUpdateValue(uuid, "compactScoreboard", compactScoreboard);
+    }
+
+    public boolean isAlternativeHud() {
+        return alternativeHud;
+    }
+
+    public void toggleAlternativeHud() {
+        this.alternativeHud = !alternativeHud;
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "alternativeHud", alternativeHud);
     }
 
     public void toggleSendFinalLaps() {

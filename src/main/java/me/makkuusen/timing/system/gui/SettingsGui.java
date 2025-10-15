@@ -77,6 +77,16 @@ public class SettingsGui extends BaseGui {
         return button;
     }
 
+    public static GuiButton getAlternativeHudButton(TPlayer tPlayer) {
+        var button = new GuiButton(new ItemBuilder(Material.DRAGON_HEAD).setName(Text.get(tPlayer, Gui.TOGGLE_ALTERNATIVE_HUD)).build());
+        button.setAction(() -> {
+            tPlayer.getSettings().toggleAlternativeHud();
+            PlaySound.buttonClick(tPlayer);
+            new SettingsGui(tPlayer).show(tPlayer.getPlayer());
+        });
+        return button;
+    }
+
     private void setButtons(TPlayer tPlayer) {
         Player player = tPlayer.getPlayer();
         if (player != null && (player.isOp() || player.hasPermission("timingsystem.packs.trackadmin"))) {
@@ -92,6 +102,8 @@ public class SettingsGui extends BaseGui {
         setItem(getTimeTrialButton(tPlayer), 12);
         setItem(tPlayer.getSettings().isSendFinalLaps() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 4);
         setItem(getHeatLapsButton(tPlayer), 13);
+        setItem(tPlayer.getSettings().isAlternativeHud() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 5);
+        setItem(getAlternativeHudButton(tPlayer), 14);
         setItem(getColorMenuButton(tPlayer), 15);
     }
 }
