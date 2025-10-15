@@ -61,7 +61,13 @@ public class LeaderboardHud {
                     : Component.text("Position: (-)").color(theme.getSecondary());
             })
             // Spacer
-            .addBlankLine();
+            .addBlankLine()
+            // Header for checkpoint table (indicates columns)
+            .addDynamicLine(() -> {
+                boolean compareRecord = tPlayer.getSettings().isLeaderboardCompareRecord();
+                String ref = compareRecord ? "WR" : "PB";
+                return Component.text("CP  | " + ref + " | CUR").color(theme.getSecondary());
+            });
 
         //  Checkpoint list (best vs current)
         int total = track.getNumberOfCheckpoints();
@@ -76,10 +82,28 @@ public class LeaderboardHud {
                 Long currentSplit = cpIndex <= latest ? timeTrial.getCheckpointTime(cpIndex) : null;
                 Long compareSplit = (compareFinish != null && compareFinish.hasCheckpointTimes()) ? compareFinish.getCheckpointTime(cpIndex) : null;
 
+                // Determine color of current split based on comparison with reference
+                var currentComp = Component.text(currentSplit == null ? "-" : ApiUtilities.formatAsTime(currentSplit));
+                if (currentSplit != null && compareSplit != null) {
+                    long a = ApiUtilities.getRoundedToTick(compareSplit);
+                    long b = ApiUtilities.getRoundedToTick(currentSplit);
+                    if (b > a) {
+                        currentComp = currentComp.color(theme.getError()); // slower
+                    } else if (b == a) {
+                        currentComp = currentComp.color(theme.getWarning()); // equal
+                    } else {
+                        currentComp = currentComp.color(theme.getSuccess()); // faster
+                    }
+                } else if (currentSplit != null) {
+                    currentComp = currentComp.color(theme.getSecondary());
+                } else {
+                    currentComp = currentComp.color(theme.getSecondary());
+                }
+
                 return Component.text("CP " + cpIndex + ": ").color(theme.getSecondary())
                     .append(Component.text(compareSplit == null ? "-" : ApiUtilities.formatAsTime(compareSplit)).color(theme.getPrimary()))
                     .append(Component.text(" | ").color(theme.getSecondary()))
-                    .append(Component.text(currentSplit == null ? "-" : ApiUtilities.formatAsTime(currentSplit)).color(currentSplit != null ? theme.getSuccess() : theme.getSecondary()));
+                    .append(currentComp);
             });
         }
 
@@ -166,7 +190,29 @@ public class LeaderboardHud {
                     return pos > 0
                         ? Component.text("Position: ").color(theme.getSecondary()).append(Component.text("#" + pos).color(theme.getPrimary()))
                         : Component.text("Position: (-)").color(theme.getSecondary());
+                })
+                // Spacer and header for PB/WR checkpoint table
+                .addBlankLine()
+                .addStaticLine(Component.text("CP  | PB | WR").color(theme.getSecondary()));
+
+            // PB/WR checkpoint splits
+            int total = finalTrack.getNumberOfCheckpoints();
+            for (int i = 1; i <= total; i++) {
+                final int cpIndex = i;
+                linesBuilder.addDynamicLine(() -> {
+                    TimeTrialFinish pbFinish = finalTrack.getTimeTrials().getBestFinish(tPlayer);
+                    var top = finalTrack.getTimeTrials().getTopList(1);
+                    TimeTrialFinish wrFinish = top.isEmpty() ? null : top.get(0);
+
+                    Long pbSplit = (pbFinish != null && pbFinish.hasCheckpointTimes()) ? pbFinish.getCheckpointTime(cpIndex) : null;
+                    Long wrSplit = (wrFinish != null && wrFinish.hasCheckpointTimes()) ? wrFinish.getCheckpointTime(cpIndex) : null;
+
+                    return Component.text("CP " + cpIndex + ": ").color(theme.getSecondary())
+                        .append(Component.text(pbSplit == null ? "-" : ApiUtilities.formatAsTime(pbSplit)).color(theme.getSuccess()))
+                        .append(Component.text(" | ").color(theme.getSecondary()))
+                        .append(Component.text(wrSplit == null ? "-" : ApiUtilities.formatAsTime(wrSplit)).color(theme.getPrimary()));
                 });
+            }
         }
 
         ComponentSidebarLayout layout = new ComponentSidebarLayout(titleComponent, linesBuilder.build());
