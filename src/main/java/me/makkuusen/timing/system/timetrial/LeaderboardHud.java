@@ -150,7 +150,7 @@ public class LeaderboardHud {
 
         SidebarComponent.Builder linesBuilder = SidebarComponent.builder();
 
-        if (track == null) {
+        if (player.getLocation().getWorld().getName().equals("lobby")) {
             // Lobby summary: completed maps and placement counts
             linesBuilder.addStaticLine(Component.text("Lobby").color(theme.getSecondary()));
 
