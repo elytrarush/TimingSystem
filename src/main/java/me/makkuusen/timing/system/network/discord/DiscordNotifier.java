@@ -74,6 +74,7 @@ public final class DiscordNotifier {
         // Very small JSON string escaper
         String escaped = s
             .replace("\\", "\\\\")
+            .replace("\u001b", "\\u001b")
             .replace("\"", "\\\"")
             .replace("\n", "\\n");
         return "\"" + escaped + "\"";
