@@ -8,6 +8,7 @@ import me.makkuusen.timing.system.track.editor.TrackEditor;
 import me.makkuusen.timing.system.track.Track;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.format.TextColor;
 import net.megavex.scoreboardlibrary.api.sidebar.Sidebar;
 import net.megavex.scoreboardlibrary.api.sidebar.component.ComponentSidebarLayout;
 import net.megavex.scoreboardlibrary.api.sidebar.component.SidebarComponent;
@@ -27,6 +28,10 @@ public class LeaderboardHud {
     // Simple cache to avoid recomputing lobby stats too often
     private static final Map<UUID, StatsCache> statsCacheMap = new HashMap<>();
 
+    // Shimmer colors for the title
+    private static final TextColor SHIMMER_BASE = TextColor.color(0xFFCC00); // #ffcc00
+    private static final TextColor SHIMMER_HIGHLIGHT = TextColor.color(0xFF7300); // #ff7300
+
     public static void render(TPlayer tPlayer, TimeTrial timeTrial) {
         Player player = tPlayer.getPlayer();
         if (player == null) return;
@@ -34,11 +39,7 @@ public class LeaderboardHud {
         Track track = timeTrial.getTrack();
 
         // Build Component Sidebar (title + lines) using the component builder API
-        SidebarComponent titleComponent = SidebarComponent.dynamicLine(() ->
-            Component.text("elytrarush.com")
-                .color(theme.getPrimary())
-                .decorate(TextDecoration.BOLD)
-        );
+        SidebarComponent titleComponent = SidebarComponent.dynamicLine(() -> shimmerTitle("elytrarush.com"));
 
         SidebarComponent.Builder linesBuilder = SidebarComponent.builder()
             // Current map
@@ -145,11 +146,7 @@ public class LeaderboardHud {
             track = TrackEditor.getPlayerTrackSelection(tPlayer.getUniqueId());
         }
 
-        SidebarComponent titleComponent = SidebarComponent.dynamicLine(() ->
-            Component.text("elytrarush.com")
-                .color(theme.getPrimary())
-                .decorate(TextDecoration.BOLD)
-        );
+        SidebarComponent titleComponent = SidebarComponent.dynamicLine(() -> shimmerTitle("elytrarush.com"));
 
         SidebarComponent.Builder linesBuilder = SidebarComponent.builder();
 
@@ -273,5 +270,46 @@ public class LeaderboardHud {
             } catch (Exception ignored) {
             }
         }
+    }
+
+    /**
+     * Builds an animated shimmer title component using a moving highlight
+     * that blends between SHIMMER_BASE and SHIMMER_HIGHLIGHT.
+     */
+    private static Component shimmerTitle(String text) {
+        // Animation settings
+        long now = System.currentTimeMillis();
+        int len = text.length();
+        if (len == 0) {
+            return Component.empty();
+        }
+
+        // One full sweep across the text in this many milliseconds
+        final double periodMs = 2000.0;
+        // Width of the highlight in characters (triangular falloff)
+        final double spread = 2.5;
+
+        // Compute center position moving over time
+        double phase = (now % (long) periodMs) / periodMs; // [0,1)
+        double center = phase * (len + spread) - (spread * 0.5);
+
+        Component result = Component.empty();
+        for (int i = 0; i < len; i++) {
+            char ch = text.charAt(i);
+            // Triangular falloff around the moving center
+            double dist = Math.abs(i - center);
+            double t = Math.max(0.0, 1.0 - (dist / spread)); // [0,1]
+            TextColor c = lerpColor(SHIMMER_BASE, SHIMMER_HIGHLIGHT, t);
+            result = result.append(Component.text(String.valueOf(ch)).color(c));
+        }
+        return result.decorate(TextDecoration.BOLD);
+    }
+
+    private static TextColor lerpColor(TextColor a, TextColor b, double t) {
+        t = Math.max(0.0, Math.min(1.0, t));
+        int r = (int) Math.round(a.red() + (b.red() - a.red()) * t);
+        int g = (int) Math.round(a.green() + (b.green() - a.green()) * t);
+        int bl = (int) Math.round(a.blue() + (b.blue() - a.blue()) * t);
+        return TextColor.color(r, g, bl);
     }
 }
