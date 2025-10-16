@@ -17,10 +17,23 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.Location;
 
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import me.makkuusen.timing.system.database.TrackDatabase;
+import me.makkuusen.timing.system.track.Track;
+import de.oliver.fancyholograms.api.FancyHologramsPlugin;
+import de.oliver.fancyholograms.api.hologram.Hologram;
+import de.oliver.fancyholograms.api.data.TextHologramData;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.TextDisplay;
 
 @CommandAlias("timingsystem|ts")
 public class CommandTimingSystem extends BaseCommand {
@@ -166,6 +179,100 @@ public class CommandTimingSystem extends BaseCommand {
             return;
         }
         Text.send(sender,Error.COLOR_FORMAT);
+    }
+
+    @Subcommand("globalleaderboard create")
+    @CommandCompletion("<name> [title]")
+    @CommandPermission("%permissiontimingsystem_globalleaderboard_create")
+    public static void onCreateGlobalLeaderboard(Player player, String name, @Optional String title) {
+        // Validate FH availability
+        if (player == null) {
+            Text.send(player, Error.ONLY_PLAYERS);
+            return;
+        }
+        if (player.getServer().getPluginManager().getPlugin("FancyHolograms") == null) {
+            Text.send(player, Error.GENERIC);
+            return;
+        }
+
+        if (name == null || name.isBlank()) {
+            Text.send(player, Error.INVALID_NAME);
+            return;
+        }
+
+        String finalTitle = (title == null || title.isBlank()) ? "Global Leaderboard" : title;
+
+        // Compute player points
+        List<Map.Entry<TPlayer, Double>> top = computeGlobalPointsTop(10);
+
+        // Build text lines (Strings with color codes)
+        List<String> lines = new ArrayList<>();
+        lines.add("§6§l" + finalTitle);
+        lines.add(" ");
+        int i = 1;
+        for (Map.Entry<TPlayer, Double> e : top) {
+            TPlayer tp = e.getKey();
+            double pts = e.getValue();
+            // position (gold), name (white), points (gold)
+            String line = String.format("§6%2d. §f%s  §6%s", i, tp.getName(), formatPoints(pts));
+            lines.add(line);
+            i++;
+        }
+
+        // Prepare location with yaw rounded to nearest 90 degrees
+        Location loc = player.getLocation().clone();
+        float yaw = loc.getYaw();
+        float roundedYaw = Math.round(yaw / 90f) * 90f;
+        loc.setYaw(roundedYaw);
+        loc.setPitch(0f);
+
+        // Create FancyHolograms hologram
+    var hm = FancyHologramsPlugin.get().getHologramManager();
+
+        // If a hologram with same name exists, remove it first
+        java.util.Optional<Hologram> existing = hm.getHologram(name);
+        existing.ifPresent(hm::removeHologram);
+
+        TextHologramData data = new TextHologramData(name, loc);
+        data.setBillboard(Display.Billboard.FIXED);
+        data.setTextAlignment(TextDisplay.TextAlignment.LEFT);
+        data.setPersistent(true);
+
+        // Set text content
+        data.setText(lines);
+
+        Hologram hologram = hm.create(data);
+        hm.addHologram(hologram);
+
+        Text.send(player, Success.SAVED);
+    }
+
+    private static List<Map.Entry<TPlayer, Double>> computeGlobalPointsTop(int limit) {
+        Map<TPlayer, Double> points = new HashMap<>();
+
+        List<Track> tracks = new ArrayList<>(TrackDatabase.tracks);
+        for (Track track : tracks) {
+            // Force compute/cached top list to ensure positions are updated
+            track.getTimeTrials().getTopList(-1);
+            for (TPlayer p : TimingSystem.players.values()) {
+                Integer pos = track.getTimeTrials().getPlayerTopListPosition(p);
+                if (pos != null && pos > 0) {
+                    double add = 1000.0 / Math.pow(pos.doubleValue(), 0.5);
+                    points.merge(p, add, Double::sum);
+                }
+            }
+        }
+
+        return points.entrySet().stream()
+                .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    private static String formatPoints(double pts) {
+        // No decimals for compact display
+        long rounded = Math.round(pts);
+        return String.valueOf(rounded);
     }
 
     @Subcommand("color")

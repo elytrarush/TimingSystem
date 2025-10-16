@@ -17,7 +17,8 @@ public enum PermissionTimingSystem implements Permissions {
     SCOREBOARD_SET_INTERVAL,
     COLOR_SET_NAMED,
     COLOR_SET_HEX,
-    GHOST;
+    GHOST,
+    GLOBALLEADERBOARD_CREATE;
 
     @Override
     public String getNode() {

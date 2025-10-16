@@ -14,6 +14,7 @@ depend: [WorldEdit]
 softdepend:
   - HolographicDisplays
   - DecentHolograms
+  - FancyHolograms
   - Multiverse-Core
   - GSit
   - PlaceholderAPI
@@ -198,8 +199,11 @@ permissions:
     default: op
     children:
       timingsystem.packs.eventhoster: true
-      timingsystem.packs.racehoster: true
-      timingsystem.event.delete: true
+      timingsystem.globalleaderboard.create: true
+
+  timingsystem.globalleaderboard.create:
+    description: Allows creating a global leaderboard hologram
+    default: op
 
   timingsystem.packs.admin:
     description: Player has access to most commands
