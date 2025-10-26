@@ -722,6 +722,8 @@ public class ApiUtilities {
 
     private static void giveElytra(Player player) {
         player.getInventory().setChestplate(new ItemBuilder(Material.ELYTRA).setCustomModelData(747).setName(Component.text("Disposable wings").color(NamedTextColor.RED)).build());
+        // Reset movement before starting the 10s countdown so everyone starts equally
+        stopPlayerMovement(player);
         TimeTrialController.elytraProtection.put(player.getUniqueId(), Instant.now().getEpochSecond() + 10);
     }
 
@@ -745,6 +747,14 @@ public class ApiUtilities {
             chain.execute();
         }
     }
+
+
+    private static void stopPlayerMovement(Player p) {
+        // Zero current velocity and disable glide
+        p.setVelocity(new org.bukkit.util.Vector(0, 0, 0));
+        if (p.isGliding()) p.setGliding(false);
+    }
+
 
     public static boolean hasBoatUtilsEffects(Player player) {
         if (BoatUtilsManager.playerBoatUtilsMode.get(player.getUniqueId()) != null) {
