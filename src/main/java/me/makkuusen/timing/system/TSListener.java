@@ -641,6 +641,11 @@ public class TSListener implements Listener {
     }
 
     private static void clearTemporaryRockets(Player player) {
+        // Skip removal for ops in Creative mode
+        if (player.isOp() && player.getGameMode() == GameMode.CREATIVE) {
+            return;
+        }
+
         // Remove up to count fireworks from inventory
         var inv = player.getInventory();
         
@@ -691,7 +696,6 @@ public class TSListener implements Listener {
                     return;
                 } else if (driver.getCurrentLap() != null && driver.getCurrentLap().getLatestCheckpoint() != 0) {
                     if (!driver.getCurrentLap().hasPassedAllCheckpoints()) {
-                        int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
                         performInHeatReset(driver);
                         Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
 
@@ -712,7 +716,6 @@ public class TSListener implements Listener {
                 if (r.contains(player.getLocation())) {
                     if (driver.getCurrentLap() != null) {
                         if (!(driver.getCurrentLap().hasPassedAllCheckpoints())) {
-                            int checkpoint = driver.getCurrentLap().getLatestCheckpoint();
                             performInHeatReset(driver);
                             Text.send(driver.getTPlayer().getPlayer(), Error.MISSED_CHECKPOINTS);
                             return;
@@ -748,10 +751,6 @@ public class TSListener implements Listener {
             // Check for reset
             for (TrackRegion r : track.getTrackRegions().getRegions(TrackRegion.RegionType.RESET)) {
                 if (r.contains(player.getLocation())) {
-                    var maybeRegion = track.getTrackRegions().getRegion(TrackRegion.RegionType.CHECKPOINT, lap.getLatestCheckpoint());
-
-                    TrackRegion region;
-                    region = maybeRegion.orElseGet(() -> track.getTrackRegions().getStart().get());
                     performInHeatReset(driver);
                     clearTemporaryRockets(player);
                     return;
