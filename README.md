@@ -12,6 +12,7 @@ TimingSystem is a plugin that aims to do a few things.
 - Creation of Elytra time-trials.
 - Displaying leaderboards. In-game holograms and/or command-based ones.
 - Get rockets at checkpoints.
+- [Optional] Get wind charges at checkpoints.
 
 ## Installation
 

@@ -27,6 +27,8 @@ public abstract class TrackRegion {
     private Location maxP;
     @Getter
     private int rocketReward = 0;
+    @Getter
+    private int windChargeReward = 0;
 
     public TrackRegion(DbRow data) {
         id = data.getInt("id");
@@ -40,6 +42,11 @@ public abstract class TrackRegion {
             rocketReward = data.getInt("rocketReward");
         } catch (Exception ignored) {
             rocketReward = 0;
+        }
+        try {
+            windChargeReward = data.getInt("windChargeReward");
+        } catch (Exception ignored) {
+            windChargeReward = 0;
         }
     }
 
@@ -83,6 +90,12 @@ public abstract class TrackRegion {
         if (amount < 0) amount = 0;
         this.rocketReward = amount;
         TimingSystem.getTrackDatabase().trackRegionSet(id, "rocketReward", amount);
+    }
+
+    public void setWindChargeReward(int amount) {
+        if (amount < 0) amount = 0;
+        this.windChargeReward = amount;
+        TimingSystem.getTrackDatabase().trackRegionSet(id, "windChargeReward", amount);
     }
 
     abstract boolean hasEqualBounds(TrackRegion other);

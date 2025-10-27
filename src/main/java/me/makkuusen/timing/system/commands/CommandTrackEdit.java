@@ -235,6 +235,30 @@ public class CommandTrackEdit extends BaseCommand {
         Text.send(player, Success.SAVED);
     }
 
+    @Subcommand("checkpoint windcharges")
+    @CommandCompletion("<index> <amount>")
+    @CommandPermission("%permissiontrackedit_region")
+    public static void onCheckpointWindCharges(Player player, int index, int amount) {
+        var track = TrackEditor.getPlayerTrackSelection(player.getUniqueId());
+        if (track == null) {
+            Text.send(player, Error.TRACK_NOT_FOUND_FOR_EDIT);
+            return;
+        }
+        if (index <= 0) {
+            Text.send(player, Error.NO_ZERO_INDEX);
+            return;
+        }
+        var checkpoints = track.getTrackRegions().getCheckpoints(index);
+        if (checkpoints.isEmpty()) {
+            Text.send(player, Error.NOTHING_TO_REMOVE);
+            return;
+        }
+        for (TrackRegion cp : checkpoints) {
+            cp.setWindChargeReward(amount);
+        }
+        Text.send(player, Success.SAVED);
+    }
+
     @Subcommand("item")
     @CommandCompletion("@track")
     @CommandPermission("%permissiontrackedit_item")

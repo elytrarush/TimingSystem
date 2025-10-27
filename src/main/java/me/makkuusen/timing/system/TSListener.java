@@ -125,6 +125,7 @@ public class TSListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent e) {
         TimeTrialController.playerLeavingMap(e.getEntity().getUniqueId());
         clearTemporaryRockets(e.getEntity());
+        clearTemporaryWindCharges(e.getEntity());
     }
 
     @EventHandler
@@ -146,6 +147,7 @@ public class TSListener implements Listener {
                 ApiUtilities.removeBoatUtilsEffects(event.getPlayer());
             }
             clearTemporaryRockets(event.getPlayer());
+            clearTemporaryWindCharges(event.getPlayer());
         }
     }
 
@@ -154,6 +156,7 @@ public class TSListener implements Listener {
         TimeTrialController.playerLeavingMap(e.getPlayer().getUniqueId());
         BoatUtilsManager.clearPlayerModes(e.getPlayer().getUniqueId());
         clearTemporaryRockets(e.getPlayer());
+        clearTemporaryWindCharges(e.getPlayer());
 
         if (TimeTrialController.timeTrialSessions.containsKey(e.getPlayer().getUniqueId()) && e.getReason() != PlayerQuitEvent.QuitReason.TIMED_OUT) {
             var ttSession = TimeTrialController.timeTrialSessions.get(e.getPlayer().getUniqueId());
@@ -545,6 +548,7 @@ public class TSListener implements Listener {
                     if (timeTrial.getLatestCheckpoint() != 0) {
                         timeTrial.playerRestartMap();
                         clearTemporaryRockets(player);
+                        clearTemporaryWindCharges(player);
                         return;
                     }
                 }
@@ -555,6 +559,7 @@ public class TSListener implements Listener {
                     if (timeTrial.getLatestCheckpoint() != 0) {
                         timeTrial.playerEndedMap();
                         clearTemporaryRockets(player);
+                        clearTemporaryWindCharges(player);
                         return;
                     }
                 }
@@ -575,6 +580,7 @@ public class TSListener implements Listener {
                     ApiUtilities.teleportPlayerAndSpawnBoat(player, track, maybeRegion.get().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
                 }
                 clearTemporaryRockets(player);
+                clearTemporaryWindCharges(player);
                 return;
             }
         }
@@ -629,6 +635,9 @@ public class TSListener implements Listener {
                 if (checkpoint.getRocketReward() > 0) {
                     giveTemporaryRockets(player, checkpoint.getRocketReward());
                 }
+                if (checkpoint.getWindChargeReward() > 0) {
+                    giveTemporaryWindCharges(player, checkpoint.getWindChargeReward());
+                }
             }
         }
     }
@@ -654,6 +663,35 @@ public class TSListener implements Listener {
             if (item.getType() == Material.FIREWORK_ROCKET) {
                 item.setAmount(0);
             }
+        }
+    }
+
+    private static void giveTemporaryWindCharges(Player player, int amount) {
+        if (amount <= 0) return;
+        var inv = player.getInventory();
+        try {
+            var windCharges = new ItemStack(Material.WIND_CHARGE, amount);
+            inv.addItem(windCharges);
+        } catch (NoSuchFieldError | IllegalArgumentException ignored) {
+            // Server API does not have WIND_CHARGE (older version); silently skip
+        }
+    }
+
+    private static void clearTemporaryWindCharges(Player player) {
+        // Skip removal for ops in Creative mode
+        if (player.isOp() && player.getGameMode() == GameMode.CREATIVE) {
+            return;
+        }
+        var inv = player.getInventory();
+        try {
+            for (ItemStack item : inv.getContents()) {
+                if (item == null) continue;
+                if (item.getType() == Material.WIND_CHARGE) {
+                    item.setAmount(0);
+                }
+            }
+        } catch (NoSuchFieldError ignored) {
+            // Older server without WIND_CHARGE; nothing to clear
         }
     }
 
@@ -753,6 +791,7 @@ public class TSListener implements Listener {
                 if (r.contains(player.getLocation())) {
                     performInHeatReset(driver);
                     clearTemporaryRockets(player);
+                    clearTemporaryWindCharges(player);
                     return;
                 }
             }
@@ -788,6 +827,10 @@ public class TSListener implements Listener {
                 var rr = maybeCheckpoint.get().getRocketReward();
                 if (rr > 0) {
                     giveTemporaryRockets(player, rr);
+                }
+                var wcr = maybeCheckpoint.get().getWindChargeReward();
+                if (wcr > 0) {
+                    giveTemporaryWindCharges(player, wcr);
                 }
             } else if (maybeCheckpoint.isPresent() && maybeCheckpoint.get().getRegionIndex() > lap.getNextCheckpoint()) {
                 if (!track.getTrackOptions().hasOption(TrackOption.NO_RESET_ON_FUTURE_CHECKPOINT)) {
