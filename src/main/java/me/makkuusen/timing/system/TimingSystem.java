@@ -169,6 +169,30 @@ public class TimingSystem extends JavaPlugin {
             ApiUtilities.msgConsole("PlaceholderAPI registered.");
         }
 
+        // Register TAB relational placeholders if TAB is installed
+        if (Bukkit.getPluginManager().getPlugin("TAB") != null) {
+            try {
+                // Using TAB's API to register a relational placeholder that shows target's current track
+                me.neznamy.tab.api.TabAPI.getInstance().getPlaceholderManager().registerRelationalPlaceholder("%rel_ts_track%", 500, (viewer, target) -> {
+                    if (target == null) return "";
+                    var uuid = target.getUniqueId();
+                    // If player is on a time trial, show that track
+                    if (me.makkuusen.timing.system.timetrial.TimeTrialController.timeTrials.containsKey(uuid)) {
+                        return me.makkuusen.timing.system.timetrial.TimeTrialController.timeTrials.get(uuid).getTrack().getDisplayName();
+                    }
+                    // Otherwise fall back to last interacted time trial track if available
+                    if (me.makkuusen.timing.system.timetrial.TimeTrialController.lastTimeTrialTrack.containsKey(uuid)) {
+                        return me.makkuusen.timing.system.timetrial.TimeTrialController.lastTimeTrialTrack.get(uuid).getDisplayName();
+                    }
+                    return "";
+                });
+                ApiUtilities.msgConsole("TAB relational placeholder %rel_ts_track% registered.");
+            } catch (Throwable t) {
+                // If TAB API is not available or something went wrong, just skip registration
+                logger.warning("Failed to register TAB relational placeholder: " + t.getMessage());
+            }
+        }
+
         if (Bukkit.getPluginManager().getPlugin("HolographicDisplays") == null && Bukkit.getPluginManager().getPlugin("DecentHolograms") == null) {
             ApiUtilities.msgConsole("No Hologram Plugin installed. Leaderboards are disabled.");
             enableLeaderboards = false;
