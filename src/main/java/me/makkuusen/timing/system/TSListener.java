@@ -571,16 +571,31 @@ public class TSListener implements Listener {
             if (r.contains(player.getLocation())) {
                 if (!track.getTrackOptions().hasOption(TrackOption.RESET_TO_LATEST_CHECKPOINT)) {
                     timeTrial.playerResetMap();
+                    clearTemporaryRockets(player);
+                    clearTemporaryWindCharges(player);
                 } else {
                     var maybeRegion = track.getTrackRegions().getRegion(TrackRegion.RegionType.CHECKPOINT, timeTrial.getLatestCheckpoint());
                     if (maybeRegion.isEmpty()) {
                         timeTrial.playerResetMap();
                         return;
                     }
-                    ApiUtilities.teleportPlayerAndSpawnBoat(player, track, maybeRegion.get().getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+                    // Stop player movement and clear items before teleporting
+                    stopPlayerMovement(player);
+                    clearTemporaryRockets(player);
+                    clearTemporaryWindCharges(player);
+
+                    // Teleport to center of the last checkpoint region
+                    var checkpointRegion = maybeRegion.get();
+                    ApiUtilities.teleportPlayerAndSpawnBoat(player, track, checkpointRegion.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.UNKNOWN);
+
+                    // Re-grant items configured for that checkpoint
+                    if (checkpointRegion.getRocketReward() > 0) {
+                        giveTemporaryRockets(player, checkpointRegion.getRocketReward());
+                    }
+                    if (checkpointRegion.getWindChargeReward() > 0) {
+                        giveTemporaryWindCharges(player, checkpointRegion.getWindChargeReward());
+                    }
                 }
-                clearTemporaryRockets(player);
-                clearTemporaryWindCharges(player);
                 return;
             }
         }
@@ -695,6 +710,11 @@ public class TSListener implements Listener {
         }
     }
 
+    private static void stopPlayerMovement(Player player) {
+        player.setVelocity(new org.bukkit.util.Vector(0, 0, 0));
+        if (player.isGliding()) player.setGliding(false);
+        player.setFallDistance(0f);
+    }
     
 
     private static void handleHeat(Driver driver, Player player) {
