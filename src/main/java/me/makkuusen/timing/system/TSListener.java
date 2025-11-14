@@ -142,6 +142,7 @@ public class TSListener implements Listener {
         }
 
         if (event.getCause().equals(PlayerTeleportEvent.TeleportCause.PLUGIN) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.COMMAND) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.ENDER_PEARL) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT) || event.getCause().equals(PlayerTeleportEvent.TeleportCause.NETHER_PORTAL)) {
+            stopPlayerMovement(event.getPlayer());
             TimeTrialController.playerLeavingMap(event.getPlayer().getUniqueId());
             if (ApiUtilities.hasBoatUtilsEffects(event.getPlayer())) {
                 ApiUtilities.removeBoatUtilsEffects(event.getPlayer());
