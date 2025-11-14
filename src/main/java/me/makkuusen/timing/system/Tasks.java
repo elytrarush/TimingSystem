@@ -55,16 +55,16 @@ public class Tasks {
     }
 
     public void startPlayerTimer(TimingSystem plugin) {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 elytraProtectionCountdown(p);
                 // Player settings fetched lazily where needed in downstream methods
                 if (TimeTrialController.timeTrials.containsKey(p.getUniqueId())) {
                     timeTrialTimer(p);
                 } else {
-                    // When not in a time trial, always render overview HUD
                     var tPlayer = TSDatabase.getPlayer(p);
-                    if (tPlayer != null) {
+                    // Respect leaderboard HUD setting and hide when disabled or player data missing
+                    if (tPlayer != null && tPlayer.getSettings().isLeaderboardHud()) {
                         LeaderboardHud.renderOverview(tPlayer);
                     } else {
                         LeaderboardHud.hide(p.getUniqueId());
@@ -200,9 +200,15 @@ public class Tasks {
 
     private static void timeTrialTimer(Player player) {
         TimeTrial timeTrial = TimeTrialController.timeTrials.get(player.getUniqueId());
+        var tPlayer = TSDatabase.getPlayer(player);
+        if (tPlayer == null) {
+            // Player data not yet available; hide HUD for now
+            LeaderboardHud.hide(player.getUniqueId());
+            return;
+        }
+
         long mapTime = timeTrial.getCurrentTime();
         Component timer = Component.text(ApiUtilities.formatAsTime(mapTime));
-        var tPlayer = TSDatabase.getPlayer(player);
         Theme theme = tPlayer.getTheme();
         boolean altHud = tPlayer.getSettings().isAlternativeHud();
 
