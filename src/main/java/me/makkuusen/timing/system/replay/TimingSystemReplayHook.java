@@ -14,7 +14,9 @@ import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.options.TrackOption;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * Replay hook used to enrich recordings with metadata such as the player's gliding state.
  */
 public class TimingSystemReplayHook implements IReplayHook {
+
+    private static final double FOLLOW_DISTANCE = 2.5D;
+    private static final double FOLLOW_HEIGHT = 1.25D;
 
     private final Map<String, MetadataSnapshot> lastSnapshots = new ConcurrentHashMap<>();
 
@@ -62,6 +67,8 @@ public class TimingSystemReplayHook implements IReplayHook {
 
     @Override
     public void onPlay(ActionData data, Replayer replayer) {
+        updateViewerPosition(replayer);
+
         if (!(data.getPacketData() instanceof MetadataUpdate metadataUpdate)) {
             return;
         }
@@ -80,6 +87,55 @@ public class TimingSystemReplayHook implements IReplayHook {
         MetadataBuilder metadataBuilder = new MetadataBuilder();
         npc.setData(watcher.getMetadata(metadataBuilder));
         npc.updateMetadata();
+    }
+
+    private void updateViewerPosition(Replayer replayer) {
+        if (replayer == null) {
+            return;
+        }
+
+        Player viewer = replayer.getWatchingPlayer();
+        if (viewer == null || !viewer.isOnline()) {
+            return;
+        }
+
+        INPC npc = getFirstNpc(replayer);
+        if (npc == null) {
+            return;
+        }
+
+        Location npcLocation = npc.getLocation();
+        if (npcLocation == null) {
+            return;
+        }
+
+        Location viewerLocation = viewer.getLocation();
+        Vector direction = npcLocation.getDirection();
+        if (direction.lengthSquared() == 0) {
+            direction = viewerLocation.getDirection();
+        }
+
+        Vector backwards = direction.normalize().multiply(-FOLLOW_DISTANCE);
+        Location target = npcLocation.clone().add(backwards).add(0, FOLLOW_HEIGHT, 0);
+        target.setDirection(npcLocation.getDirection());
+
+        if (viewerLocation.distanceSquared(target) > 0.04) {
+            viewer.teleport(target);
+        }
+
+        if (!viewer.getAllowFlight()) {
+            viewer.setAllowFlight(true);
+        }
+        if (!viewer.isFlying()) {
+            viewer.setFlying(true);
+        }
+    }
+
+    private INPC getFirstNpc(Replayer replayer) {
+        for (INPC npc : replayer.getNPCList().values()) {
+            return npc;
+        }
+        return null;
     }
 
     private PlayerWatcher getOrCreateWatcher(Replayer replayer, String playerName) {
