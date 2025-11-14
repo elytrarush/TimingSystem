@@ -9,6 +9,7 @@ import me.jumper251.replay.replaysystem.recording.PlayerWatcher;
 import me.jumper251.replay.replaysystem.replaying.Replayer;
 import me.jumper251.replay.replaysystem.utils.MetadataBuilder;
 import me.jumper251.replay.replaysystem.utils.entities.INPC;
+import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
 import me.makkuusen.timing.system.track.Track;
@@ -95,6 +96,11 @@ public class TimingSystemReplayHook implements IReplayHook {
 
     private void updateViewerPosition(Replayer replayer) {
         if (replayer == null) {
+            return;
+        }
+
+        if (!Bukkit.isPrimaryThread()) {
+            Bukkit.getScheduler().runTask(TimingSystem.getPlugin(), () -> updateViewerPosition(replayer));
             return;
         }
 
