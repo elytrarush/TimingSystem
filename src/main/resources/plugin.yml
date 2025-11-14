@@ -19,6 +19,7 @@ softdepend:
   - GSit
   - PlaceholderAPI
   - AdvancedReplay
+  - ProtocolLib
   - TAB
 api-version: "1.20"
 commands:
