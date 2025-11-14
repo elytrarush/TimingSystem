@@ -9,6 +9,8 @@ import me.jumper251.replay.replaysystem.recording.PlayerWatcher;
 import me.jumper251.replay.replaysystem.replaying.Replayer;
 import me.jumper251.replay.replaysystem.utils.MetadataBuilder;
 import me.jumper251.replay.replaysystem.utils.entities.INPC;
+import me.jumper251.replay.utils.VersionUtil;
+import me.jumper251.replay.utils.VersionUtil.VersionEnum;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialController;
@@ -90,9 +92,17 @@ public class TimingSystemReplayHook implements IReplayHook {
         watcher.setSwimming(metadataUpdate.isSwimming());
 
         MetadataBuilder metadataBuilder = new MetadataBuilder();
-        npc.setData(watcher.getMetadata(metadataBuilder));
+        watcher.getMetadata(metadataBuilder);
+
+        if (metadataUpdate.isGliding() && VersionUtil.isAbove(VersionEnum.V1_14)) {
+            metadataBuilder.setPoseField("FALL_FLYING");
+        }
+
+        npc.setData(metadataBuilder.getData());
         npc.updateMetadata();
     }
+
+
 
     private void updateViewerPosition(Replayer replayer) {
         if (replayer == null) {
