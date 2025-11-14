@@ -7,6 +7,7 @@ import me.jumper251.replay.api.ReplaySessionFinishEvent;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.track.Track;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -111,14 +112,38 @@ public final class ReplayIntegration implements Listener {
         if (!enabled) {
             return;
         }
+        Player player = event.getPlayer();
+        restoreViewerState(player);
+
         Replay replay = event.getReplay();
         AttemptContext context = contextsByReplayId.get(replay.getId());
         if (context == null || !context.personalBest) {
             return;
         }
-        Player player = event.getPlayer();
         if (player != null && player.isOnline()) {
             player.sendMessage("§aYour personal best replay was saved. Use /replay play " + context.storageFileName() + " to watch it!");
+        }
+    }
+
+    private void restoreViewerState(Player player) {
+        if (player == null || !player.isOnline()) {
+            return;
+        }
+
+        if (!player.hasGravity()) {
+            player.setGravity(true);
+        }
+
+        GameMode mode = player.getGameMode();
+        if (mode == GameMode.CREATIVE || mode == GameMode.SPECTATOR) {
+            return;
+        }
+
+        if (player.isFlying()) {
+            player.setFlying(false);
+        }
+        if (player.getAllowFlight()) {
+            player.setAllowFlight(false);
         }
     }
 
