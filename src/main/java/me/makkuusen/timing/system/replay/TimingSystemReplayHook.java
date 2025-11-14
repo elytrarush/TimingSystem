@@ -30,8 +30,12 @@ public class TimingSystemReplayHook implements IReplayHook {
 
     private static final double FOLLOW_DISTANCE = 2.5D;
     private static final double FOLLOW_HEIGHT = 1.25D;
+    private static final double SMOOTHING_FACTOR = 0.35D;
+    private static final double SNAP_DISTANCE_SQUARED = 0.04D;
+    private static final double TELEPORT_EPSILON_SQUARED = 0.0001D;
 
     private final Map<String, MetadataSnapshot> lastSnapshots = new ConcurrentHashMap<>();
+    private final Map<String, Location> lastCameraPositions = new ConcurrentHashMap<>();
 
     @Override
     public List<PacketData> onRecord(String playerName) {
@@ -96,16 +100,23 @@ public class TimingSystemReplayHook implements IReplayHook {
 
         Player viewer = replayer.getWatchingPlayer();
         if (viewer == null || !viewer.isOnline()) {
+            if (viewer != null) {
+                lastCameraPositions.remove(viewer.getName());
+            }
             return;
         }
 
+        String viewerName = viewer.getName();
+
         INPC npc = getFirstNpc(replayer);
         if (npc == null) {
+            lastCameraPositions.remove(viewerName);
             return;
         }
 
         Location npcLocation = npc.getLocation();
         if (npcLocation == null) {
+            lastCameraPositions.remove(viewerName);
             return;
         }
 
@@ -119,8 +130,11 @@ public class TimingSystemReplayHook implements IReplayHook {
         Location target = npcLocation.clone().add(backwards).add(0, FOLLOW_HEIGHT, 0);
         target.setDirection(npcLocation.getDirection());
 
-        if (viewerLocation.distanceSquared(target) > 0.04) {
-            viewer.teleport(target);
+        Location nextLocation = smoothCameraPosition(viewerName, target);
+        if (!viewerLocation.getWorld().equals(nextLocation.getWorld())) {
+            viewer.teleport(nextLocation);
+        } else if (viewerLocation.distanceSquared(nextLocation) > TELEPORT_EPSILON_SQUARED) {
+            viewer.teleport(nextLocation);
         }
 
         if (!viewer.getAllowFlight()) {
@@ -129,6 +143,38 @@ public class TimingSystemReplayHook implements IReplayHook {
         if (!viewer.isFlying()) {
             viewer.setFlying(true);
         }
+        if (viewer.hasGravity()) {
+            viewer.setGravity(false);
+        }
+    }
+
+    private Location smoothCameraPosition(String viewerName, Location target) {
+        Location previous = lastCameraPositions.get(viewerName);
+        if (previous == null || !previous.getWorld().equals(target.getWorld())) {
+            Location clone = target.clone();
+            lastCameraPositions.put(viewerName, clone);
+            return clone;
+        }
+
+        if (previous.distanceSquared(target) <= SNAP_DISTANCE_SQUARED) {
+            Location clone = target.clone();
+            lastCameraPositions.put(viewerName, clone);
+            return clone;
+        }
+
+        Location next = previous.clone();
+        next.setX(lerp(previous.getX(), target.getX()));
+        next.setY(lerp(previous.getY(), target.getY()));
+        next.setZ(lerp(previous.getZ(), target.getZ()));
+        next.setYaw(target.getYaw());
+        next.setPitch(target.getPitch());
+
+        lastCameraPositions.put(viewerName, next.clone());
+        return next;
+    }
+
+    private double lerp(double start, double end) {
+        return start + (end - start) * SMOOTHING_FACTOR;
     }
 
     private INPC getFirstNpc(Replayer replayer) {
