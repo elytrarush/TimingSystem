@@ -42,6 +42,7 @@ public enum Gui implements Message {
     TOGGLE_MEDALS,
     TOGGLE_FINAL_LAPS,
     TOGGLE_COMPACT_SCOREBOARD,
+    TOGGLE_AUTO_TP_ON_STOP_FLYING,
     COLOR,
     ON,
     OFF,

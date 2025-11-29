@@ -109,6 +109,16 @@ public class SettingsGui extends BaseGui {
         return button;
     }
 
+    public static GuiButton getAutoTpOnStopFlyingButton(TPlayer tPlayer) {
+        var button = new GuiButton(new ItemBuilder(Material.ELYTRA).setName(Text.get(tPlayer, Gui.TOGGLE_AUTO_TP_ON_STOP_FLYING)).build());
+        button.setAction(() -> {
+            tPlayer.getSettings().toggleAutoTpOnStopFlying();
+            PlaySound.buttonClick(tPlayer);
+            new SettingsGui(tPlayer).show(tPlayer.getPlayer());
+        });
+        return button;
+    }
+
     private void setButtons(TPlayer tPlayer) {
         Player player = tPlayer.getPlayer();
         if (player != null && (player.isOp() || player.hasPermission("timingsystem.packs.trackadmin"))) {
@@ -131,6 +141,8 @@ public class SettingsGui extends BaseGui {
         setItem(getLeaderboardHudButton(tPlayer), 13);
         setItem((tPlayer.getSettings().isLeaderboardHud() && tPlayer.getSettings().isLeaderboardCompareRecord()) ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 5);
         setItem(getLeaderboardCompareButton(tPlayer), 14);
+        setItem(tPlayer.getSettings().isAutoTpOnStopFlying() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 6);
+        setItem(getAutoTpOnStopFlyingButton(tPlayer), 15);
         // setItem(getColorMenuButton(tPlayer), 15);
     }
 }

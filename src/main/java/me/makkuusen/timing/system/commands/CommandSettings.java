@@ -94,6 +94,14 @@ public class CommandSettings extends BaseCommand {
         Text.send(player, tPlayer.getSettings().isCompactScoreboard() ? Success.COMPACT_SCOREBOARD_ON : Success.COMPACT_SCOREBOARD_OFF);
     }
 
+    @Subcommand("autoTpOnStopFlying")
+    @CommandPermission("%permissiontimingsystem_settings")
+    public static void onAutoTpOnStopFlying(Player player) {
+        TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
+        tPlayer.getSettings().toggleAutoTpOnStopFlying();
+        Text.send(player, tPlayer.getSettings().isAutoTpOnStopFlying() ? Success.AUTO_TP_ON_STOP_FLYING_ON : Success.AUTO_TP_ON_STOP_FLYING_OFF);
+    }
+
     @Subcommand("override")
     @CommandPermission("%permissiontimingsystem_settings_override")
     public static void onOverride(Player player) {

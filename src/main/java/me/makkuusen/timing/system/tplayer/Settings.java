@@ -30,6 +30,7 @@ public class Settings {
     private String shortName;
     @Setter
     private boolean lonely;
+    private boolean autoTpOnStopFlying;
 
     public Settings(TPlayer tPlayer, DbRow data) {
         this.uuid = tPlayer.getUniqueId();
@@ -47,6 +48,7 @@ public class Settings {
         sendFinalLaps = getBoolean(data, "sendFinalLaps");
         shortName = data.getString("shortName") != null ? data.getString("shortName") : extractShortName(tPlayer.getName());
         lonely = false;
+        autoTpOnStopFlying = getBooleanWithDefault(data, "autoTpOnStopFlying", true);
     }
 
     private String extractShortName(String name) {
@@ -62,6 +64,20 @@ public class Settings {
             return ((Number) value).intValue() == 1;
         }
         return false;  // Default value if key is missing or not a boolean/number
+    }
+
+    private boolean getBooleanWithDefault(DbRow data, String key, boolean defaultValue) {
+        Object value = data.get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        if (value instanceof Number) {
+            return ((Number) value).intValue() == 1;
+        }
+        return defaultValue;
     }
 
     public String getHexColor() {
@@ -159,6 +175,15 @@ public class Settings {
     public void toggleSendFinalLaps() {
         sendFinalLaps = !sendFinalLaps;
         TimingSystem.getDatabase().playerUpdateValue(uuid, "sendFinalLaps", sendFinalLaps);
+    }
+
+    public boolean isAutoTpOnStopFlying() {
+        return autoTpOnStopFlying;
+    }
+
+    public void toggleAutoTpOnStopFlying() {
+        autoTpOnStopFlying = !autoTpOnStopFlying;
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "autoTpOnStopFlying", autoTpOnStopFlying);
     }
 
     public boolean isCompactScoreboard() {

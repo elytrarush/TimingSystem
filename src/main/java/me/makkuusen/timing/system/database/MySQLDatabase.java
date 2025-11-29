@@ -57,7 +57,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 13;
+            int databaseVersion = 14;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(?, ?);",
                         databaseVersion,
@@ -144,6 +144,9 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         if (previousVersion < 13) {
             Version13.updateMySQL();
         }
+        if (previousVersion < 14) {
+            Version14.updateMySQL();
+        }
     }
 
 
@@ -156,7 +159,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
                       `shortName` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
                       `boat` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-                      `verbose` tinyint(1) NOT NULL DEFAULT '0',
+                      `verbose` tinyint(1) NOT NULL DEFAULT '1',
                       `timetrial` tinyint(1) NOT NULL DEFAULT '1',
                       `override` tinyint(1) NOT NULL DEFAULT '0',
                       `chestBoat` tinyint(1) NOT NULL DEFAULT '0',
@@ -167,6 +170,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       `color` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#9D9D97',
                       `toggleSound` tinyint(1) DEFAULT 1 NOT NULL,
                       `sendFinalLaps` tinyint(1) NOT NULL DEFAULT '0',
+                      `autoTpOnStopFlying` tinyint(1) NOT NULL DEFAULT '1',
                       PRIMARY KEY (`uuid`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
 
