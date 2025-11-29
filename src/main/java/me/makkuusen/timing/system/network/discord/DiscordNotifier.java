@@ -17,6 +17,12 @@ public final class DiscordNotifier {
     private static String webhookUrl;
     private static String recordMessageTemplate;
 
+    // Player join/leave webhook settings
+    private static boolean playerJoinLeaveEnabled;
+    private static String playerJoinLeaveWebhookUrl;
+    private static String playerJoinMessageTemplate;
+    private static String playerLeaveMessageTemplate;
+
     private static final HttpClient http = HttpClient.newHttpClient();
 
     private DiscordNotifier() {}
@@ -28,17 +34,32 @@ public final class DiscordNotifier {
 
         if (!enabled || webhookUrl == null || webhookUrl.isBlank()) {
             enabled = false;
-            return;
+        }
+
+        // Load player join/leave settings
+        playerJoinLeaveEnabled = plugin.getConfig().getBoolean("discord.playerJoinLeave.enabled", false);
+        playerJoinLeaveWebhookUrl = plugin.getConfig().getString("discord.playerJoinLeave.webhookUrl", "");
+        playerJoinMessageTemplate = plugin.getConfig().getString("discord.playerJoinLeave.joinMessage", ":green_circle: **{player}** joined the server");
+        playerLeaveMessageTemplate = plugin.getConfig().getString("discord.playerJoinLeave.leaveMessage", ":red_circle: **{player}** left the server");
+
+        if (!playerJoinLeaveEnabled || playerJoinLeaveWebhookUrl == null || playerJoinLeaveWebhookUrl.isBlank()) {
+            playerJoinLeaveEnabled = false;
         }
     }
 
     public static void disable() {
         enabled = false;
         webhookUrl = null;
+        playerJoinLeaveEnabled = false;
+        playerJoinLeaveWebhookUrl = null;
     }
 
     public static boolean isEnabled() {
         return enabled;
+    }
+
+    public static boolean isPlayerJoinLeaveEnabled() {
+        return playerJoinLeaveEnabled;
     }
 
     public static void sendNewRecord(String track, String player, String time, String delta) {
@@ -50,6 +71,24 @@ public final class DiscordNotifier {
             .replace("{time}", time)
             .replace("{delta}", delta == null ? "N/A" : delta);
 
+        sendWebhookMessage(webhookUrl, content);
+    }
+
+    public static void sendPlayerJoin(String player) {
+        if (!playerJoinLeaveEnabled || playerJoinLeaveWebhookUrl == null || playerJoinLeaveWebhookUrl.isBlank()) return;
+
+        String content = playerJoinMessageTemplate.replace("{player}", player);
+        sendWebhookMessage(playerJoinLeaveWebhookUrl, content);
+    }
+
+    public static void sendPlayerLeave(String player) {
+        if (!playerJoinLeaveEnabled || playerJoinLeaveWebhookUrl == null || playerJoinLeaveWebhookUrl.isBlank()) return;
+
+        String content = playerLeaveMessageTemplate.replace("{player}", player);
+        sendWebhookMessage(playerJoinLeaveWebhookUrl, content);
+    }
+
+    private static void sendWebhookMessage(String url, String content) {
         // Prepare JSON payload
         String json = "{\"content\": " + quote(content) + "}";
 
@@ -57,7 +96,7 @@ public final class DiscordNotifier {
         Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), () -> {
             try {
                 HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(webhookUrl))
+                    .uri(URI.create(url))
                     .header("Content-Type", "application/json; charset=utf-8")
                     .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
                     .build();

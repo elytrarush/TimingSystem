@@ -80,3 +80,14 @@ discord:
   # Message sent when a new global record is set on a track
   # Available placeholders: {track}, {player}, {time}, {delta}
   message: ":trophy: New record on {track}! {player} — {time} (-{delta})"
+  # Player join/leave notifications
+  playerJoinLeave:
+    enabled: false
+    # Create a Discord Webhook for player join/leave notifications (can be the same or different channel)
+    webhookUrl: ""
+    # Message sent when a player joins the server
+    # Available placeholders: {player}
+    joinMessage: ":green_circle: **{player}** joined the server"
+    # Message sent when a player leaves the server
+    # Available placeholders: {player}
+    leaveMessage: ":red_circle: **{player}** left the server"

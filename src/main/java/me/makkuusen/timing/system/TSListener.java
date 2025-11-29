@@ -14,6 +14,7 @@ import me.makkuusen.timing.system.heat.HeatState;
 import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.network.UUIDFetcher;
 import me.makkuusen.timing.system.network.UUIDFetcherCallback;
+import me.makkuusen.timing.system.network.discord.DiscordNotifier;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.FinalRound;
@@ -84,6 +85,9 @@ public class TSListener implements Listener {
             // Update name
             tPlayer.setName(player.getName());
         }
+
+        // Send Discord notification for player join
+        DiscordNotifier.sendPlayerJoin(player.getName());
 
         // Issue #51 - Check for other TPlayers that have an identical name.
         // If there is another player with the same name, but not the same UUID. We need to update that TPlayers name.
@@ -529,6 +533,9 @@ public class TSListener implements Listener {
         TPlayer.setPlayer(null);
         TPlayer.clearScoreboard();
         BoatUtilsManager.clearPlayerModes(event.getPlayer().getUniqueId());
+
+        // Send Discord notification for player leave
+        DiscordNotifier.sendPlayerLeave(event.getPlayer().getName());
     }
 
     static void handleTimeTrials(Player player) {
