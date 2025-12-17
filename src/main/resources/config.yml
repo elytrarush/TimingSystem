@@ -77,6 +77,9 @@ discord:
   enabled: false
   # Create a Discord Webhook in your target channel and paste the URL here
   webhookUrl: ""
+  # Reports (/report) webhook (separate from record announcements)
+  report:
+    webhookUrl: ""
   # Message sent when a new global record is set on a track
   # Available placeholders: {track}, {player}, {time}, {delta}
   message: ":trophy: New record on {track}! {player} — {time} (-{delta})"

@@ -132,6 +132,7 @@ public class TimingSystem extends JavaPlugin {
         manager.registerCommand(new CommandGhost());
         manager.registerCommand(new CommandUnghost());
         manager.registerCommand(new CommandBoatUtilsModeEdit());
+        manager.registerCommand(new CommandReport());
 
         if (pm.isPluginEnabled("FancyHolograms")) {
             // Load persisted global leaderboard hologram registrations and start auto-update

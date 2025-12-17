@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 public final class DiscordNotifier {
     private static boolean enabled;
     private static String webhookUrl;
+    private static String reportWebhookUrl;
     private static String recordMessageTemplate;
 
     // Player join/leave webhook settings
@@ -30,6 +31,7 @@ public final class DiscordNotifier {
     public static void enable(TimingSystem plugin) {
         enabled = plugin.getConfig().getBoolean("discord.enabled", false);
         webhookUrl = plugin.getConfig().getString("discord.webhookUrl", "");
+        reportWebhookUrl = plugin.getConfig().getString("discord.report.webhookUrl", "");
         recordMessageTemplate = plugin.getConfig().getString("discord.message", ":trophy: New record on {track}! {player} — {time} (−{delta})");
 
         if (!enabled || webhookUrl == null || webhookUrl.isBlank()) {
@@ -50,6 +52,7 @@ public final class DiscordNotifier {
     public static void disable() {
         enabled = false;
         webhookUrl = null;
+        reportWebhookUrl = null;
         playerJoinLeaveEnabled = false;
         playerJoinLeaveWebhookUrl = null;
     }
@@ -71,26 +74,48 @@ public final class DiscordNotifier {
             .replace("{time}", time)
             .replace("{delta}", delta == null ? "N/A" : delta);
 
-        sendWebhookMessage(webhookUrl, content);
+        sendWebhookMessage(webhookUrl, content, null);
     }
 
     public static void sendPlayerJoin(String player) {
         if (!playerJoinLeaveEnabled || playerJoinLeaveWebhookUrl == null || playerJoinLeaveWebhookUrl.isBlank()) return;
 
         String content = playerJoinMessageTemplate.replace("{player}", player);
-        sendWebhookMessage(playerJoinLeaveWebhookUrl, content);
+        sendWebhookMessage(playerJoinLeaveWebhookUrl, content, null);
     }
 
     public static void sendPlayerLeave(String player) {
         if (!playerJoinLeaveEnabled || playerJoinLeaveWebhookUrl == null || playerJoinLeaveWebhookUrl.isBlank()) return;
 
         String content = playerLeaveMessageTemplate.replace("{player}", player);
-        sendWebhookMessage(playerJoinLeaveWebhookUrl, content);
+        sendWebhookMessage(playerJoinLeaveWebhookUrl, content, null);
     }
 
-    private static void sendWebhookMessage(String url, String content) {
+    /**
+     * Sends a report message to the primary webhook URL.
+     * This is intentionally independent of {@link #enabled} so servers can allow /report without enabling record spam.
+     */
+    public static void sendReport(String content) {
+        sendReport(content, null);
+    }
+
+    /**
+     * Sends a report message to the report webhook URL. If threadName is set, it will be sent as Discord forum
+     * {@code thread_name} so the webhook creates/posts into a thread.
+     */
+    public static void sendReport(String content, String threadName) {
+        if (reportWebhookUrl == null || reportWebhookUrl.isBlank()) return;
+        sendWebhookMessage(reportWebhookUrl, content, threadName);
+    }
+
+    private static void sendWebhookMessage(String url, String content, String threadName) {
         // Prepare JSON payload
-        String json = "{\"content\": " + quote(content) + "}";
+        StringBuilder json = new StringBuilder();
+        json.append("{\"content\": ").append(quote(content));
+        if (threadName != null && !threadName.isBlank()) {
+            json.append(",\"thread_name\": ").append(quote(threadName));
+        }
+        json.append("}");
 
         // Run asynchronously to avoid blocking the server thread
         Bukkit.getScheduler().runTaskAsynchronously(TimingSystem.getPlugin(), () -> {
@@ -98,7 +123,7 @@ public final class DiscordNotifier {
                 HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Content-Type", "application/json; charset=utf-8")
-                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                    .POST(HttpRequest.BodyPublishers.ofString(json.toString(), StandardCharsets.UTF_8))
                     .build();
                 http.send(request, HttpResponse.BodyHandlers.discarding());
             } catch (Exception e) {

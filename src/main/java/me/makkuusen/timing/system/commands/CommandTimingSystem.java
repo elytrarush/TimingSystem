@@ -43,6 +43,10 @@ public class CommandTimingSystem extends BaseCommand {
     @CommandCompletion("@players <reason>")
     @CommandPermission("%permissiontimingsystem_ban")
     public static void onBan(CommandSender sender, String targetName, @Optional @Single String reason) {
+        // if (sender instanceof Player p && !p.isOp()) {
+        //     Text.send(sender, Error.PERMISSION_DENIED);
+        //     return;
+        // }
         if (targetName == null || targetName.isBlank()) {
             Text.send(sender, Error.PLAYER_NOT_FOUND);
             return;
@@ -78,6 +82,10 @@ public class CommandTimingSystem extends BaseCommand {
     @CommandCompletion("@players")
     @CommandPermission("%permissiontimingsystem_ban")
     public static void onUnban(CommandSender sender, String targetName) {
+        // if (sender instanceof Player p && !p.isOp()) {
+        //     Text.send(sender, Error.PERMISSION_DENIED);
+        //     return;
+        // }
         if (targetName == null || targetName.isBlank()) {
             Text.send(sender, Error.PLAYER_NOT_FOUND);
             return;
