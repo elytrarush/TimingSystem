@@ -127,6 +127,7 @@ permissions:
     default: op
     children:
       timingsystem.packs.trackbuilder: true
+      timingsystem.ban: true
       timingsystem.track.here: true
       timingsystem.track.menu: true
       timingsystem.track.tp: true
@@ -148,6 +149,10 @@ permissions:
       timingsystem.trackedit.type: true
       timingsystem.trackedit.owner: true
       timingsystem.trackedit.contributors: true
+
+  timingsystem.ban:
+    description: Allow banning/unbanning cheaters from leaderboards
+    default: op
 
   timingsystem.packs.racehoster:
     description: Player has the tools to host quick races
