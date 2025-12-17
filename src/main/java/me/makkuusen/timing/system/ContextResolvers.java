@@ -54,6 +54,10 @@ public class ContextResolvers {
                 Track.class, ContextResolvers.getTrackContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("track", (context -> TrackDatabase.getTracksAsStrings(context.getPlayer())));
 
+        manager.getCommandCompletions().registerAsyncCompletion("ts_players", context ->
+            TimingSystem.players.values().stream().map(TPlayer::getName).toList()
+        );
+
         manager.getCommandContexts().registerContext(
                 TrackRegion.class, ContextResolvers.getRegionContextResolver());
         manager.getCommandCompletions().registerAsyncCompletion("region", TrackDatabase::getRegionsAsStrings

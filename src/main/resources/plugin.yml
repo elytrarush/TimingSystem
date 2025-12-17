@@ -64,6 +64,9 @@ commands:
   boatutilsmodeedit:
     description: Command for creating and editing boat utils modes
     aliases: [bume]
+  replayts:
+    description: Watch a TimingSystem replay for a track and player.
+    aliases: [rts]
 
 permissions:
   timingsystem.packs.default:
