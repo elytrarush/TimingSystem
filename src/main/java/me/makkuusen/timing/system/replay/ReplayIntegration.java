@@ -113,6 +113,8 @@ public final class ReplayIntegration implements Listener {
             return;
         }
         Player player = event.getPlayer();
+
+        ReplayCameraManager.getInstance().onReplayEnd(player);
         restoreViewerState(player);
 
         Replay replay = event.getReplay();

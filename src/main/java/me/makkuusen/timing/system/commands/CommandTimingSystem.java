@@ -6,6 +6,8 @@ import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.permissions.PermissionTimingSystem;
+import me.makkuusen.timing.system.replay.ReplayCameraManager;
+import me.makkuusen.timing.system.replay.ReplayCameraMode;
 import me.makkuusen.timing.system.theme.TSColor;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
@@ -32,6 +34,32 @@ import org.bukkit.entity.TextDisplay;
 
 @CommandAlias("timingsystem|ts")
 public class CommandTimingSystem extends BaseCommand {
+
+    @Subcommand("replay camera")
+    @CommandCompletion("follow|free")
+    public static void onReplayCamera(Player player, String mode) {
+        if (player == null) {
+            return;
+        }
+
+        ReplayCameraManager.getInstance().ensureWatching(player);
+
+        if (!ReplayCameraManager.getInstance().isWatching(player)) {
+            player.sendMessage("You're not currently watching a replay.");
+            return;
+        }
+
+        ReplayCameraMode cameraMode;
+        if (mode != null && (mode.equalsIgnoreCase("free") || mode.equalsIgnoreCase("spectator"))) {
+            cameraMode = ReplayCameraMode.FREE;
+        } else {
+            cameraMode = ReplayCameraMode.FOLLOW;
+        }
+
+        ReplayCameraManager.getInstance().setMode(player, cameraMode);
+        player.sendMessage("Replay camera set to " + cameraMode.name().toLowerCase() + ".");
+    }
+
     @Subcommand("tag create")
     @CommandCompletion("<tag>")
     @CommandPermission("%permissiontimingsystem_tag_create")

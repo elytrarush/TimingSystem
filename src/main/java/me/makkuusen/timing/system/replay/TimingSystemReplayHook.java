@@ -24,6 +24,7 @@ import org.bukkit.util.Vector;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -38,7 +39,59 @@ public class TimingSystemReplayHook implements IReplayHook {
     private static final double TELEPORT_EPSILON_SQUARED = 0.0001D;
 
     private final Map<String, MetadataSnapshot> lastSnapshots = new ConcurrentHashMap<>();
-    private final Map<String, Location> lastCameraPositions = new ConcurrentHashMap<>();
+    private static final Map<UUID, Location> lastCameraPositions = new ConcurrentHashMap<>();
+
+    static void clearCameraPosition(UUID viewerId) {
+        if (viewerId == null) {
+            return;
+        }
+        lastCameraPositions.remove(viewerId);
+    }
+
+    static void updateFollowCamera(Player viewer, Replayer replayer) {
+        if (viewer == null || replayer == null || !viewer.isOnline()) {
+            return;
+        }
+
+        INPC npc = getFirstNpc(replayer);
+        if (npc == null) {
+            clearCameraPosition(viewer.getUniqueId());
+            return;
+        }
+
+        Location npcLocation = npc.getLocation();
+        if (npcLocation == null) {
+            clearCameraPosition(viewer.getUniqueId());
+            return;
+        }
+
+        Location viewerLocation = viewer.getLocation();
+        Vector direction = npcLocation.getDirection();
+        if (direction.lengthSquared() == 0) {
+            direction = viewerLocation.getDirection();
+        }
+
+        Vector backwards = direction.normalize().multiply(-FOLLOW_DISTANCE);
+        Location target = npcLocation.clone().add(backwards).add(0, FOLLOW_HEIGHT, 0);
+        target.setDirection(npcLocation.getDirection());
+
+        Location nextLocation = smoothCameraPosition(viewer.getUniqueId(), target);
+        if (!viewerLocation.getWorld().equals(nextLocation.getWorld())) {
+            viewer.teleport(nextLocation);
+        } else if (viewerLocation.distanceSquared(nextLocation) > TELEPORT_EPSILON_SQUARED) {
+            viewer.teleport(nextLocation);
+        }
+
+        if (!viewer.getAllowFlight()) {
+            viewer.setAllowFlight(true);
+        }
+        if (!viewer.isFlying()) {
+            viewer.setFlying(true);
+        }
+        if (viewer.hasGravity()) {
+            viewer.setGravity(false);
+        }
+    }
 
     @Override
     public List<PacketData> onRecord(String playerName) {
@@ -116,65 +169,29 @@ public class TimingSystemReplayHook implements IReplayHook {
 
         Player viewer = replayer.getWatchingPlayer();
         if (viewer == null || !viewer.isOnline()) {
-            if (viewer != null) {
-                lastCameraPositions.remove(viewer.getName());
-            }
             return;
         }
 
-        String viewerName = viewer.getName();
-
-        INPC npc = getFirstNpc(replayer);
-        if (npc == null) {
-            lastCameraPositions.remove(viewerName);
+        ReplayCameraManager.getInstance().ensureWatching(viewer);
+        if (ReplayCameraManager.getInstance().getMode(viewer) != ReplayCameraMode.FOLLOW) {
+            clearCameraPosition(viewer.getUniqueId());
             return;
         }
 
-        Location npcLocation = npc.getLocation();
-        if (npcLocation == null) {
-            lastCameraPositions.remove(viewerName);
-            return;
-        }
-
-        Location viewerLocation = viewer.getLocation();
-        Vector direction = npcLocation.getDirection();
-        if (direction.lengthSquared() == 0) {
-            direction = viewerLocation.getDirection();
-        }
-
-        Vector backwards = direction.normalize().multiply(-FOLLOW_DISTANCE);
-        Location target = npcLocation.clone().add(backwards).add(0, FOLLOW_HEIGHT, 0);
-        target.setDirection(npcLocation.getDirection());
-
-        Location nextLocation = smoothCameraPosition(viewerName, target);
-        if (!viewerLocation.getWorld().equals(nextLocation.getWorld())) {
-            viewer.teleport(nextLocation);
-        } else if (viewerLocation.distanceSquared(nextLocation) > TELEPORT_EPSILON_SQUARED) {
-            viewer.teleport(nextLocation);
-        }
-
-        if (!viewer.getAllowFlight()) {
-            viewer.setAllowFlight(true);
-        }
-        if (!viewer.isFlying()) {
-            viewer.setFlying(true);
-        }
-        if (viewer.hasGravity()) {
-            viewer.setGravity(false);
-        }
+        updateFollowCamera(viewer, replayer);
     }
 
-    private Location smoothCameraPosition(String viewerName, Location target) {
-        Location previous = lastCameraPositions.get(viewerName);
+    private static Location smoothCameraPosition(UUID viewerId, Location target) {
+        Location previous = lastCameraPositions.get(viewerId);
         if (previous == null || !previous.getWorld().equals(target.getWorld())) {
             Location clone = target.clone();
-            lastCameraPositions.put(viewerName, clone);
+            lastCameraPositions.put(viewerId, clone);
             return clone;
         }
 
         if (previous.distanceSquared(target) <= SNAP_DISTANCE_SQUARED) {
             Location clone = target.clone();
-            lastCameraPositions.put(viewerName, clone);
+            lastCameraPositions.put(viewerId, clone);
             return clone;
         }
 
@@ -185,15 +202,15 @@ public class TimingSystemReplayHook implements IReplayHook {
         next.setYaw(target.getYaw());
         next.setPitch(target.getPitch());
 
-        lastCameraPositions.put(viewerName, next.clone());
+        lastCameraPositions.put(viewerId, next.clone());
         return next;
     }
 
-    private double lerp(double start, double end) {
+    private static double lerp(double start, double end) {
         return start + (end - start) * SMOOTHING_FACTOR;
     }
 
-    private INPC getFirstNpc(Replayer replayer) {
+    private static INPC getFirstNpc(Replayer replayer) {
         for (INPC npc : replayer.getNPCList().values()) {
             return npc;
         }
