@@ -57,7 +57,7 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         try {
             var row = DB.getFirstRow("SELECT * FROM `ts_version` ORDER BY `date` DESC;");
 
-            int databaseVersion = 14;
+            int databaseVersion = 15;
             if (row == null) { // First startup
                 DB.executeInsert("INSERT INTO `ts_version` (`version`, `date`) VALUES(?, ?);",
                         databaseVersion,
@@ -147,6 +147,9 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
         if (previousVersion < 14) {
             Version14.updateMySQL();
         }
+        if (previousVersion < 15) {
+            Version15.updateMySQL();
+        }
     }
 
 
@@ -173,6 +176,13 @@ public class MySQLDatabase implements TSDatabase, EventDatabase, TrackDatabase, 
                       `autoTpOnStopFlying` tinyint(1) NOT NULL DEFAULT '1',
                       PRIMARY KEY (`uuid`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
+
+                        DB.executeUpdate("""
+                                        CREATE TABLE IF NOT EXISTS `cheaters` (
+                                            `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                            `reason` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                                            PRIMARY KEY (`uuid`)
+                                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;""");
 
             DB.executeUpdate("""
                     CREATE TABLE IF NOT EXISTS `ts_custom_boatutils_modes` (

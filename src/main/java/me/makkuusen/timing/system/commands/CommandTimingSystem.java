@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.commands;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
 import me.makkuusen.timing.system.TimingSystem;
+import me.makkuusen.timing.system.CheaterManager;
 import me.makkuusen.timing.system.TrackTagManager;
 import me.makkuusen.timing.system.database.TSDatabase;
 import me.makkuusen.timing.system.permissions.PermissionTimingSystem;
@@ -31,9 +32,78 @@ import de.oliver.fancyholograms.api.hologram.Hologram;
 import de.oliver.fancyholograms.api.data.TextHologramData;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.Bukkit;
+
+import java.util.UUID;
 
 @CommandAlias("timingsystem|ts")
 public class CommandTimingSystem extends BaseCommand {
+
+    @Subcommand("ban")
+    @CommandCompletion("@players <reason>")
+    @CommandPermission("%permissiontimingsystem_ban")
+    public static void onBan(CommandSender sender, String targetName, @Optional @Single String reason) {
+        if (targetName == null || targetName.isBlank()) {
+            Text.send(sender, Error.PLAYER_NOT_FOUND);
+            return;
+        }
+
+        Player targetOnline = Bukkit.getPlayerExact(targetName);
+        UUID targetUuid;
+        String resolvedName;
+
+        if (targetOnline != null) {
+            targetUuid = targetOnline.getUniqueId();
+            resolvedName = targetOnline.getName();
+        } else {
+            var tp = TSDatabase.getPlayer(targetName);
+            if (tp == null) {
+                Text.send(sender, Error.PLAYER_NOT_FOUND);
+                return;
+            }
+            targetUuid = tp.getUniqueId();
+            resolvedName = tp.getName();
+        }
+
+        CheaterManager.ban(targetUuid, reason);
+        Text.send(sender, Success.SAVED);
+
+        if (targetOnline != null) {
+            targetOnline.sendMessage("You have been marked as a cheater" + (reason == null || reason.isBlank() ? "." : ": " + reason));
+        }
+        sender.sendMessage("Banned " + resolvedName + " from leaderboards.");
+    }
+
+    @Subcommand("unban")
+    @CommandCompletion("@players")
+    @CommandPermission("%permissiontimingsystem_ban")
+    public static void onUnban(CommandSender sender, String targetName) {
+        if (targetName == null || targetName.isBlank()) {
+            Text.send(sender, Error.PLAYER_NOT_FOUND);
+            return;
+        }
+
+        Player targetOnline = Bukkit.getPlayerExact(targetName);
+        UUID targetUuid;
+        String resolvedName;
+
+        if (targetOnline != null) {
+            targetUuid = targetOnline.getUniqueId();
+            resolvedName = targetOnline.getName();
+        } else {
+            var tp = TSDatabase.getPlayer(targetName);
+            if (tp == null) {
+                Text.send(sender, Error.PLAYER_NOT_FOUND);
+                return;
+            }
+            targetUuid = tp.getUniqueId();
+            resolvedName = tp.getName();
+        }
+
+        CheaterManager.unban(targetUuid);
+        Text.send(sender, Success.SAVED);
+        sender.sendMessage("Unbanned " + resolvedName + ".");
+    }
 
     @Subcommand("replay camera")
     @CommandCompletion("follow|free")

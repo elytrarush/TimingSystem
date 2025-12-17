@@ -18,7 +18,8 @@ public enum PermissionTimingSystem implements Permissions {
     COLOR_SET_NAMED,
     COLOR_SET_HEX,
     GHOST,
-    GLOBALLEADERBOARD_CREATE;
+    GLOBALLEADERBOARD_CREATE,
+    BAN;
 
     @Override
     public String getNode() {

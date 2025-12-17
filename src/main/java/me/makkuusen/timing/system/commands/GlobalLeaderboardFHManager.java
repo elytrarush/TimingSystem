@@ -4,6 +4,7 @@ import de.oliver.fancyholograms.api.FancyHologramsPlugin;
 import de.oliver.fancyholograms.api.data.HologramData;
 import de.oliver.fancyholograms.api.data.TextHologramData;
 import de.oliver.fancyholograms.api.hologram.Hologram;
+import me.makkuusen.timing.system.CheaterManager;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.tplayer.TPlayer;
@@ -133,6 +134,9 @@ public final class GlobalLeaderboardFHManager {
         for (Track track : tracks) {
             track.getTimeTrials().getTopList(-1);
             for (TPlayer p : TimingSystem.players.values()) {
+                if (CheaterManager.isCheater(p.getUniqueId())) {
+                    continue;
+                }
                 Integer pos = track.getTimeTrials().getPlayerTopListPosition(p);
                 if (pos != null && pos > 0) {
                     double add = 1000.0 / Math.pow(pos.doubleValue(), 0.5);

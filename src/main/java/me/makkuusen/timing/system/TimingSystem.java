@@ -153,6 +153,7 @@ public class TimingSystem extends JavaPlugin {
         if (!database.initialize()) return;
         database.update();
         TSDatabase.synchronize();
+        CheaterManager.load();
         TrackDatabase.loadTrackFinishesAsync();
         EventDatabase.initSynchronize();
         //LogDatabase.synchronize();
@@ -176,6 +177,10 @@ public class TimingSystem extends JavaPlugin {
                 me.neznamy.tab.api.TabAPI.getInstance().getPlaceholderManager().registerRelationalPlaceholder("%rel_ts_track%", 500, (viewer, target) -> {
                     if (target == null) return "";
                     var uuid = target.getUniqueId();
+
+                    if (CheaterManager.isCheater(uuid)) {
+                        return "CHEATER";
+                    }
                     // If player is on a time trial, show that track
                     if (me.makkuusen.timing.system.timetrial.TimeTrialController.timeTrials.containsKey(uuid)) {
                         return me.makkuusen.timing.system.timetrial.TimeTrialController.timeTrials.get(uuid).getTrack().getDisplayName();

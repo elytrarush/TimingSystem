@@ -3,6 +3,7 @@ package me.makkuusen.timing.system.track;
 import co.aikar.idb.DB;
 import lombok.Getter;
 import me.makkuusen.timing.system.ApiUtilities;
+import me.makkuusen.timing.system.CheaterManager;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
@@ -143,6 +144,9 @@ public class TimeTrials {
 
         List<TimeTrialFinish> bestTimes = new ArrayList<>();
         for (TPlayer player : timeTrialFinishes.keySet()) {
+            if (CheaterManager.isCheater(player.getUniqueId())) {
+                continue;
+            }
             TimeTrialFinish bestFinish = getBestFinish(player);
             if (bestFinish != null) {
                 bestTimes.add(bestFinish);
