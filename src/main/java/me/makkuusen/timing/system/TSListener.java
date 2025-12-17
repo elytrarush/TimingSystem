@@ -520,6 +520,8 @@ public class TSListener implements Listener {
                     Track track_ = maybeTrack.get();
 
                     if (track_.isTimeTrial()) {
+                        // Prevent carrying over rocket/elytra momentum into a new run
+                        stopPlayerMovement(player);
                         TimeTrial timeTrial = new TimeTrial(track_, TSDatabase.getPlayer(player.getUniqueId()));
                         timeTrial.playerStartingTimeTrial();
                         TimeTrialController.elytraProtection.remove(player.getUniqueId());
@@ -559,6 +561,8 @@ public class TSListener implements Listener {
             for (var r : startRegions) {
                 if (r.contains(player.getLocation())) {
                     if (timeTrial.getLatestCheckpoint() != 0) {
+                        // Restarting the run: ensure the player starts from 0 speed
+                        stopPlayerMovement(player);
                         timeTrial.playerRestartMap();
                         clearTemporaryRockets(player);
                         clearTemporaryWindCharges(player);

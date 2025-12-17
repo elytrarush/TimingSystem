@@ -704,6 +704,7 @@ public class ApiUtilities {
             }
         }
         chain.async(() -> player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN)).delay(4);
+        chain.sync(() -> resetPlayerSpeed(player));
         if (track.isBoatTrack()) {
             chain.sync(() -> ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, sameAsLastTrack)).execute();
         } else if (track.isElytraTrack()) {
@@ -723,7 +724,7 @@ public class ApiUtilities {
     private static void giveElytra(Player player) {
         player.getInventory().setChestplate(new ItemBuilder(Material.ELYTRA).setCustomModelData(747).setName(Component.text("Disposable wings").color(NamedTextColor.RED)).build());
         // Reset movement before starting the 10s countdown so everyone starts equally
-        stopPlayerMovement(player);
+        resetPlayerSpeed(player);
         TimeTrialController.elytraProtection.put(player.getUniqueId(), Instant.now().getEpochSecond() + 10);
     }
 
@@ -732,6 +733,7 @@ public class ApiUtilities {
         location.setPitch(player.getLocation().getPitch());
         TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
         chain.async(() -> player.teleportAsync(location, teleportCause)).delay(3);
+        chain.sync(() -> resetPlayerSpeed(player));
         if (track.isBoatTrack()) {
             chain.sync(() -> ApiUtilities.spawnBoatAndAddPlayerWithBoatUtils(player, location, track, true)).execute();
         } else if (track.isElytraTrack()) {
@@ -748,11 +750,21 @@ public class ApiUtilities {
         }
     }
 
+    private static void resetPlayerSpeed(Player player) {
+        stopPlayerMovement(player);
+        Bukkit.getScheduler().runTaskLater(TimingSystem.getPlugin(), () -> {
+            if (player == null || !player.isOnline()) {
+                return;
+            }
+            stopPlayerMovement(player);
+        }, 1L);
+    }
 
     private static void stopPlayerMovement(Player p) {
         // Zero current velocity and disable glide
         p.setVelocity(new org.bukkit.util.Vector(0, 0, 0));
         if (p.isGliding()) p.setGliding(false);
+        p.setFallDistance(0f);
     }
 
 
