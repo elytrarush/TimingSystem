@@ -13,6 +13,7 @@ import me.makkuusen.timing.system.round.QualificationRound;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
 import me.makkuusen.timing.system.theme.messages.ActionBar;
+import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.timetrial.LeaderboardHud;
 import me.makkuusen.timing.system.timetrial.TimeTrial;
 import me.makkuusen.timing.system.timetrial.TimeTrialAttempt;
@@ -56,10 +57,27 @@ public class Tasks {
 
     public void startPlayerTimer(TimingSystem plugin) {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            double tps = 20.0;
+            try {
+                double[] tpsValues = Bukkit.getServer().getTPS();
+                if (tpsValues != null && tpsValues.length > 0) {
+                    tps = tpsValues[0];
+                }
+            } catch (Throwable ignored) {
+                // If TPS isn't exposed by the server implementation, skip TPS-based cancellation.
+            }
+
             for (Player p : Bukkit.getOnlinePlayers()) {
                 elytraProtectionCountdown(p);
                 // Player settings fetched lazily where needed in downstream methods
                 if (TimeTrialController.timeTrials.containsKey(p.getUniqueId())) {
+                    if (tps < 17.0) {
+                        Text.send(p, Error.LAG_DETECTED);
+                        TimeTrialController.playerLeavingMap(p.getUniqueId());
+                        LeaderboardHud.hide(p.getUniqueId());
+                        BossBarHud.hide(p);
+                        continue;
+                    }
                     timeTrialTimer(p);
                 } else {
                     var tPlayer = TSDatabase.getPlayer(p);
