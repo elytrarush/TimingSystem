@@ -1,16 +1,13 @@
 package me.makkuusen.timing.system.papi;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import me.makkuusen.timing.system.TimingSystem;
 import me.makkuusen.timing.system.api.TimingSystemAPI;
+import me.makkuusen.timing.system.leaderboard.GlobalPointsLeaderboard;
 import org.bukkit.OfflinePlayer;
 
 public class TimingSystemPlaceholder extends PlaceholderExpansion {
 
-    private final TimingSystem plugin; // The instance is created in the constructor and won't be modified, so it can be final
-
-    public TimingSystemPlaceholder(TimingSystem plugin) {
-        this.plugin = plugin;
+    public TimingSystemPlaceholder() {
     }
     @Override
     public String getAuthor() {
@@ -41,6 +38,16 @@ public class TimingSystemPlaceholder extends PlaceholderExpansion {
 
         if (params.equalsIgnoreCase("tracks_total")) {
             return String.valueOf(TimingSystemAPI.getTracks().size());
+        }
+
+        if (player != null && params.equalsIgnoreCase("global_rank")) {
+            Integer rank = GlobalPointsLeaderboard.getRank(player.getUniqueId());
+            return rank == null ? "-" : String.valueOf(rank);
+        }
+
+        if (player != null && params.equalsIgnoreCase("global_points")) {
+            Long points = GlobalPointsLeaderboard.getPoints(player.getUniqueId());
+            return points == null ? "0" : String.valueOf(points);
         }
 
         return null; // Placeholder is unknown by the Expansion

@@ -4,11 +4,9 @@ import de.oliver.fancyholograms.api.FancyHologramsPlugin;
 import de.oliver.fancyholograms.api.data.HologramData;
 import de.oliver.fancyholograms.api.data.TextHologramData;
 import de.oliver.fancyholograms.api.hologram.Hologram;
-import me.makkuusen.timing.system.CheaterManager;
 import me.makkuusen.timing.system.TimingSystem;
-import me.makkuusen.timing.system.database.TrackDatabase;
+import me.makkuusen.timing.system.leaderboard.GlobalPointsLeaderboard;
 import me.makkuusen.timing.system.tplayer.TPlayer;
-import me.makkuusen.timing.system.track.Track;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -16,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * Manages global leaderboard holograms created via FancyHolograms.
@@ -129,25 +126,7 @@ public final class GlobalLeaderboardFHManager {
     }
 
     public static List<Map.Entry<TPlayer, Double>> computeGlobalPointsTop(int limit) {
-        Map<TPlayer, Double> points = new HashMap<>();
-        List<Track> tracks = new ArrayList<>(TrackDatabase.tracks);
-        for (Track track : tracks) {
-            track.getTimeTrials().getTopList(-1);
-            for (TPlayer p : TimingSystem.players.values()) {
-                if (CheaterManager.isCheater(p.getUniqueId())) {
-                    continue;
-                }
-                Integer pos = track.getTimeTrials().getPlayerTopListPosition(p);
-                if (pos != null && pos > 0) {
-                    double add = 1000.0 / Math.pow(pos.doubleValue(), 0.5);
-                    points.merge(p, add, Double::sum);
-                }
-            }
-        }
-        return points.entrySet().stream()
-                .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
-                .limit(limit)
-                .collect(Collectors.toList());
+        return GlobalPointsLeaderboard.computeTop(limit);
     }
 
     public static String formatPoints(double pts) {

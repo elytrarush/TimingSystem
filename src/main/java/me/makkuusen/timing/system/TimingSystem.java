@@ -16,6 +16,7 @@ import me.makkuusen.timing.system.listeners.GSitListener;
 import me.makkuusen.timing.system.listeners.ReadyCheckListener;
 import me.makkuusen.timing.system.loneliness.LonelinessController;
 import me.makkuusen.timing.system.papi.TimingSystemPlaceholder;
+import me.makkuusen.timing.system.leaderboard.GlobalPointsLeaderboard;
 import me.makkuusen.timing.system.permissions.*;
 import me.makkuusen.timing.system.replay.ReplayIntegration;
 import me.makkuusen.timing.system.network.discord.DiscordNotifier;
@@ -141,6 +142,11 @@ public class TimingSystem extends JavaPlugin {
             GlobalLeaderboardFHManager.startUpdateTask();
         }
 
+        // Cache global points/ranks for placeholders (used by TAB belowname / PlaceholderAPI)
+        if (pm.isPluginEnabled("PlaceholderAPI") || pm.isPluginEnabled("TAB") || pm.isPluginEnabled("FancyHolograms")) {
+            GlobalPointsLeaderboard.startUpdateTask();
+        }
+
         taskChainFactory = BukkitTaskChainFactory.create(this);
 
         // Initialize optional subsystems
@@ -168,7 +174,7 @@ public class TimingSystem extends JavaPlugin {
 
         // Small check to make sure that PlaceholderAPI is installed
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new TimingSystemPlaceholder(this).register();
+            new TimingSystemPlaceholder().register();
             ApiUtilities.msgConsole("PlaceholderAPI registered.");
         }
 

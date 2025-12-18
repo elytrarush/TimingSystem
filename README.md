@@ -29,6 +29,21 @@ First of all you need a Minecraft server running [Paper](https://papermc.io). Th
 - [TimingSystemRESTApi](https://github.com/JustBru00/TimingSystemRESTApi) - Adds a basic JSON REST API to the TimingSystem plugin.
 - [TimingSystemBlueMap](https://github.com/JustBru00/TimingSystemBlueMap) - Adds TimingSystem track locations to [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap).
 
+## TAB below-name: Global rank
+
+TimingSystem exposes PlaceholderAPI placeholders you can use in TAB's below-name feature:
+
+- `%timingsystem_global_rank%` (1 = best, `-` = unranked)
+- `%timingsystem_global_points%`
+
+Example `TAB/config.yml`:
+
+```yml
+belowname:
+	enabled: true
+	value: "&6Rank &f#%timingsystem_global_rank%"
+```
+
 ## For Developers
 
 Export the plugin directly into your local developement server:
