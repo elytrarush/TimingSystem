@@ -27,7 +27,7 @@ public final class CheaterManager {
                 try {
                     UUID uuid = UUID.fromString(uuidStr);
                     String reason = row.getString("reason");
-                    CHEATERS.put(uuid, reason);
+                    CHEATERS.put(uuid, reason == null ? "" : reason);
                 } catch (IllegalArgumentException ignored) {
                     // skip invalid UUIDs
                 }
@@ -52,18 +52,20 @@ public final class CheaterManager {
     public static void ban(UUID uuid, String reason) {
         if (uuid == null) return;
 
+        String safeReason = reason == null ? "" : reason;
+
         // Persist
         try {
             if (TimingSystem.getDatabase() instanceof me.makkuusen.timing.system.database.SQLiteDatabase) {
-                DB.executeUpdate("INSERT OR REPLACE INTO `cheaters` (`uuid`, `reason`) VALUES(?, ?);", uuid.toString(), reason);
+                DB.executeUpdate("INSERT OR REPLACE INTO `cheaters` (`uuid`, `reason`) VALUES(?, ?);", uuid.toString(), safeReason);
             } else {
-                DB.executeUpdate("INSERT INTO `cheaters` (`uuid`, `reason`) VALUES(?, ?) ON DUPLICATE KEY UPDATE `reason` = VALUES(`reason`);", uuid.toString(), reason);
+                DB.executeUpdate("INSERT INTO `cheaters` (`uuid`, `reason`) VALUES(?, ?) ON DUPLICATE KEY UPDATE `reason` = VALUES(`reason`);", uuid.toString(), safeReason);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        CHEATERS.put(uuid, reason);
+        CHEATERS.put(uuid, safeReason);
     }
 
     public static void unban(UUID uuid) {

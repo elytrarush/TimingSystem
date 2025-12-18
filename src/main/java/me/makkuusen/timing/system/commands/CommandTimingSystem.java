@@ -40,7 +40,7 @@ import java.util.UUID;
 public class CommandTimingSystem extends BaseCommand {
 
     @Subcommand("ban")
-    @CommandCompletion("@players <reason>")
+    @CommandCompletion("@ts_players <reason>")
     @CommandPermission("%permissiontimingsystem_ban")
     public static void onBan(CommandSender sender, String targetName, @Optional @Single String reason) {
         // if (sender instanceof Player p && !p.isOp()) {
@@ -79,7 +79,7 @@ public class CommandTimingSystem extends BaseCommand {
     }
 
     @Subcommand("unban")
-    @CommandCompletion("@players")
+    @CommandCompletion("@ts_players")
     @CommandPermission("%permissiontimingsystem_ban")
     public static void onUnban(CommandSender sender, String targetName) {
         // if (sender instanceof Player p && !p.isOp()) {
