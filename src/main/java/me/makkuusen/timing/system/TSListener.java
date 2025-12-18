@@ -424,11 +424,12 @@ public class TSListener implements Listener {
                 TimeTrialController.playerLeavingMap(player.getUniqueId());
             } else if (!player.isGliding() && track.getTrackOptions().hasOption(TrackOption.FORCE_ELYTRA)) {
                 Text.send(player, Error.STOPPED_FLYING);
-                TimeTrialController.playerLeavingMap(player.getUniqueId());
-                // Auto teleport to course start if setting is enabled
                 TPlayer tPlayer = TSDatabase.getPlayer(player.getUniqueId());
+                TimeTrialController.lastTimeTrialTrack.put(player.getUniqueId(), track);
+                TimeTrialController.playerLeavingMap(player.getUniqueId());
+
                 if (tPlayer.getSettings().isAutoTpOnStopFlying()) {
-                    timeTrial.playerResetMap();
+                    ApiUtilities.resetPlayerTimeTrial(player);
                 }
             } else if (!player.getActivePotionEffects().isEmpty() && track.getTrackOptions().hasOption(TrackOption.NO_POTION_EFFECTS)) {
                 Text.send(player, Error.NO_POTION_EFFECTS);
