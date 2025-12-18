@@ -6,13 +6,19 @@ import me.makkuusen.timing.system.event.EventAnnouncements;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.theme.Theme;
+import me.makkuusen.timing.system.track.regions.TrackRegion;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Location;
 
 import java.time.Duration;
 
 public class QualifyHeat {
 
     public static boolean passQualyLap(Driver driver) {
+        return passQualyLap(driver, null, null, null);
+    }
+
+    public static boolean passQualyLap(Driver driver, Location from, Location to, TrackRegion region) {
         if (driver.getHeat().getHeatState() != HeatState.RACING) {
             return false;
         }
@@ -35,18 +41,18 @@ public class QualifyHeat {
             return true;
         }
 
-        driver.passLap();
+        driver.passLap(from, to, region);
         return true;
     }
 
     public static Component getBestLapDelta(Theme theme, Lap finishedLap, Lap personalBest) {
         if (finishedLap != null && personalBest != null) {
-            if (personalBest.getLapTime() < finishedLap.getLapTime()) {
-                return Component.text(" +" + ApiUtilities.formatAsPersonalGap(finishedLap.getLapTime() - personalBest.getLapTime())).color(theme.getError());
-            } else if (personalBest.getLapTime() == finishedLap.getLapTime()){
-                return Component.text(" -" + ApiUtilities.formatAsPersonalGap(personalBest.getLapTime() - finishedLap.getLapTime())).color(theme.getWarning());
-            }else {
-                return Component.text(" -" + ApiUtilities.formatAsPersonalGap(personalBest.getLapTime() - finishedLap.getLapTime())).color(theme.getSuccess());
+            if (personalBest.getPreciseLapTime() < finishedLap.getPreciseLapTime()) {
+                return Component.text(" +" + ApiUtilities.formatAsPersonalGap(finishedLap.getPreciseLapTime() - personalBest.getPreciseLapTime())).color(theme.getError());
+            } else if (personalBest.getPreciseLapTime() == finishedLap.getPreciseLapTime()) {
+                return Component.text(" =" + ApiUtilities.formatAsPersonalGap(personalBest.getPreciseLapTime() - finishedLap.getPreciseLapTime())).color(theme.getWarning());
+            } else {
+                return Component.text(" -" + ApiUtilities.formatAsPersonalGap(personalBest.getPreciseLapTime() - finishedLap.getPreciseLapTime())).color(theme.getSuccess());
             }
         }
 
@@ -58,11 +64,11 @@ public class QualifyHeat {
             if (driver.getBestLap().isPresent() && driver.getBestLap().get().getCheckpointTime(latestCheckpoint) != null) {
                 var bestCheckpoint = Duration.between(driver.getBestLap().get().getLapStart(), driver.getBestLap().get().getCheckpointTime(latestCheckpoint)).toMillis();
                 var currentCheckpoint = Duration.between(driver.getCurrentLap().getLapStart(), driver.getCurrentLap().getCheckpointTime(latestCheckpoint)).toMillis();
-                if (ApiUtilities.getRoundedToTick(bestCheckpoint) < ApiUtilities.getRoundedToTick(currentCheckpoint)) {
+                if (bestCheckpoint < currentCheckpoint) {
                     return " " + "&e+" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - bestCheckpoint);
-                } else if (ApiUtilities.getRoundedToTick(bestCheckpoint) == ApiUtilities.getRoundedToTick(currentCheckpoint)) {
-                    return " " + "&w-" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - bestCheckpoint);
-                }else {
+                } else if (bestCheckpoint == currentCheckpoint) {
+                    return " " + "&w=" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - bestCheckpoint);
+                } else {
                     return " " + "&s-" + ApiUtilities.formatAsPersonalGap(bestCheckpoint - currentCheckpoint);
                 }
             }

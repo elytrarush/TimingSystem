@@ -266,7 +266,7 @@ public class ApiUtilities {
 
     public static String formatAsTime(long time) {
         String toReturn;
-        long timeInMillis = getRoundedToTick(time);
+        long timeInMillis = time;
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
@@ -381,11 +381,10 @@ public class ApiUtilities {
 
     public static String formatAsRacingGap(long time) {
         String toReturn;
-        long timeInMillis = getRoundedToTick(time);
-        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
-        String millis = String.format("%02d", (timeInMillis % 1000) / 10);
+        long hours = TimeUnit.MILLISECONDS.toHours(time);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(time) % TimeUnit.HOURS.toMinutes(1);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(time) % TimeUnit.MINUTES.toSeconds(1);
+        String millis = String.format("%02d", (time % 1000) / 10);
 
         if (hours == 0 && minutes == 0) {
             toReturn = String.format("%02d", seconds) + "." + millis;
@@ -399,11 +398,10 @@ public class ApiUtilities {
 
     public static String formatAsQualificationGap(long time) {
         String toReturn;
-        long timeInMillis = getRoundedToTick(time);
-        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
-        String millis = String.format("%02d", (timeInMillis % 1000) / 10);
+        long hours = TimeUnit.MILLISECONDS.toHours(time);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(time) % TimeUnit.HOURS.toMinutes(1);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(time) % TimeUnit.MINUTES.toSeconds(1);
+        String millis = String.format("%02d", (time % 1000) / 10);
 
         if (hours == 0 && minutes == 0) {
             toReturn = String.format("%02d", seconds) + "." + millis;
@@ -417,11 +415,10 @@ public class ApiUtilities {
 
     public static String formatAsPersonalGap(long time) {
         String toReturn;
-        long timeInMillis = getRoundedToTick(time);
-        long hours = TimeUnit.MILLISECONDS.toHours(timeInMillis);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMillis) % TimeUnit.HOURS.toMinutes(1);
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeInMillis) % TimeUnit.MINUTES.toSeconds(1);
-        String millis = String.format("%02d", (timeInMillis % 1000) / 10);
+        long hours = TimeUnit.MILLISECONDS.toHours(time);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(time) % TimeUnit.HOURS.toMinutes(1);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(time) % TimeUnit.MINUTES.toSeconds(1);
+        String millis = String.format("%02d", (time % 1000) / 10);
 
         if (hours == 0 && minutes == 0) {
             toReturn = String.format("%d", seconds) + "." + millis;

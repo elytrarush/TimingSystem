@@ -66,11 +66,11 @@ public class EventAnnouncements {
                     if (oldBest.isPresent()) {
                         delta = QualifyHeat.getBestLapDelta(Theme.getTheme(player), time, oldBest.get());
                     }
-                    player.sendMessage(Text.get(player, Broadcast.EVENT_PLAYER_FASTEST_LAP, "%player%", driver.getTPlayer().getName(), "%time%", ApiUtilities.formatAsTime(time.getLapTime())).append(delta));
+                    player.sendMessage(Text.get(player, Broadcast.EVENT_PLAYER_FASTEST_LAP, "%player%", driver.getTPlayer().getName(), "%time%", ApiUtilities.formatAsTime(time.getPreciseLapTime())).append(delta));
                 }
             }
         } else {
-            broadcastAnnouncement(heat, Broadcast.EVENT_PLAYER_FASTEST_LAP, "%player%", driver.getTPlayer().getName(), "%time%", ApiUtilities.formatAsTime(time.getLapTime()));
+            broadcastAnnouncement(heat, Broadcast.EVENT_PLAYER_FASTEST_LAP, "%player%", driver.getTPlayer().getName(), "%time%", ApiUtilities.formatAsTime(time.getPreciseLapTime()));
         }
     }
 
@@ -82,7 +82,7 @@ public class EventAnnouncements {
             if (oldBest.isPresent()) {
                 delta = QualifyHeat.getBestLapDelta(Theme.getTheme(player), time, oldBest.get());
             }
-            player.sendMessage(Text.get(player, Broadcast.EVENT_PLAYER_FINISHED_QUALIFICATION_LAP, "%player%", driver.getTPlayer().getName(), "%time%", ApiUtilities.formatAsTime(time.getLapTime())).append(delta));
+            player.sendMessage(Text.get(player, Broadcast.EVENT_PLAYER_FINISHED_QUALIFICATION_LAP, "%player%", driver.getTPlayer().getName(), "%time%", ApiUtilities.formatAsTime(time.getPreciseLapTime())).append(delta));
         }
     }
 
@@ -102,7 +102,7 @@ public class EventAnnouncements {
 
                 int pos = 1;
                 for (Driver d : drivers) {
-                    player.sendMessage(Text.get(player, "&1" + pos++ + ". &2" + d.getTPlayer().getName() + "&1 - &2" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "-")));
+                    player.sendMessage(Text.get(player, "&1" + pos++ + ". &2" + d.getTPlayer().getName() + "&1 - &2" + (d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getPreciseLapTime()) : "-")));
                 }
             }
         }

@@ -98,7 +98,7 @@ public class Tasks {
                 }
             }
 
-        }, 5, 3);
+        }, 5, 1);
     }
 
     public void generateTotalTime(TimingSystem plugin) {
@@ -226,7 +226,15 @@ public class Tasks {
         }
 
         long mapTime = timeTrial.getCurrentTime();
-        Component timer = Component.text(ApiUtilities.formatAsTime(mapTime));
+        String timerTime = ApiUtilities.formatAsTime(mapTime);
+        int decimalIndex = timerTime.indexOf('.');
+        String timerTime1;
+        if (decimalIndex != -1 && decimalIndex + 3 <= timerTime.length()) {
+            timerTime1 = timerTime.substring(0, decimalIndex + 3);
+        } else {
+            timerTime1 = timerTime;
+        }
+        Component timer = Component.text(timerTime1);
         Theme theme = tPlayer.getTheme();
         boolean altHud = tPlayer.getSettings().isAlternativeHud();
 

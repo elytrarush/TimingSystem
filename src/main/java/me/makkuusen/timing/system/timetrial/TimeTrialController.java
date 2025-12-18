@@ -23,7 +23,7 @@ public class TimeTrialController {
             return;
         }
         var timeTrial = TimeTrialController.timeTrials.get(uuid);
-        var time = ApiUtilities.getRoundedToTick(timeTrial.getTimeSinceStart(TimingSystem.currentTime));
+        var time = timeTrial.getTimeSinceStart(TimingSystem.currentTime);
         if (time > 1000) {
             var attempt = timeTrial.getTrack().getTimeTrials().newAttempt(time, uuid);
             var eventTimeTrialAttempt = new TimeTrialAttemptEvent(Bukkit.getPlayer(uuid), attempt);
@@ -39,7 +39,7 @@ public class TimeTrialController {
             return;
         }
         var timeTrial = TimeTrialController.timeTrials.get(player.getUniqueId());
-        var time = ApiUtilities.getRoundedToTick(timeTrial.getTimeSinceStart(TimingSystem.currentTime));
+        var time = timeTrial.getTimeSinceStart(TimingSystem.currentTime);
         if (time > 1000) {
             var attempt = timeTrial.getTrack().getTimeTrials().newAttempt(time, player.getUniqueId());
             var eventTimeTrialAttempt = new TimeTrialAttemptEvent(player, attempt);

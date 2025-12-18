@@ -129,7 +129,7 @@ public class CommandHeat extends BaseCommand {
 
         if (heat.getFastestLapUUID() != null) {
             Driver d = heat.getDrivers().get(heat.getFastestLapUUID());
-            player.sendMessage(Text.get(player, Info.HEAT_INFO_FASTEST_LAP, "%time%", ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()), "%player%", d.getTPlayer().getName()));
+            player.sendMessage(Text.get(player, Info.HEAT_INFO_FASTEST_LAP, "%time%", ApiUtilities.formatAsTime(d.getBestLap().get().getPreciseLapTime()), "%player%", d.getTPlayer().getName()));
         }
 
         var driverMessage = Text.get(player, Info.HEAT_INFO_DRIVERS);
@@ -670,10 +670,10 @@ public class CommandHeat extends BaseCommand {
             Text.send(sender, Info.PLAYER_HEAT_RESULT_START_POSITION, "%pos%", String.valueOf(driver.getStartPosition()));
 
             var maybeBestLap = driver.getBestLap();
-            maybeBestLap.ifPresent(lap -> Text.send(sender, Info.PLAYER_HEAT_RESULT_FASTEST_LAP, "%time%", ApiUtilities.formatAsTime(lap.getLapTime())));
+            maybeBestLap.ifPresent(lap -> Text.send(sender, Info.PLAYER_HEAT_RESULT_FASTEST_LAP, "%time%", ApiUtilities.formatAsTime(lap.getPreciseLapTime())));
             int count = 1;
             for (Lap l : driver.getLaps()) {
-                String lap = "&2" + count + ": &1" + ApiUtilities.formatAsTime(l.getLapTime());
+                String lap = "&2" + count + ": &1" + ApiUtilities.formatAsTime(l.getPreciseLapTime());
                 if (l.equals(maybeBestLap.get())) {
                     lap += " &2(F)";
                 }
@@ -690,7 +690,7 @@ public class CommandHeat extends BaseCommand {
             Text.send(sender, Info.HEAT_RESULT_TITLE, "%heat%", heat.getName());
             if (heat.getFastestLapUUID() != null) {
                 Driver d = heat.getDrivers().get(heat.getFastestLapUUID());
-                var bestLap = ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime());
+                var bestLap = ApiUtilities.formatAsTime(d.getBestLap().get().getPreciseLapTime());
                 Text.send(sender, Info.HEAT_INFO_FASTEST_LAP, "%time%", bestLap, "%player%", d.getTPlayer().getName());
             }
             List<Driver> result = EventResults.generateHeatResults(heat);
@@ -701,7 +701,7 @@ public class CommandHeat extends BaseCommand {
                 }
             } else {
                 for (Driver d : result) {
-                    sender.sendMessage(theme.primary(d.getPosition() + ".").append(Component.space()).append(theme.highlight(d.getTPlayer().getName())).append(theme.hyphen()).append(theme.highlight(d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getLapTime()) : "0")));
+                    sender.sendMessage(theme.primary(d.getPosition() + ".").append(Component.space()).append(theme.highlight(d.getTPlayer().getName())).append(theme.hyphen()).append(theme.highlight(d.getBestLap().isPresent() ? ApiUtilities.formatAsTime(d.getBestLap().get().getPreciseLapTime()) : "0")));
                 }
             }
         } else {

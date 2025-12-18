@@ -21,6 +21,7 @@ import me.makkuusen.timing.system.track.regions.TrackRegion;
 import me.makkuusen.timing.system.network.discord.DiscordNotifier;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Boat;
@@ -39,20 +40,21 @@ public class TimeTrial {
     @Getter
     private final Track track;
     private Instant startTime;
-    private long startDelta;
     private ArrayList<Instant> checkpoints;
-    @Getter
     private boolean lagStart = false;
     private Instant lagStartTime = null;
-    @Getter
     private boolean lagEnd = false;
     @Getter
     private TimeTrialFinish bestFinish;
 
 
     public TimeTrial(Track track, TPlayer player) {
+        this(track, player, TimingSystem.currentTime);
+    }
+
+    public TimeTrial(Track track, TPlayer player, Instant startTime) {
         this.track = track;
-        this.startTime = TimingSystem.currentTime;
+        this.startTime = startTime;
         this.checkpoints = new ArrayList<>();
         this.bestFinish = track.getTimeTrials().getBestFinish(player);
         this.tPlayer = player;
@@ -101,12 +103,12 @@ public class TimeTrial {
 
     public List<Long> getCheckpointTimes() {
         List<Long> checkpointTimes = new ArrayList<>();
-        checkpoints.forEach(checkpoint -> checkpointTimes.add(ApiUtilities.getRoundedToTick(getTimeSinceStart(checkpoint))));
+        checkpoints.forEach(checkpoint -> checkpointTimes.add(getTimeSinceStart(checkpoint)));
         return checkpointTimes;
     }
 
     public long getCurrentTime() {
-        return Duration.between(startTime, Instant.now()).toMillis();
+        return getTimeSinceStart(TimingSystem.currentTime);
     }
 
     public long getTimeSinceStart(Instant time) {
@@ -137,20 +139,36 @@ public class TimeTrial {
     public void playerPassingLagStart() {
         Player player = tPlayer.getPlayer();
         if (tPlayer.getSettings().isVerbose() && (player.isOp() || player.hasPermission("timingsystem.packs.trackadmin"))) {
-            Text.send(player, Info.TIME_TRIAL_LAG_START, "%time%", ApiUtilities.formatAsTime(ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime))));
+            Text.send(player, Info.TIME_TRIAL_LAG_START, "%time%", ApiUtilities.formatAsTime(getTimeSinceStart(TimingSystem.currentTime)));
         }
     }
 
     public void playerPassingLagEnd() {
         Player player = tPlayer.getPlayer();
         if (tPlayer.getSettings().isVerbose() && (player.isOp() || player.hasPermission("timingsystem.packs.trackadmin"))) {
-            Text.send(player, Info.TIME_TRIAL_LAG_END, "%time%", ApiUtilities.formatAsTime(ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime))));
+            Text.send(player, Info.TIME_TRIAL_LAG_END, "%time%", ApiUtilities.formatAsTime(getTimeSinceStart(TimingSystem.currentTime)));
         }
     }
 
     public void playerPassingNextCheckpoint() {
         passNextCheckpoint(TimingSystem.currentTime);
-        long timeSinceStart = ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime));
+        long timeSinceStart = getTimeSinceStart(TimingSystem.currentTime);
+        if (tPlayer.getSettings().isVerbose()) {
+            Component delta = getBestLapDelta(tPlayer.getTheme(), getLatestCheckpoint());
+            tPlayer.getPlayer().sendMessage(Text.get(tPlayer.getPlayer(), Info.TIME_TRIAL_CHECKPOINT, "%checkpoint%", String.valueOf(getLatestCheckpoint()), "%time%", ApiUtilities.formatAsTime(timeSinceStart)).append(delta));
+        }
+        ApiUtilities.msgConsole(tPlayer.getName() + " passed checkpoint " + getLatestCheckpoint() + " on " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeSinceStart));
+    }
+
+    public void playerPassingNextCheckpoint(Location from, Location to, TrackRegion checkpoint) {
+        Instant preciseTime = TimingSystem.currentTime;
+        double proportion = calculateRegionEntryProportion(from, to, checkpoint);
+        long tickDurationNanos = 50_000_000L;
+        long adjustmentNanos = (long) ((1.0 - proportion) * tickDurationNanos);
+        preciseTime = preciseTime.minusNanos(adjustmentNanos);
+
+        passNextCheckpoint(preciseTime);
+        long timeSinceStart = getTimeSinceStart(preciseTime);
         if (tPlayer.getSettings().isVerbose()) {
             Component delta = getBestLapDelta(tPlayer.getTheme(), getLatestCheckpoint());
             tPlayer.getPlayer().sendMessage(Text.get(tPlayer.getPlayer(), Info.TIME_TRIAL_CHECKPOINT, "%checkpoint%", String.valueOf(getLatestCheckpoint()), "%time%", ApiUtilities.formatAsTime(timeSinceStart)).append(delta));
@@ -163,7 +181,7 @@ public class TimeTrial {
         if (timeTrial == null) {
             return;
         }
-        var time = ApiUtilities.getRoundedToTick(getTimeSinceStart(TimingSystem.currentTime));
+        var time = getTimeSinceStart(TimingSystem.currentTime);
         if (time > 1000) {
             var attempt = getTrack().getTimeTrials().newAttempt(time, tPlayer.getUniqueId());
             var eventTimeTrialAttempt = new TimeTrialAttemptEvent(tPlayer.getPlayer(), attempt);
@@ -209,7 +227,25 @@ public class TimeTrial {
 
         boolean validFinish = validateFinish(player);
         if (validFinish) {
-            long timeTrialTime = ApiUtilities.getRoundedToTick(getTimeSinceStart(endTime));
+            long timeTrialTime = getTimeSinceStart(endTime);
+            saveAndAnnounceFinish(player, timeTrialTime);
+            ApiUtilities.msgConsole(player.getName() + " finished " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrialTime));
+        } else {
+            ReplayIntegration.getInstance().abandonAttempt(player.getUniqueId());
+        }
+        TimeTrialController.timeTrials.remove(player.getUniqueId());
+    }
+
+    public void playerEndedMap(Location from, Location to, TrackRegion endRegion) {
+        Instant preciseEndTime = TimingSystem.currentTime;
+        double proportion = calculateRegionEntryProportion(from, to, endRegion);
+        long tickDurationNanos = 50_000_000L;
+        long adjustmentNanos = (long) ((1.0 - proportion) * tickDurationNanos);
+        preciseEndTime = preciseEndTime.minusNanos(adjustmentNanos);
+
+        Player player = tPlayer.getPlayer();
+        if (validateFinish(player)) {
+            long timeTrialTime = getTimeSinceStart(preciseEndTime);
             saveAndAnnounceFinish(player, timeTrialTime);
             ApiUtilities.msgConsole(player.getName() + " finished " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrialTime));
         } else {
@@ -224,7 +260,32 @@ public class TimeTrial {
 
         boolean validFinish = validateFinish(player);
         if (validFinish){
-            long timeTrialTime = ApiUtilities.getRoundedToTick(getTimeSinceStart(endTime));
+            long timeTrialTime = getTimeSinceStart(endTime);
+            saveAndAnnounceFinish(player, timeTrialTime);
+            ApiUtilities.msgConsole(player.getName() + " finished " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrialTime));
+        } else {
+            ReplayIntegration.getInstance().abandonAttempt(player.getUniqueId());
+        }
+
+        if (!track.isOpen() && !tPlayer.getSettings().isOverride()) {
+            TimeTrialController.timeTrials.remove(player.getUniqueId());
+        } else {
+            resetTimeTrial();
+        }
+    }
+
+    public void playerRestartMap(Location from, Location to, TrackRegion startRegion) {
+        Instant preciseEndTime = TimingSystem.currentTime;
+        double proportion = calculateRegionEntryProportion(from, to, startRegion);
+        long tickDurationNanos = 50_000_000L;
+        long adjustmentNanos = (long) ((1.0 - proportion) * tickDurationNanos);
+        preciseEndTime = preciseEndTime.minusNanos(adjustmentNanos);
+
+        Player player = tPlayer.getPlayer();
+
+        boolean validFinish = validateFinish(player);
+        if (validFinish) {
+            long timeTrialTime = getTimeSinceStart(preciseEndTime);
             saveAndAnnounceFinish(player, timeTrialTime);
             ApiUtilities.msgConsole(player.getName() + " finished " + track.getDisplayName() + " with a time of " + ApiUtilities.formatAsTime(timeTrialTime));
         } else {
@@ -410,9 +471,9 @@ public class TimeTrial {
                 if (getBestFinish().getDate() > getTrack().getDateChanged()) {
                     var bestCheckpoint = getBestFinish().getCheckpointTime(latestCheckpoint);
                     var currentCheckpoint = getCheckpointTime(latestCheckpoint);
-                    if (ApiUtilities.getRoundedToTick(bestCheckpoint) < ApiUtilities.getRoundedToTick(currentCheckpoint)) {
+                    if (bestCheckpoint < currentCheckpoint) {
                         return Component.text(" +" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - bestCheckpoint)).color(theme.getError());
-                    } else if (ApiUtilities.getRoundedToTick(bestCheckpoint) == ApiUtilities.getRoundedToTick(currentCheckpoint)) {
+                    } else if (bestCheckpoint == currentCheckpoint) {
                         return Component.text(" =" + ApiUtilities.formatAsPersonalGap(currentCheckpoint - bestCheckpoint)).color(theme.getWarning());
                     } else {
                         return Component.text(" -" + ApiUtilities.formatAsPersonalGap(bestCheckpoint - currentCheckpoint)).color(theme.getSuccess());
@@ -421,5 +482,31 @@ public class TimeTrial {
             }
         }
         return Component.empty();
+    }
+
+    private static double calculateRegionEntryProportion(Location from, Location to, TrackRegion region) {
+        double low = 0.0;
+        double high = 1.0;
+
+        for (int i = 0; i < 15; i++) {
+            double mid = (low + high) / 2.0;
+            Location midLocation = interpolateLocation(from, to, mid);
+
+            if (region.contains(midLocation)) {
+                high = mid;
+            } else {
+                low = mid;
+            }
+        }
+
+        return (low + high) / 2.0;
+    }
+
+    private static Location interpolateLocation(Location from, Location to, double proportion) {
+        double x = from.getX() + (to.getX() - from.getX()) * proportion;
+        double y = from.getY() + (to.getY() - from.getY()) * proportion;
+        double z = from.getZ() + (to.getZ() - from.getZ()) * proportion;
+
+        return new Location(from.getWorld(), x, y, z);
     }
 }

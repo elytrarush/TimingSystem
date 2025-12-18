@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import static me.makkuusen.timing.system.loneliness.DeltaGhostingController.checkDeltas;
 
 @Getter
 @Setter
@@ -195,6 +194,14 @@ public class Heat {
             QualifyHeat.passQualyLap(driver);
         } else {
             FinalHeat.passLap(driver);
+        }
+    }
+
+    public void passLap(Driver driver, org.bukkit.Location from, org.bukkit.Location to, me.makkuusen.timing.system.track.regions.TrackRegion region) {
+        if (round instanceof QualificationRound) {
+            QualifyHeat.passQualyLap(driver, from, to, region);
+        } else {
+            FinalHeat.passLap(driver, from, to, region);
         }
     }
 

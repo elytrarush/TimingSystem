@@ -9,6 +9,10 @@ import org.bukkit.Bukkit;
 public class FinalHeat {
 
     public static boolean passLap(Driver driver) {
+        return passLap(driver, null, null, null);
+    }
+
+    public static boolean passLap(Driver driver, org.bukkit.Location from, org.bukkit.Location to, me.makkuusen.timing.system.track.regions.TrackRegion region) {
         if (driver.getHeat().getHeatState() != HeatState.RACING) {
             return false;
         }
@@ -20,7 +24,7 @@ public class FinalHeat {
             }
             return true;
         }
-        driver.passLap();
+        driver.passLap(from, to, region);
         return true;
     }
 

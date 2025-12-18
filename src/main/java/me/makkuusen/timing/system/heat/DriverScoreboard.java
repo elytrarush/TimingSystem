@@ -1,6 +1,5 @@
 package me.makkuusen.timing.system.heat;
 
-import me.makkuusen.timing.system.api.events.BoatSpawnEvent;
 import me.makkuusen.timing.system.api.events.driver.DriverScoreboardTitleUpdateEvent;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.TimingSystem;
@@ -177,14 +176,14 @@ public class DriverScoreboard {
         }
 
         if (comparingDriver.getBestLap().isEmpty()) {
-            return ScoreboardUtils.getDriverLineQualyTime(driver.getBestLap().get().getLapTime(), driver, driver.getPosition(), compact, theme);
+            return ScoreboardUtils.getDriverLineQualyTime(driver.getBestLap().get().getPreciseLapTime(), driver, driver.getPosition(), compact, theme);
         }
 
         if (comparingDriver.equals(driver)) {
-            return ScoreboardUtils.getDriverLineQualyTime(driver.getBestLap().get().getLapTime(), driver, driver.getPosition(), compact, theme);
+            return ScoreboardUtils.getDriverLineQualyTime(driver.getBestLap().get().getPreciseLapTime(), driver, driver.getPosition(), compact, theme);
         }
 
-        long timeDiff = driver.getBestLap().get().getLapTime() - comparingDriver.getBestLap().get().getLapTime();
+        long timeDiff = driver.getBestLap().get().getPreciseLapTime() - comparingDriver.getBestLap().get().getPreciseLapTime();
         if (timeDiff < 0) {
             return ScoreboardUtils.getDriverLineNegativeQualyGap(timeDiff * -1, driver, driver.getPosition(), compact, theme);
         }

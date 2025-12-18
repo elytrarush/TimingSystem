@@ -98,6 +98,11 @@ public class Driver extends Participant implements Comparable<Driver> {
         newLap();
     }
 
+    public void passLap(Location from, Location to, TrackRegion region) {
+        finishLap(from, to, region);
+        newLap();
+    }
+
     public void passResetLap() {
         finishLap();
     }
@@ -119,7 +124,10 @@ public class Driver extends Participant implements Comparable<Driver> {
     private void finishLap() {
         var oldBest = getBestLap();
         getCurrentLap().setLapEnd(TimingSystem.currentTime);
-        boolean isFastestLap = heat.getFastestLapUUID() == null || getCurrentLap().getLapTime() < heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get().getLapTime() || getCurrentLap().equals(heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get());
+        boolean isFastestLap = heat.getFastestLapUUID() == null
+            || heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().isEmpty()
+            || getCurrentLap().getPreciseLapTime() < heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get().getPreciseLapTime()
+            || getCurrentLap().equals(heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get());
 
         if (isFastestLap) {
             EventAnnouncements.broadcastFastestLap(heat, this, getCurrentLap(), oldBest);
@@ -128,14 +136,49 @@ public class Driver extends Participant implements Comparable<Driver> {
             if (heat.getRound() instanceof QualificationRound) {
                 EventAnnouncements.broadcastQualifyingLap(heat, this, getCurrentLap(), oldBest);
             } else {
-                EventAnnouncements.broadcastLapTime(heat, this, getCurrentLap().getLapTime());
+                EventAnnouncements.broadcastLapTime(heat, this, getCurrentLap().getPreciseLapTime());
             }
         }
 
         DriverFinishLapEvent e = new DriverFinishLapEvent(this, getCurrentLap(), isFastestLap);
         e.callEvent();
 
-        ApiUtilities.msgConsole(getTPlayer().getName() + " finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getLapTime()));
+        ApiUtilities.msgConsole(getTPlayer().getName() + " finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getPreciseLapTime()));
+    }
+
+    private void finishLap(Location from, Location to, TrackRegion region) {
+        var oldBest = getBestLap();
+
+        Instant preciseEndTime = TimingSystem.currentTime;
+        if (from != null && to != null && region != null) {
+            double proportion = calculateRegionEntryProportion(from, to, region);
+            long tickDurationNanos = 50_000_000L;
+            long adjustmentNanos = (long) ((1.0 - proportion) * tickDurationNanos);
+            preciseEndTime = preciseEndTime.minusNanos(adjustmentNanos);
+        }
+
+        getCurrentLap().setLapEnd(preciseEndTime);
+
+        boolean isFastestLap = heat.getFastestLapUUID() == null
+                || heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().isEmpty()
+                || getCurrentLap().getPreciseLapTime() < heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get().getPreciseLapTime()
+                || getCurrentLap().equals(heat.getDrivers().get(heat.getFastestLapUUID()).getBestLap().get());
+
+        if (isFastestLap) {
+            EventAnnouncements.broadcastFastestLap(heat, this, getCurrentLap(), oldBest);
+            heat.setFastestLapUUID(getTPlayer().getUniqueId());
+        } else {
+            if (heat.getRound() instanceof QualificationRound) {
+                EventAnnouncements.broadcastQualifyingLap(heat, this, getCurrentLap(), oldBest);
+            } else {
+                EventAnnouncements.broadcastLapTime(heat, this, getCurrentLap().getPreciseLapTime());
+            }
+        }
+
+        DriverFinishLapEvent e = new DriverFinishLapEvent(this, getCurrentLap(), isFastestLap);
+        e.callEvent();
+
+        ApiUtilities.msgConsole(getTPlayer().getName() + " finished lap in: " + ApiUtilities.formatAsTime(getCurrentLap().getPreciseLapTime()));
     }
 
     public void resetQualyLap() {
@@ -245,12 +288,12 @@ public class Driver extends Participant implements Comparable<Driver> {
         if (getLaps().isEmpty()) {
             return Optional.empty();
         }
-        if (getLaps().get(0).getLapTime() == -1) {
+        if (getLaps().get(0).getPreciseLapTime() == -1) {
             return Optional.empty();
         }
         Lap bestLap = getLaps().get(0);
         for (Lap lap : getLaps()) {
-            if (lap.getLapTime() != -1 && lap.getLapTime() < bestLap.getLapTime()) {
+            if (lap.getPreciseLapTime() != -1 && lap.getPreciseLapTime() < bestLap.getPreciseLapTime()) {
                 bestLap = lap;
             }
         }
@@ -289,7 +332,7 @@ public class Driver extends Participant implements Comparable<Driver> {
             }
 
             // returns time-difference
-            return getBestLap().get().getLapTime() - comparingDriver.getBestLap().get().getLapTime();
+            return getBestLap().get().getPreciseLapTime() - comparingDriver.getBestLap().get().getPreciseLapTime();
         } else {
 
             if (getLaps().isEmpty()) {
@@ -344,8 +387,8 @@ public class Driver extends Participant implements Comparable<Driver> {
             return 1;
         }
 
-        var lapTime = bestLap.get().getLapTime();
-        var oLapTime = oBestLap.get().getLapTime();
+        var lapTime = bestLap.get().getPreciseLapTime();
+        var oLapTime = oBestLap.get().getPreciseLapTime();
         if (lapTime < oLapTime) {
             return -1;
         } else if (lapTime > oLapTime) {
@@ -397,5 +440,29 @@ public class Driver extends Participant implements Comparable<Driver> {
         Instant last = lap.getCheckpointTime(lap.getLatestCheckpoint());
         Instant oLast = oLap.getCheckpointTime(lap.getLatestCheckpoint());
         return last.compareTo(oLast);
+    }
+
+    private static double calculateRegionEntryProportion(Location from, Location to, TrackRegion region) {
+        double low = 0.0;
+        double high = 1.0;
+
+        for (int i = 0; i < 15; i++) {
+            double mid = (low + high) / 2.0;
+            Location midLocation = interpolateLocation(from, to, mid);
+
+            if (region.contains(midLocation)) {
+                high = mid;
+            } else {
+                low = mid;
+            }
+        }
+        return (low + high) / 2.0;
+    }
+
+    private static Location interpolateLocation(Location from, Location to, double proportion) {
+        double x = from.getX() + (to.getX() - from.getX()) * proportion;
+        double y = from.getY() + (to.getY() - from.getY()) * proportion;
+        double z = from.getZ() + (to.getZ() - from.getZ()) * proportion;
+        return new Location(from.getWorld(), x, y, z);
     }
 }
