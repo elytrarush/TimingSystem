@@ -19,6 +19,8 @@ public enum PermissionTimingSystem implements Permissions {
     COLOR_SET_HEX,
     GHOST,
     GLOBALLEADERBOARD_CREATE,
+    DISCORD_LINK,
+    DISCORD_SYNC,
     BAN;
 
     @Override

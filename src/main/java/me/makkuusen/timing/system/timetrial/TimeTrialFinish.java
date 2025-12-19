@@ -11,7 +11,7 @@ import me.makkuusen.timing.system.database.TrackDatabase;
 import me.makkuusen.timing.system.theme.Theme;
 import net.kyori.adventure.text.Component;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;

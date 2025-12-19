@@ -44,6 +44,18 @@ belowname:
 	value: "&6Rank &f#%timingsystem_global_rank%"
 ```
 
+## Discord: Link accounts + sync rank roles
+
+TimingSystem can (optionally) run a Discord bot to let players link their Discord account and automatically sync leaderboard ranks to Discord roles.
+
+- In-game: `/ts discord link` → gives a one-time code
+- In Discord: `/link <code>`
+- Roles synced:
+  - `Top10` role if the player is in global top 10
+  - `Rank #1` .. `Rank #10` role for the exact rank
+
+Configure it in `config.yml` under `discord.bot.*` (token, guildId, role IDs). The bot needs **Manage Roles** and must be above the target roles.
+
 ## For Developers
 
 Export the plugin directly into your local developement server:

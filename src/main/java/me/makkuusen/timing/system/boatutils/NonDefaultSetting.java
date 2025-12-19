@@ -1,5 +1,5 @@
 package me.makkuusen.timing.system.boatutils;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public record NonDefaultSetting(String name, Object currentValue, @Nullable Object defaultValue) {}

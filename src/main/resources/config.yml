@@ -94,3 +94,36 @@ discord:
     # Message sent when a player leaves the server
     # Available placeholders: {player}
     leaveMessage: ":red_circle: **{player}** left the server"
+
+  # Optional Discord bot (separate from webhooks): enables account linking + role syncing.
+  bot:
+    enabled: false
+    # Create a bot at https://discord.com/developers/applications and paste the token here
+    token: ""
+    # Target guild (server) ID
+    guildId: ""
+
+    # One-time link code settings
+    linkCode:
+      length: 6
+      expires: 10m
+
+    # Periodic role sync settings
+    rankSync:
+      enabled: true
+      interval: 15m
+
+    # Role IDs (right click role -> Copy Role ID)
+    # The bot needs "Manage Roles" and its highest role must be above these roles.
+    roles:
+      top10: ""
+      rank1: ""
+      rank2: ""
+      rank3: ""
+      rank4: ""
+      rank5: ""
+      rank6: ""
+      rank7: ""
+      rank8: ""
+      rank9: ""
+      rank10: ""

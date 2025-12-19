@@ -16,6 +16,7 @@ import me.makkuusen.timing.system.theme.messages.Error;
 import me.makkuusen.timing.system.theme.messages.Success;
 import me.makkuusen.timing.system.tplayer.TPlayer;
 import me.makkuusen.timing.system.track.tags.TrackTag;
+import me.makkuusen.timing.system.network.discord.bot.DiscordBotIntegration;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.command.CommandSender;
@@ -380,6 +381,66 @@ public class CommandTimingSystem extends BaseCommand {
             }
         }
         sender.sendMessage(Text.get(sender, Success.COLOR_UPDATED).color(color));
+    }
+
+    @Subcommand("discord link")
+    @CommandPermission("%permissiontimingsystem_discord_link")
+    public static void onDiscordLink(Player player) {
+        if (player == null) return;
+        if (!DiscordBotIntegration.isEnabled()) {
+            player.sendMessage("§cDiscord linking is not enabled on this server.");
+            return;
+        }
+        String code = DiscordBotIntegration.createLinkCode(player.getUniqueId());
+        if (code == null) {
+            player.sendMessage("§cFailed to create a link code. Ask an admin to check the Discord bot config.");
+            return;
+        }
+        player.sendMessage("§aTo link your Discord account, use the Discord command: §f/link " + code);
+        player.sendMessage("§7(If you already linked, this will relink your account.)");
+    }
+
+    @Subcommand("discord unlink")
+    @CommandPermission("%permissiontimingsystem_discord_link")
+    public static void onDiscordUnlink(Player player) {
+        if (player == null) return;
+        if (!DiscordBotIntegration.isEnabled()) {
+            player.sendMessage("§cDiscord linking is not enabled on this server.");
+            return;
+        }
+        boolean ok = DiscordBotIntegration.unlink(player.getUniqueId());
+        if (ok) {
+            player.sendMessage("§aUnlinked your Discord account.");
+        } else {
+            player.sendMessage("§7No Discord account linked.");
+        }
+    }
+
+    @Subcommand("discord status")
+    @CommandPermission("%permissiontimingsystem_discord_link")
+    public static void onDiscordStatus(Player player) {
+        if (player == null) return;
+        if (!DiscordBotIntegration.isEnabled()) {
+            player.sendMessage("§cDiscord linking is not enabled on this server.");
+            return;
+        }
+        Long discordId = DiscordBotIntegration.getLinkedDiscordId(player.getUniqueId());
+        if (discordId == null) {
+            player.sendMessage("§7No Discord account linked.");
+            return;
+        }
+        player.sendMessage("§aLinked Discord: §f<@" + discordId + ">");
+    }
+
+    @Subcommand("discord sync")
+    @CommandPermission("%permissiontimingsystem_discord_sync")
+    public static void onDiscordSync(CommandSender sender) {
+        if (!DiscordBotIntegration.isEnabled()) {
+            sender.sendMessage("Discord bot is not enabled.");
+            return;
+        }
+        DiscordBotIntegration.syncNow();
+        sender.sendMessage("Triggered Discord rank role sync.");
     }
 
     public static boolean isValidHexCode(String str) {

@@ -20,6 +20,7 @@ import me.makkuusen.timing.system.leaderboard.GlobalPointsLeaderboard;
 import me.makkuusen.timing.system.permissions.*;
 import me.makkuusen.timing.system.replay.ReplayIntegration;
 import me.makkuusen.timing.system.network.discord.DiscordNotifier;
+import me.makkuusen.timing.system.network.discord.bot.DiscordBotIntegration;
 import me.makkuusen.timing.system.theme.TSColor;
 import me.makkuusen.timing.system.theme.Text;
 import me.makkuusen.timing.system.theme.Theme;
@@ -151,6 +152,7 @@ public class TimingSystem extends JavaPlugin {
 
         // Initialize optional subsystems
         DiscordNotifier.enable(this);
+        DiscordBotIntegration.enable(this);
         ReplayIntegration.getInstance().enable(this);
 
         database = configuration.getDatabaseType();
@@ -257,6 +259,7 @@ public class TimingSystem extends JavaPlugin {
     @Override
     public void onDisable() {
         DiscordNotifier.disable();
+        DiscordBotIntegration.disable();
         EventDatabase.getHeats().stream().filter(Heat::isActive).forEach(Heat::onShutdown);
         logger.info("Version " + getPluginMeta().getVersion() + " disabled.");
         scoreboardLibrary.close();
