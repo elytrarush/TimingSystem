@@ -88,25 +88,35 @@ public final class GlobalPointsLeaderboard {
         Map<TPlayer, Double> points = new HashMap<>();
 
         List<Track> tracks = new ArrayList<>(TrackDatabase.tracks);
-        List<TPlayer> players = new ArrayList<>(TimingSystem.players.values());
 
         for (Track track : tracks) {
-            // Ensure cached toplists are present
-            track.getTimeTrials().getTopList(-1);
 
-            for (TPlayer p : players) {
-                if (p == null) continue;
-                UUID uuid = p.getUniqueId();
+            // Website points only consider open tracks (toggleOpen = 1).
+            if (track == null || !track.isOpen()) continue;
+            List<me.makkuusen.timing.system.timetrial.TimeTrialFinish> topList = track.getTimeTrials().getTopList(-1);
+            if (topList == null || topList.isEmpty()) continue;
+
+            int idx = 0;
+            long previousTime = Long.MIN_VALUE;
+            int previousRank = 0;
+
+            for (me.makkuusen.timing.system.timetrial.TimeTrialFinish finish : topList) {
+                if (finish == null) continue;
+                TPlayer player = finish.getPlayer();
+                if (player == null) continue;
+                UUID uuid = player.getUniqueId();
                 if (uuid == null) continue;
 
-                if (CheaterManager.isCheater(uuid)) {
-                    continue;
-                }
-                Integer pos = track.getTimeTrials().getPlayerTopListPosition(p);
-                if (pos != null && pos > 0) {
-                    double add = 1000.0 / Math.pow(pos.doubleValue(), 0.5);
-                    points.merge(p, add, Double::sum);
-                }
+                if (CheaterManager.isCheater(uuid)) continue;
+
+                idx++;
+                long time = finish.getTime();
+                int rank = (idx == 1) ? 1 : (time == previousTime ? previousRank : idx);
+                previousTime = time;
+                previousRank = rank;
+
+                double add = 1000.0 / Math.sqrt((double) rank);
+                points.merge(player, add, Double::sum);
             }
         }
 
