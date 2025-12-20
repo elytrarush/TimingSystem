@@ -21,7 +21,7 @@ import java.util.List;
 public class CommandReport extends BaseCommand {
 
     @Default
-    @CommandCompletion("@players @track")
+    @CommandCompletion("@ts_players @track")
     public static void onReport(Player reporter, String targetName, Track track) {
         if (reporter == null) {
             return;
