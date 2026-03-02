@@ -135,16 +135,17 @@ discord:
       enabled: false
       # Text channel ID where threads are created and topic is updated
       channelId: ""
-      # Update channel topic with online player count
+      # Update channel topic with online player count and names
       updateTopic: true
       # Post every map finish in the thread
       postFinishes: true
       # Highlight personal bests with a different message template
       postPersonalBests: true
       # Message templates
-      # Available placeholders: {player}, {count}, {track}, {time}, {delta}
+      # Available placeholders: {player}, {count}, {players}, {track}, {time}, {delta}
       joinMessage: ":green_circle: **{player}** joined the server"
       leaveMessage: ":red_circle: **{player}** left the server"
-      topicFormat: "Online Players: {count}"
+      topicFormat: "Online Players: {count}\n{players}"
       finishMessage: ":checkered_flag: Finished **{track}** in **{time}**"
       personalBestMessage: ":star: New PB on **{track}**: **{time}** ({delta})"
+      personalBestChannelMessage: ":star: **{player}** set a new PB on **{track}**: **{time}** ({delta})"
