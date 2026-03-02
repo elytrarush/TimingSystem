@@ -50,6 +50,7 @@ public final class DiscordBotIntegration {
     private static String topicFormatTemplate;
     private static String finishMessageTemplate;
     private static String personalBestMessageTemplate;
+    private static String personalBestChannelMessageTemplate;
     private static final ConcurrentHashMap<UUID, Long> activeThreads = new ConcurrentHashMap<>();
 
     private DiscordBotIntegration() {}
@@ -133,6 +134,8 @@ public final class DiscordBotIntegration {
             ":checkered_flag: Finished **{track}** in **{time}**");
         personalBestMessageTemplate = plugin.getConfig().getString("discord.bot.activityThreads.personalBestMessage",
             ":star: New PB on **{track}**: **{time}** ({delta})");
+        personalBestChannelMessageTemplate = plugin.getConfig().getString("discord.bot.activityThreads.personalBestChannelMessage",
+            ":star: **{player}** set a new PB on **{track}**: **{time}** ({delta})");
     }
 
     public static void disable() {
@@ -261,25 +264,40 @@ public final class DiscordBotIntegration {
         );
     }
 
-    public static void onMapFinish(UUID playerUuid, String trackName, String time, boolean isPersonalBest, String delta) {
+    public static void onMapFinish(UUID playerUuid, String playerName, String trackName, String time, boolean isPersonalBest, String delta) {
         if (!isEnabled() || !activityThreadsEnabled) return;
         if (!postFinishes && !(isPersonalBest && postPersonalBests)) return;
         JDA j = jda;
         if (j == null) return;
 
+        String deltaStr = delta == null ? "N/A" : delta;
+
+        // Post to the player's activity thread
         Long threadId = activeThreads.get(playerUuid);
-        if (threadId == null) return;
+        if (threadId != null) {
+            ThreadChannel thread = j.getThreadChannelById(threadId);
+            if (thread != null) {
+                String template = (isPersonalBest && postPersonalBests) ? personalBestMessageTemplate : finishMessageTemplate;
+                String msg = template
+                    .replace("{track}", trackName)
+                    .replace("{time}", time)
+                    .replace("{delta}", deltaStr);
+                thread.sendMessage(msg).queue(ok -> {}, err -> {});
+            }
+        }
 
-        ThreadChannel thread = j.getThreadChannelById(threadId);
-        if (thread == null) return;
-
-        String template = (isPersonalBest && postPersonalBests) ? personalBestMessageTemplate : finishMessageTemplate;
-        String msg = template
-            .replace("{track}", trackName)
-            .replace("{time}", time)
-            .replace("{delta}", delta == null ? "N/A" : delta);
-
-        thread.sendMessage(msg).queue(ok -> {}, err -> {});
+        // Also post PBs to the main channel
+        if (isPersonalBest && postPersonalBests) {
+            TextChannel channel = j.getTextChannelById(activityChannelId);
+            if (channel != null) {
+                String channelMsg = personalBestChannelMessageTemplate
+                    .replace("{player}", playerName)
+                    .replace("{track}", trackName)
+                    .replace("{time}", time)
+                    .replace("{delta}", deltaStr);
+                channel.sendMessage(channelMsg).queue(ok -> {}, err -> {});
+            }
+        }
     }
 
     private static void logActivityWarning(String message) {

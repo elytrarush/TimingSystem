@@ -422,7 +422,7 @@ public class TimeTrial {
         } catch (Exception ignored) {}
 
         // Post to player's Discord activity thread
-        DiscordBotIntegration.onMapFinish(player.getUniqueId(), track.getDisplayName(),
+        DiscordBotIntegration.onMapFinish(player.getUniqueId(), player.getName(), track.getDisplayName(),
             ApiUtilities.formatAsTime(timeTrialTime), newPersonalBest,
             oldBestTime > 0 ? ApiUtilities.formatAsPersonalGap(Math.abs(oldBestTime - timeTrialTime)) : null);
 
