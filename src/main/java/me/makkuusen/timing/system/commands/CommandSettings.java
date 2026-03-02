@@ -110,6 +110,15 @@ public class CommandSettings extends BaseCommand {
         Text.send(player, tPlayer.getSettings().isOverride() ? Success.OVERRIDE_ON : Success.OVERRIDE_OFF);
     }
 
+    @Subcommand("hidePlayers")
+    @CommandPermission("%permissiontimingsystem_settings")
+    public static void onHidePlayers(Player player) {
+        TPlayer tPlayer = TSDatabase.getPlayer(player);
+        tPlayer.getSettings().toggleHidePlayers();
+        updatePlayersVisibility(player);
+        Text.send(player, tPlayer.getSettings().isHidePlayers() ? Success.HIDE_PLAYERS_ON : Success.HIDE_PLAYERS_OFF);
+    }
+
     @Subcommand("lonely")
     @CommandPermission("%permissiontimingsystem_settings")
     public static void onLonely(Player player) {

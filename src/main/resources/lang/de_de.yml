@@ -165,6 +165,8 @@ success:
   lonely_off: "&sEinsamer Modus ist jetzt deaktiviert."
   ghosting_on: "&sSpieler unsichtbar."
   ghosting_off: "&sSpieler nicht mehr unsichtbar."
+  hide_players_on: "&sSpieler sind jetzt versteckt."
+  hide_players_off: "&sSpieler sind jetzt sichtbar."
   sound_on: "&sTon auf eingeschaltet."
   sound_off: "&sTon auf &eausgeschaltet&s."
   compact_scoreboard_on: "&sKompakte Anzeigetafel auf eingeschaltet."

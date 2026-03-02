@@ -38,6 +38,12 @@ public class LonelinessController implements Listener {
 
     public static void updatePlayersVisibility(Player player) {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            // Hide all players if the player has hidePlayers enabled
+            if (TimingSystemAPI.getTPlayer(player.getUniqueId()).getSettings().isHidePlayers()) {
+                hideAllOthers(player);
+                return;
+            }
+
             // Shows all players when not in a boat
             if (!player.isInsideVehicle()) {
                 showAllOthers(player);
@@ -195,6 +201,12 @@ public class LonelinessController implements Listener {
     }
 
     private static void processPlayerVisibilityForOther(Player targetPlayer, Player viewingPlayer) {
+        // Hide all players if the viewing player has hidePlayers enabled
+        if (TimingSystemAPI.getTPlayer(viewingPlayer.getUniqueId()).getSettings().isHidePlayers()) {
+            hidePlayerAndCustomBoat(viewingPlayer, targetPlayer);
+            return;
+        }
+
         if (!isPlayerInBoat(viewingPlayer)) {
             showPlayerAndCustomBoat(viewingPlayer, targetPlayer);
             return;

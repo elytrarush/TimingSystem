@@ -30,6 +30,7 @@ public class Settings {
     private String shortName;
     @Setter
     private boolean lonely;
+    private boolean hidePlayers;
     private boolean autoTpOnStopFlying;
 
     public Settings(TPlayer tPlayer, DbRow data) {
@@ -48,6 +49,7 @@ public class Settings {
         sendFinalLaps = getBoolean(data, "sendFinalLaps");
         shortName = data.getString("shortName") != null ? data.getString("shortName") : extractShortName(tPlayer.getName());
         lonely = false;
+        hidePlayers = getBoolean(data, "hidePlayers");
         autoTpOnStopFlying = getBooleanWithDefault(data, "autoTpOnStopFlying", true);
     }
 
@@ -123,6 +125,11 @@ public class Settings {
 
     public void toggleLonely() {
         lonely = !lonely;
+    }
+
+    public void toggleHidePlayers() {
+        hidePlayers = !hidePlayers;
+        TimingSystem.getDatabase().playerUpdateValue(uuid, "hidePlayers", hidePlayers);
     }
 
     public void toggleVerbose() {

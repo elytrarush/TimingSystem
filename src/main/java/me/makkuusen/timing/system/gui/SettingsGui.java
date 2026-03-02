@@ -109,6 +109,19 @@ public class SettingsGui extends BaseGui {
         return button;
     }
 
+    public static GuiButton getHidePlayersButton(TPlayer tPlayer) {
+        var button = new GuiButton(new ItemBuilder(Material.ENDER_EYE).setName(Text.get(tPlayer, Gui.TOGGLE_HIDE_PLAYERS)).build());
+        button.setAction(() -> {
+            tPlayer.getSettings().toggleHidePlayers();
+            if (tPlayer.getPlayer() != null) {
+                me.makkuusen.timing.system.loneliness.LonelinessController.updatePlayersVisibility(tPlayer.getPlayer());
+            }
+            PlaySound.buttonClick(tPlayer);
+            new SettingsGui(tPlayer).show(tPlayer.getPlayer());
+        });
+        return button;
+    }
+
     public static GuiButton getAutoTpOnStopFlyingButton(TPlayer tPlayer) {
         var button = new GuiButton(new ItemBuilder(Material.ELYTRA).setName(Text.get(tPlayer, Gui.TOGGLE_AUTO_TP_ON_STOP_FLYING)).build());
         button.setAction(() -> {
@@ -143,6 +156,8 @@ public class SettingsGui extends BaseGui {
         setItem(getLeaderboardCompareButton(tPlayer), 14);
         setItem(tPlayer.getSettings().isAutoTpOnStopFlying() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 6);
         setItem(getAutoTpOnStopFlyingButton(tPlayer), 15);
+        setItem(tPlayer.getSettings().isHidePlayers() ? GuiCommon.getStatusOnButton(tPlayer) : GuiCommon.getStatusOffButton(tPlayer), 7);
+        setItem(getHidePlayersButton(tPlayer), 16);
         // setItem(getColorMenuButton(tPlayer), 15);
     }
 }
