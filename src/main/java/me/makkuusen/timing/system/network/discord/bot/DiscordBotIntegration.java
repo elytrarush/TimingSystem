@@ -1,5 +1,15 @@
 package me.makkuusen.timing.system.network.discord.bot;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
+
 import me.makkuusen.timing.system.ApiUtilities;
 import me.makkuusen.timing.system.TimingSystem;
 import net.dv8tion.jda.api.JDA;
@@ -7,22 +17,16 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
-import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Optional Discord bot integration:
- * - Players link accounts via /ts discord link (MC) + /link <code> (Discord slash command)
+ * - Players link accounts via /ts discord link (MC) + /link <code> (Discord
+ * slash command)
  * - Sync Top10 + Rank #1..#10 roles based on global points leaderboard.
  */
 public final class DiscordBotIntegration {
@@ -53,7 +57,8 @@ public final class DiscordBotIntegration {
     private static String personalBestChannelMessageTemplate;
     private static final ConcurrentHashMap<UUID, Long> activeThreads = new ConcurrentHashMap<>();
 
-    private DiscordBotIntegration() {}
+    private DiscordBotIntegration() {
+    }
 
     public static void enable(TimingSystem plugin) {
         DiscordBotIntegration.plugin = plugin;
@@ -85,7 +90,8 @@ public final class DiscordBotIntegration {
         Map<Integer, Long> rankRoleIds = new HashMap<>();
         for (int r = 1; r <= 10; r++) {
             Long roleId = parseOptionalRoleId(plugin.getConfig().getString("discord.bot.roles.rank" + r, ""));
-            if (roleId != null) rankRoleIds.put(r, roleId);
+            if (roleId != null)
+                rankRoleIds.put(r, roleId);
         }
 
         links = new DiscordLinkService(plugin.getDataFolder());
@@ -94,8 +100,8 @@ public final class DiscordBotIntegration {
 
         try {
             jda = JDABuilder.createDefault(token)
-                .addEventListeners(new SlashListener())
-                .build();
+                    .addEventListeners(new SlashListener())
+                    .build();
             enabled = true;
         } catch (Exception e) {
             enabled = false;
@@ -115,7 +121,8 @@ public final class DiscordBotIntegration {
             try {
                 activityChannelId = Long.parseUnsignedLong(channelIdRaw.trim());
             } catch (Exception e) {
-                plugin.getLogger().warning("discord.bot.activityThreads.channelId is not valid; activity threads disabled.");
+                plugin.getLogger()
+                        .warning("discord.bot.activityThreads.channelId is not valid; activity threads disabled.");
                 activityThreadsEnabled = false;
             }
         } else {
@@ -125,17 +132,18 @@ public final class DiscordBotIntegration {
         postFinishes = plugin.getConfig().getBoolean("discord.bot.activityThreads.postFinishes", true);
         postPersonalBests = plugin.getConfig().getBoolean("discord.bot.activityThreads.postPersonalBests", true);
         joinMessageTemplate = plugin.getConfig().getString("discord.bot.activityThreads.joinMessage",
-            ":green_circle: **{player}** joined the server");
+                ":green_circle: **{player}** joined the server");
         leaveMessageTemplate = plugin.getConfig().getString("discord.bot.activityThreads.leaveMessage",
-            ":red_circle: **{player}** left the server");
+                ":red_circle: **{player}** left the server");
         topicFormatTemplate = plugin.getConfig().getString("discord.bot.activityThreads.topicFormat",
-            "Online Players: {count}");
+                "Online Players: {count}\n{players}");
         finishMessageTemplate = plugin.getConfig().getString("discord.bot.activityThreads.finishMessage",
-            ":checkered_flag: Finished **{track}** in **{time}**");
+                ":checkered_flag: Finished **{track}** in **{time}**");
         personalBestMessageTemplate = plugin.getConfig().getString("discord.bot.activityThreads.personalBestMessage",
-            ":star: New PB on **{track}**: **{time}** ({delta})");
-        personalBestChannelMessageTemplate = plugin.getConfig().getString("discord.bot.activityThreads.personalBestChannelMessage",
-            ":star: **{player}** set a new PB on **{track}**: **{time}** ({delta})");
+                ":star: New PB on **{track}**: **{time}** ({delta})");
+        personalBestChannelMessageTemplate = plugin.getConfig().getString(
+                "discord.bot.activityThreads.personalBestChannelMessage",
+                ":star: **{player}** set a new PB on **{track}**: **{time}** ({delta})");
     }
 
     public static void disable() {
@@ -169,19 +177,22 @@ public final class DiscordBotIntegration {
     }
 
     public static String createLinkCode(UUID uuid) {
-        if (!isEnabled() || links == null) return null;
+        if (!isEnabled() || links == null)
+            return null;
         long linkExpiresMs = getDurationMs("discord.bot.linkCode.expires", "10m");
         int linkLen = Math.max(4, Math.min(16, plugin.getConfig().getInt("discord.bot.linkCode.length", 6)));
         return links.createLinkCode(uuid, linkLen, linkExpiresMs);
     }
 
     public static Long getLinkedDiscordId(UUID uuid) {
-        if (!isEnabled() || links == null) return null;
+        if (!isEnabled() || links == null)
+            return null;
         return links.getDiscordId(uuid).orElse(null);
     }
 
     public static boolean unlink(UUID uuid) {
-        if (!isEnabled() || links == null) return false;
+        if (!isEnabled() || links == null)
+            return false;
         Long discordId = links.getDiscordId(uuid).orElse(null);
         boolean unlinked = links.unlinkByUuid(uuid);
         if (unlinked && discordId != null) {
@@ -191,20 +202,24 @@ public final class DiscordBotIntegration {
     }
 
     public static void syncNow() {
-        if (!isEnabled() || roleSync == null || links == null) return;
+        if (!isEnabled() || roleSync == null || links == null)
+            return;
         try {
             roleSync.syncAllLinked(jda, links);
         } catch (Exception e) {
-            if (plugin != null) plugin.getLogger().warning("Discord rank sync failed: " + e.getMessage());
+            if (plugin != null)
+                plugin.getLogger().warning("Discord rank sync failed: " + e.getMessage());
         }
     }
 
     // ── Activity threads ──────────────────────────────────────────────
 
     public static void onPlayerJoin(String playerName, UUID playerUuid, int onlineCount) {
-        if (!isEnabled() || !activityThreadsEnabled) return;
+        if (!isEnabled() || !activityThreadsEnabled)
+            return;
         JDA j = jda;
-        if (j == null) return;
+        if (j == null)
+            return;
 
         TextChannel channel = j.getTextChannelById(activityChannelId);
         if (channel == null) {
@@ -213,8 +228,7 @@ public final class DiscordBotIntegration {
         }
 
         if (updateTopic) {
-            String topic = topicFormatTemplate.replace("{count}", String.valueOf(onlineCount));
-            channel.getManager().setTopic(topic).queue(ok -> {}, err -> {});
+            updateChannelTopic(channel, onlineCount, null);
         }
 
         String joinMsg = joinMessageTemplate.replace("{player}", playerName);
@@ -224,51 +238,67 @@ public final class DiscordBotIntegration {
                     // Player already left before thread was created
                     String leaveMsg = leaveMessageTemplate.replace("{player}", playerName);
                     thread.sendMessage(joinMsg).queue(
-                        ok -> thread.sendMessage(leaveMsg).queue(
-                            ok2 -> thread.getManager().setArchived(true).queue(ok3 -> {}, err -> {}),
-                            err -> thread.getManager().setArchived(true).queue(ok3 -> {}, err2 -> {})
-                        ),
-                        err -> thread.getManager().setArchived(true).queue(ok3 -> {}, err2 -> {})
-                    );
+                            ok -> thread.sendMessage(leaveMsg).queue(
+                                    ok2 -> thread.getManager().setArchived(true).queue(ok3 -> {
+                                    }, err -> {
+                                    }),
+                                    err -> thread.getManager().setArchived(true).queue(ok3 -> {
+                                    }, err2 -> {
+                                    })),
+                            err -> thread.getManager().setArchived(true).queue(ok3 -> {
+                            }, err2 -> {
+                            }));
                     return;
                 }
                 activeThreads.put(playerUuid, thread.getIdLong());
-                thread.sendMessage(joinMsg).queue(ok -> {}, err -> {});
+                thread.sendMessage(joinMsg).queue(ok -> {
+                }, err -> {
+                });
             });
         }, err -> logActivityWarning("failed to create thread for " + playerName + ": " + err.getMessage()));
     }
 
     public static void onPlayerLeave(String playerName, UUID playerUuid, int onlineCount) {
-        if (!isEnabled() || !activityThreadsEnabled) return;
+        if (!isEnabled() || !activityThreadsEnabled)
+            return;
         JDA j = jda;
-        if (j == null) return;
+        if (j == null)
+            return;
 
         if (updateTopic) {
             TextChannel channel = j.getTextChannelById(activityChannelId);
             if (channel != null) {
-                String topic = topicFormatTemplate.replace("{count}", String.valueOf(onlineCount));
-                channel.getManager().setTopic(topic).queue(ok -> {}, err -> {});
+                updateChannelTopic(channel, onlineCount, playerUuid);
             }
         }
 
         Long threadId = activeThreads.remove(playerUuid);
-        if (threadId == null) return;
+        if (threadId == null)
+            return;
 
         ThreadChannel thread = j.getThreadChannelById(threadId);
-        if (thread == null) return;
+        if (thread == null)
+            return;
 
         String msg = leaveMessageTemplate.replace("{player}", playerName);
         thread.sendMessage(msg).queue(
-            ok -> thread.getManager().setArchived(true).queue(ok2 -> {}, err -> {}),
-            err -> thread.getManager().setArchived(true).queue(ok2 -> {}, err2 -> {})
-        );
+                ok -> thread.getManager().setArchived(true).queue(ok2 -> {
+                }, err -> {
+                }),
+                err -> thread.getManager().setArchived(true).queue(ok2 -> {
+                }, err2 -> {
+                }));
     }
 
-    public static void onMapFinish(UUID playerUuid, String playerName, String trackName, String time, boolean isPersonalBest, String delta) {
-        if (!isEnabled() || !activityThreadsEnabled) return;
-        if (!postFinishes && !(isPersonalBest && postPersonalBests)) return;
+    public static void onMapFinish(UUID playerUuid, String playerName, String trackName, String time,
+            boolean isPersonalBest, String delta) {
+        if (!isEnabled() || !activityThreadsEnabled)
+            return;
+        if (!postFinishes && !(isPersonalBest && postPersonalBests))
+            return;
         JDA j = jda;
-        if (j == null) return;
+        if (j == null)
+            return;
 
         String deltaStr = delta == null ? "N/A" : delta;
 
@@ -277,12 +307,15 @@ public final class DiscordBotIntegration {
         if (threadId != null) {
             ThreadChannel thread = j.getThreadChannelById(threadId);
             if (thread != null) {
-                String template = (isPersonalBest && postPersonalBests) ? personalBestMessageTemplate : finishMessageTemplate;
+                String template = (isPersonalBest && postPersonalBests) ? personalBestMessageTemplate
+                        : finishMessageTemplate;
                 String msg = template
-                    .replace("{track}", trackName)
-                    .replace("{time}", time)
-                    .replace("{delta}", deltaStr);
-                thread.sendMessage(msg).queue(ok -> {}, err -> {});
+                        .replace("{track}", trackName)
+                        .replace("{time}", time)
+                        .replace("{delta}", deltaStr);
+                thread.sendMessage(msg).queue(ok -> {
+                }, err -> {
+                });
             }
         }
 
@@ -291,21 +324,38 @@ public final class DiscordBotIntegration {
             TextChannel channel = j.getTextChannelById(activityChannelId);
             if (channel != null) {
                 String channelMsg = personalBestChannelMessageTemplate
-                    .replace("{player}", playerName)
-                    .replace("{track}", trackName)
-                    .replace("{time}", time)
-                    .replace("{delta}", deltaStr);
-                channel.sendMessage(channelMsg).queue(ok -> {}, err -> {});
+                        .replace("{player}", playerName)
+                        .replace("{track}", trackName)
+                        .replace("{time}", time)
+                        .replace("{delta}", deltaStr);
+                channel.sendMessage(channelMsg).queue(ok -> {
+                }, err -> {
+                });
             }
         }
     }
 
+    private static void updateChannelTopic(TextChannel channel, int onlineCount, UUID excludeUuid) {
+        String playerNames = Bukkit.getOnlinePlayers().stream()
+                .filter(p -> excludeUuid == null || !p.getUniqueId().equals(excludeUuid))
+                .map(Player::getName)
+                .collect(Collectors.joining(" \n"));
+        String topic = topicFormatTemplate
+                .replace("{count}", String.valueOf(onlineCount))
+                .replace("{players}", playerNames);
+        channel.getManager().setTopic(topic).queue(ok -> {
+        }, err -> {
+        });
+    }
+
     private static void logActivityWarning(String message) {
-        if (plugin != null) plugin.getLogger().warning("Discord activity threads: " + message);
+        if (plugin != null)
+            plugin.getLogger().warning("Discord activity threads: " + message);
     }
 
     private static void removeRankRoles(long discordUserId) {
-        if (!isEnabled() || roleSync == null) return;
+        if (!isEnabled() || roleSync == null)
+            return;
         try {
             roleSync.removeRankRoles(jda, discordUserId);
         } catch (Exception ignored) {
@@ -315,14 +365,17 @@ public final class DiscordBotIntegration {
     private static long getDurationMs(String path, String def) {
         String raw = plugin.getConfig().getString(path, def);
         Integer ms = raw == null ? null : ApiUtilities.parseDurationToMillis(raw);
-        if (ms == null) ms = ApiUtilities.parseDurationToMillis(def);
+        if (ms == null)
+            ms = ApiUtilities.parseDurationToMillis(def);
         return ms == null ? 900_000L : ms.longValue();
     }
 
     private static Long parseOptionalRoleId(String raw) {
-        if (raw == null) return null;
+        if (raw == null)
+            return null;
         String t = raw.trim();
-        if (t.isEmpty()) return null;
+        if (t.isEmpty())
+            return null;
         try {
             return Long.parseUnsignedLong(t);
         } catch (Exception e) {
@@ -334,31 +387,38 @@ public final class DiscordBotIntegration {
 
         @Override
         public void onReady(ReadyEvent event) {
-            if (configuredGuildId == 0L) return;
+            if (configuredGuildId == 0L)
+                return;
 
             Guild guild = event.getJDA().getGuildById(configuredGuildId);
             if (guild == null) {
-                if (plugin != null) plugin.getLogger().warning("Discord bot: guildId not found (is the bot in the server?).");
+                if (plugin != null)
+                    plugin.getLogger().warning("Discord bot: guildId not found (is the bot in the server?).");
                 return;
             }
 
             guild.updateCommands().addCommands(
-                Commands.slash("link", "Link your Minecraft account").addOption(OptionType.STRING, "code", "One-time code from /ts discord link", true),
-                Commands.slash("unlink", "Unlink your Minecraft account")
-            ).queue(
-                ok -> {},
-                err -> {
-                    if (plugin != null) plugin.getLogger().warning("Discord bot: failed to register slash commands: " + err.getMessage());
-                }
-            );
+                    Commands.slash("link", "Link your Minecraft account").addOption(OptionType.STRING, "code",
+                            "One-time code from /ts discord link", true),
+                    Commands.slash("unlink", "Unlink your Minecraft account")).queue(
+                            ok -> {
+                            },
+                            err -> {
+                                if (plugin != null)
+                                    plugin.getLogger().warning(
+                                            "Discord bot: failed to register slash commands: " + err.getMessage());
+                            });
         }
 
         @Override
         public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-            if (event.getUser().isBot()) return;
-            if (links == null) return;
+            if (event.getUser().isBot())
+                return;
+            if (links == null)
+                return;
 
-            if (configuredGuildId != 0L && (event.getGuild() == null || event.getGuild().getIdLong() != configuredGuildId)) {
+            if (configuredGuildId != 0L
+                    && (event.getGuild() == null || event.getGuild().getIdLong() != configuredGuildId)) {
                 event.reply("This command can only be used in the configured server.").setEphemeral(true).queue();
                 return;
             }
@@ -373,7 +433,8 @@ public final class DiscordBotIntegration {
 
                         Bukkit.getScheduler().runTask(plugin, () -> {
                             Player p = Bukkit.getPlayer(uuid);
-                            if (p != null) p.sendMessage("§aDiscord linked successfully.");
+                            if (p != null)
+                                p.sendMessage("§aDiscord linked successfully.");
                         });
 
                         // Sync roles immediately
