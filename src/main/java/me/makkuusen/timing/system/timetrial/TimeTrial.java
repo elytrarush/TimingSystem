@@ -19,6 +19,7 @@ import me.makkuusen.timing.system.track.Track;
 import me.makkuusen.timing.system.track.medals.Medals;
 import me.makkuusen.timing.system.track.regions.TrackRegion;
 import me.makkuusen.timing.system.network.discord.DiscordNotifier;
+import me.makkuusen.timing.system.network.discord.bot.DiscordBotIntegration;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -338,6 +339,7 @@ public class TimeTrial {
         Component medalMessage = null;
         TimeTrialFinish finish;
         boolean newPersonalBest = false;
+        long oldBestTime = (bestFinish != null) ? bestFinish.getTime() : -1;
         // Capture track top time before potentially inserting a new best for this player
         Long beforeTopTime = null;
         try {
@@ -418,6 +420,11 @@ public class TimeTrial {
                 }
             }
         } catch (Exception ignored) {}
+
+        // Post to player's Discord activity thread
+        DiscordBotIntegration.onMapFinish(player.getUniqueId(), track.getDisplayName(),
+            ApiUtilities.formatAsTime(timeTrialTime), newPersonalBest,
+            oldBestTime > 0 ? ApiUtilities.formatAsPersonalGap(Math.abs(oldBestTime - timeTrialTime)) : null);
 
         player.sendMessage(finishMessage);
         if (TimingSystem.configuration.isMedalsAddOnEnabled() && medalMessage != null) {

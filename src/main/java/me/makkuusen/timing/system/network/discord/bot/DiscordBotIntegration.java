@@ -5,6 +5,8 @@ import me.makkuusen.timing.system.TimingSystem;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -16,6 +18,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Optional Discord bot integration:
@@ -35,6 +38,19 @@ public final class DiscordBotIntegration {
     private static volatile long configuredGuildId;
 
     private static BukkitTask syncTask;
+
+    // Activity threads
+    private static volatile boolean activityThreadsEnabled;
+    private static volatile long activityChannelId;
+    private static boolean updateTopic;
+    private static boolean postFinishes;
+    private static boolean postPersonalBests;
+    private static String joinMessageTemplate;
+    private static String leaveMessageTemplate;
+    private static String topicFormatTemplate;
+    private static String finishMessageTemplate;
+    private static String personalBestMessageTemplate;
+    private static final ConcurrentHashMap<UUID, Long> activeThreads = new ConcurrentHashMap<>();
 
     private DiscordBotIntegration() {}
 
@@ -90,6 +106,33 @@ public final class DiscordBotIntegration {
             long ticks = Math.max(20L, rankSyncIntervalMs / 50L);
             syncTask = Bukkit.getScheduler().runTaskTimer(plugin, DiscordBotIntegration::syncNow, 20L * 30L, ticks);
         }
+
+        // Activity threads config
+        activityThreadsEnabled = plugin.getConfig().getBoolean("discord.bot.activityThreads.enabled", false);
+        String channelIdRaw = plugin.getConfig().getString("discord.bot.activityThreads.channelId", "");
+        if (activityThreadsEnabled && channelIdRaw != null && !channelIdRaw.isBlank()) {
+            try {
+                activityChannelId = Long.parseUnsignedLong(channelIdRaw.trim());
+            } catch (Exception e) {
+                plugin.getLogger().warning("discord.bot.activityThreads.channelId is not valid; activity threads disabled.");
+                activityThreadsEnabled = false;
+            }
+        } else {
+            activityThreadsEnabled = false;
+        }
+        updateTopic = plugin.getConfig().getBoolean("discord.bot.activityThreads.updateTopic", true);
+        postFinishes = plugin.getConfig().getBoolean("discord.bot.activityThreads.postFinishes", true);
+        postPersonalBests = plugin.getConfig().getBoolean("discord.bot.activityThreads.postPersonalBests", true);
+        joinMessageTemplate = plugin.getConfig().getString("discord.bot.activityThreads.joinMessage",
+            ":green_circle: **{player}** joined the server");
+        leaveMessageTemplate = plugin.getConfig().getString("discord.bot.activityThreads.leaveMessage",
+            ":red_circle: **{player}** left the server");
+        topicFormatTemplate = plugin.getConfig().getString("discord.bot.activityThreads.topicFormat",
+            "Online Players: {count}");
+        finishMessageTemplate = plugin.getConfig().getString("discord.bot.activityThreads.finishMessage",
+            ":checkered_flag: Finished **{track}** in **{time}**");
+        personalBestMessageTemplate = plugin.getConfig().getString("discord.bot.activityThreads.personalBestMessage",
+            ":star: New PB on **{track}**: **{time}** ({delta})");
     }
 
     public static void disable() {
@@ -100,6 +143,10 @@ public final class DiscordBotIntegration {
             syncTask.cancel();
             syncTask = null;
         }
+
+        activeThreads.clear();
+        activityThreadsEnabled = false;
+        activityChannelId = 0L;
 
         if (jda != null) {
             try {
@@ -147,6 +194,96 @@ public final class DiscordBotIntegration {
         } catch (Exception e) {
             if (plugin != null) plugin.getLogger().warning("Discord rank sync failed: " + e.getMessage());
         }
+    }
+
+    // ── Activity threads ──────────────────────────────────────────────
+
+    public static void onPlayerJoin(String playerName, UUID playerUuid, int onlineCount) {
+        if (!isEnabled() || !activityThreadsEnabled) return;
+        JDA j = jda;
+        if (j == null) return;
+
+        TextChannel channel = j.getTextChannelById(activityChannelId);
+        if (channel == null) {
+            logActivityWarning("channel not found (" + activityChannelId + ")");
+            return;
+        }
+
+        if (updateTopic) {
+            String topic = topicFormatTemplate.replace("{count}", String.valueOf(onlineCount));
+            channel.getManager().setTopic(topic).queue(ok -> {}, err -> {});
+        }
+
+        String joinMsg = joinMessageTemplate.replace("{player}", playerName);
+        channel.createThreadChannel(playerName, false).queue(thread -> {
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (Bukkit.getPlayer(playerUuid) == null) {
+                    // Player already left before thread was created
+                    String leaveMsg = leaveMessageTemplate.replace("{player}", playerName);
+                    thread.sendMessage(joinMsg).queue(
+                        ok -> thread.sendMessage(leaveMsg).queue(
+                            ok2 -> thread.getManager().setArchived(true).queue(ok3 -> {}, err -> {}),
+                            err -> thread.getManager().setArchived(true).queue(ok3 -> {}, err2 -> {})
+                        ),
+                        err -> thread.getManager().setArchived(true).queue(ok3 -> {}, err2 -> {})
+                    );
+                    return;
+                }
+                activeThreads.put(playerUuid, thread.getIdLong());
+                thread.sendMessage(joinMsg).queue(ok -> {}, err -> {});
+            });
+        }, err -> logActivityWarning("failed to create thread for " + playerName + ": " + err.getMessage()));
+    }
+
+    public static void onPlayerLeave(String playerName, UUID playerUuid, int onlineCount) {
+        if (!isEnabled() || !activityThreadsEnabled) return;
+        JDA j = jda;
+        if (j == null) return;
+
+        if (updateTopic) {
+            TextChannel channel = j.getTextChannelById(activityChannelId);
+            if (channel != null) {
+                String topic = topicFormatTemplate.replace("{count}", String.valueOf(onlineCount));
+                channel.getManager().setTopic(topic).queue(ok -> {}, err -> {});
+            }
+        }
+
+        Long threadId = activeThreads.remove(playerUuid);
+        if (threadId == null) return;
+
+        ThreadChannel thread = j.getThreadChannelById(threadId);
+        if (thread == null) return;
+
+        String msg = leaveMessageTemplate.replace("{player}", playerName);
+        thread.sendMessage(msg).queue(
+            ok -> thread.getManager().setArchived(true).queue(ok2 -> {}, err -> {}),
+            err -> thread.getManager().setArchived(true).queue(ok2 -> {}, err2 -> {})
+        );
+    }
+
+    public static void onMapFinish(UUID playerUuid, String trackName, String time, boolean isPersonalBest, String delta) {
+        if (!isEnabled() || !activityThreadsEnabled) return;
+        if (!postFinishes && !(isPersonalBest && postPersonalBests)) return;
+        JDA j = jda;
+        if (j == null) return;
+
+        Long threadId = activeThreads.get(playerUuid);
+        if (threadId == null) return;
+
+        ThreadChannel thread = j.getThreadChannelById(threadId);
+        if (thread == null) return;
+
+        String template = (isPersonalBest && postPersonalBests) ? personalBestMessageTemplate : finishMessageTemplate;
+        String msg = template
+            .replace("{track}", trackName)
+            .replace("{time}", time)
+            .replace("{delta}", delta == null ? "N/A" : delta);
+
+        thread.sendMessage(msg).queue(ok -> {}, err -> {});
+    }
+
+    private static void logActivityWarning(String message) {
+        if (plugin != null) plugin.getLogger().warning("Discord activity threads: " + message);
     }
 
     private static void removeRankRoles(long discordUserId) {

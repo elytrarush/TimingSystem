@@ -15,6 +15,7 @@ import me.makkuusen.timing.system.heat.Lap;
 import me.makkuusen.timing.system.network.UUIDFetcher;
 import me.makkuusen.timing.system.network.UUIDFetcherCallback;
 import me.makkuusen.timing.system.network.discord.DiscordNotifier;
+import me.makkuusen.timing.system.network.discord.bot.DiscordBotIntegration;
 import me.makkuusen.timing.system.participant.Driver;
 import me.makkuusen.timing.system.participant.DriverState;
 import me.makkuusen.timing.system.round.FinalRound;
@@ -88,6 +89,7 @@ public class TSListener implements Listener {
 
         // Send Discord notification for player join
         DiscordNotifier.sendPlayerJoin(player.getName());
+        DiscordBotIntegration.onPlayerJoin(player.getName(), player.getUniqueId(), Bukkit.getOnlinePlayers().size());
 
         // Issue #51 - Check for other TPlayers that have an identical name.
         // If there is another player with the same name, but not the same UUID. We need to update that TPlayers name.
@@ -548,6 +550,7 @@ public class TSListener implements Listener {
 
         // Send Discord notification for player leave
         DiscordNotifier.sendPlayerLeave(event.getPlayer().getName());
+        DiscordBotIntegration.onPlayerLeave(event.getPlayer().getName(), event.getPlayer().getUniqueId(), Bukkit.getOnlinePlayers().size() - 1);
     }
 
     static void handleTimeTrials(PlayerMoveEvent e) {
